@@ -18,7 +18,7 @@ Two things make the artifact an *agent*:
    the SOP file that were embedded at build time.
 2. **The image config carries `org.agentrc.*` labels** — the machine-readable
    manifest of identity, capabilities, requested model, requested network,
-   resource digests, secrets-as-references, and operational requests.
+   resource digests, and operational requests.
 
 The platform reads the **labels**, never the Agentfile. See the
 [specification](/spec/) for the full label translation and the
@@ -33,7 +33,7 @@ namespace catalog.
 | Embedded skills | layer → `/mnt/skills/` | skill bundles (`SKILL.md` + scripts/resources) |
 | Embedded MCP bundles | layer → `/mnt/mcp/` | MCP server bundles / configs |
 | SOP file | layer → `/mnt/SOP` | the agent's system prompt / objective, as a readable file |
-| `org.agentrc.*` labels | image config | identity, capabilities, SOP pointer + digest, resource digests + `.origin`, secrets-as-references, and `POLICY`-derived requests |
+| `org.agentrc.*` labels | image config | identity, capabilities, SOP pointer + digest, resource digests + `.origin`, and `POLICY`-derived requests |
 | Provenance | registry / attestation | digests, [Sigstore](https://www.sigstore.dev/) signatures, [SLSA](https://slsa.dev/) build attestation |
 
 Resources marked `--runtime` are **not** embedded: they appear only as a
@@ -59,7 +59,7 @@ arc push  ghcr.io/org/code-reviewer:1.0
 arc pull  ghcr.io/org/code-reviewer:1.0
 ```
 
-The frontend (`# syntax=agentrc.io/agentfile:v1`) and the native `arc` CLI
+The frontend (`# syntax=agentrc.agentfile/v0.1`) and the native `arc` CLI
 produce **identical** OCI artifacts. See the [CLI page](/cli/).
 
 ## Reading the labels (review before run)
@@ -80,7 +80,6 @@ docker inspect ghcr.io/org/code-reviewer:1.0   # or: arc inspect ...
 | Which model does it request? | `org.agentrc.model.name`, `…model.min_context`, `…model.capability.*`, `…model.fallback` |
 | Which hosts does it want to reach? | `org.agentrc.network.dns.<host>=<port>` (auto-derived egress also carries `.source`) |
 | Which tools / skills / MCP servers? | `org.agentrc.tool.<name>`, `…skill.<name>`, `…mcp.<name>` (`=local`, `=<digest>`, or `=runtime:<url>`) with `.origin` |
-| Which secrets are required? | `org.agentrc.secret.<name>=<scope>` — **references only**, never values |
 | Can it spawn sub-agents, and how many? | `org.agentrc.agent.sub_agents`, `…agent.sub_agents.max` |
 | What operational limits does it request? | `org.agentrc.agent.idle_timeout`, `…agent.tool_timeout`, `org.agentrc.substrate.runtime.memory`, … |
 
@@ -89,18 +88,11 @@ honour and enforces the decision with Cedar (deny-by-default, platform-side);
 see [docs/security](/docs/security/) and the
 [platform conformance profile](/profiles/runner-conformance/).
 
-## Secrets are references, not values
+## Secrets
 
-A secret never enters the artifact. The Agentfile names it and its host scope:
-
-```text
-org.agentrc.secret.github_token=host:api.github.com
-```
-
-The value is resolved by the platform's secret broker at run time and injected,
-so the artifact is portable and safe to mirror and sign. A registry maintainer
-auditing an agent can confirm there is **no plaintext secret** anywhere in the
-layers, labels, or config — only host-scoped references.
+Secrets are **deferred** in this draft — no `SECRET`/`CRED` keyword and no
+`org.agentrc.secret.*` schema; credential resolution is platform-defined and out
+of scope for now.
 
 ## Override without rebuilding
 

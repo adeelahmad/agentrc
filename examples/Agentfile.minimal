@@ -1,10 +1,21 @@
-# syntax=agentrc.io/agentfile:v1
-# Minimal agentrc Agentfile: a Dockerfile-shaped recipe for one local agent.
-# Build with `docker build -f Agentfile .` or `arc build .`; both emit identical org.agentrc.* labels.
+# syntax=agentrc.agentfile/v0.1
+# Canonical "hello" agent — the smallest useful Agentfile. Every other example
+# extends this one. Build with `docker build -f Agentfile .` or `arc build .`.
 
-IDENTITY name=hello version=1.0 author=you
+IDENTITY name=hello version=0.1 author=acme
+IDENTITY description="Minimal AgentRC agent"
 CAPABILITY text
-SOP You are a concise local assistant. Answer in one paragraph.
+SOP You are a minimal example agent. Read a file when asked; do nothing else.
 CMD python ./agent.py
+
+# Tool (local, embedded) — projected under /mnt/tools/
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
-POLICY model.name claude-opus-4
+
+# Model + operational requests (platform grants, narrows, or rejects)
+POLICY model.name         claude-sonnet-4
+POLICY agent.tool_timeout 30s
+
+# Network egress request
+POLICY network dns:api.example.com:443
+
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/ping

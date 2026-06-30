@@ -7,7 +7,7 @@ permalink: /profiles/workflow-draft/
 # Workflow Draft
 
 **Status:** Deferred, non-normative companion sketch  
-**Version:** v1 (Working Draft) — not part of the Agentfile core  
+**Version:** 0.1.0-draft.5 (Working Draft) — not part of the Agentfile core  
 **Date:** 2026-06-30
 
 > This page is **not** part of the [Agentfile specification](/spec/). It is a
@@ -26,7 +26,7 @@ Two related but distinct things are deferred to a later version:
 1. **The A2A (agent-to-agent) protocol** — how one running agent *discovers* and
    *calls* another (Agent Cards, discovery, live cross-agent delegation, and the
    governance algebra across an agent-to-agent call). This is **out of scope for
-   v1**. Note that capability *exposure* is already in scope: an agent advertises
+   0.1.0-draft.5**. Note that capability *exposure* is already in scope: an agent advertises
    what it is and what it does through `IDENTITY`, `CAPABILITY`, and the resulting
    `org.agentrc.*` labels. What is deferred is the *protocol* for one agent to
    find and invoke another.
@@ -65,7 +65,7 @@ An ASL-inspired YAML state machine that orchestrates three packaged agents, each
 referenced by digest. This is illustrative only.
 
 ```yaml
-apiVersion: agentrc.workflow/v1
+apiVersion: agentrc.workflow/v0.1
 kind: AgentWorkflow
 metadata:
   name: claims-review-flow
@@ -125,9 +125,8 @@ control flow around those agents; it does not bypass their governance.
    own `POLICY` requests? (Expected answer: tightening-only — the workflow
    ceiling can narrow but not widen, consistent with monotonic `FROM`
    composition.)
-3. Should the workflow engine inject secrets into agents, or should each agent
-   resolve its own `org.agentrc.secret.*` references through the platform broker
-   independently?
+3. How should per-step inputs and outputs be passed between agents — by value in
+   the workflow state, or by reference to an external store?
 4. How should human-in-the-loop steps be represented as states?
 5. When the A2A protocol arrives, where is the boundary between *live agent
    delegation* (A2A, agent-to-agent) and *external orchestration of packages*

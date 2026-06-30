@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentrc.ai/schemas/agentrc-package.v1.schema.json",
   "title": "agentrc Agent Package",
-  "description": "The v1 agent package manifest, derived from the org.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
+  "description": "The agentrc (0.1.0-draft.5) agent package manifest, derived from the org.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
   "type": "object",
   "required": ["identity"],
   "additionalProperties": true,
@@ -10,7 +10,7 @@
     "agentfile_syntax": {
       "type": "string",
       "description": "The Agentfile syntax directive the package was built with.",
-      "examples": ["agentrc.io/agentfile:v1"]
+      "examples": ["agentrc.agentfile/v0.1"]
     },
     "identity": {
       "type": "object",
@@ -101,24 +101,6 @@
           { "name": "github", "kind": "mcp", "dest": "/mnt/mcp/github", "delivery": "runtime", "origin": "mcp://registry.internal.acme/servers/github:latest", "fail_mode": "fail" }
         ]
       ]
-    },
-    "secrets": {
-      "type": "array",
-      "description": "Secret references the platform broker resolves and injects at run time. Derived from org.agentrc.secret.* labels (LABEL keyword). The secret value is never in the artifact.",
-      "items": {
-        "type": "object",
-        "required": ["name"],
-        "additionalProperties": true,
-        "properties": {
-          "name": { "type": "string" },
-          "scope": {
-            "type": "string",
-            "description": "Host scope the secret is bound to.",
-            "examples": ["host:api.github.com"]
-          }
-        }
-      },
-      "examples": [[{ "name": "github_token", "scope": "host:api.github.com" }]]
     },
     "policy": {
       "type": "object",

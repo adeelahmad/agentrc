@@ -1,13 +1,13 @@
 ---
 layout: doc
 title: Specification
-description: "The agentrc Agentfile specification (v1): a Dockerfile-shaped recipe for portable, governed AI agents."
+description: "The agentrc Agentfile specification (0.1.0-draft.5): a Dockerfile-shaped recipe for portable, governed AI agents."
 permalink: /spec/
 ---
 # agentrc Agentfile Specification
 
-**Version:** v1 — Working Draft  
-**Status:** Working Draft (`# syntax=agentrc.io/agentfile:v1`)  
+**Version:** 0.1.0-draft.5 — Working Draft  
+**Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Editor:** [Adeel Ahmad](https://www.linkedin.com/in/adeelahmadch)  
 **Audience:** agent developers, platform / runner authors, security & compliance reviewers, registry maintainers, standards & interop implementers
@@ -66,17 +66,18 @@ documented extension.
 | `COPY` | Dockerfile | Add **local** tools, skills, MCP bundles, or an SOP file into the `/mnt` tree. |
 | `ADD` | Dockerfile (extended) | Add **remote** tools, skills, MCP servers, or SOP via `--remote` plus delivery flags. |
 | `HEALTHCHECK` | Dockerfile | Liveness probe; MAY invoke a projected tool. |
-| `LABEL` | Dockerfile | Standard metadata; carries secrets and any hand-authored `org.agentrc.*` metadata. |
+| `LABEL` | Dockerfile | Standard OCI metadata; available for hand-authored `org.agentrc.*` metadata. |
 | `ENV` / `ARG` / `WORKDIR` / `USER` / `EXPOSE` / `RUN` | Dockerfile | Standard semantics; available, unchanged. |
 | **`IDENTITY`** | **New** | Who / what the agent is: name, version, author, description. |
 | **`CAPABILITY`** | **New** | What modalities / patterns the agent supports (text, streaming, multimodal, …). |
 | **`SOP`** | **New** | The agent's system prompt / objective / standard operating procedure. |
 | **`POLICY`** | **New** | Typed, namespaced **request** for a resource, model, or operational constraint. |
 
-> **There is no `TOOL`, `MCP`, `SERVER`, `FUNC`, `CRED`, `MOUNT`, `MEMORY`, or
-> `RATELIMIT` keyword.** Tools / skills / MCP are added with `COPY` / `ADD`;
-> secrets are `LABEL`s; memory / context / storage / CPU / model are `POLICY`
-> requests. Any earlier draft that used those keywords is **stale**.
+> **There is no `TOOL`, `MCP`, `SERVER`, `FUNC`, `CRED`, `SECRET`, `AUDIT`,
+> `MOUNT`, `MEMORY`, or `RATELIMIT` keyword.** Tools / skills / MCP are added with
+> `COPY` / `ADD`; memory / context / storage / CPU / model are `POLICY` requests;
+> audit rides on `agent.hooks.*`; secrets are [deferred](#121-secrets-deferred).
+> Any earlier draft that used those keywords is **stale**.
 
 > **A2A (agent-to-agent: Agent Cards, discovery, delegation) is out of scope for
 > this version.** Capability *exposure* is handled via `IDENTITY` / `CAPABILITY`
@@ -488,7 +489,7 @@ detail.
 ### 10.1 BuildKit frontend (no new tool to install)
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 FROM ...
 ```
 
@@ -535,7 +536,8 @@ At deploy / run time the platform:
    against organization / platform policy and available resources, then
    **grants, narrows, or rejects** it. Rejection / narrowing SHOULD be auditable
    ([open decision #4](#142-open-decisions-surface-these-do-not-silently-resolve)).
-4. Resolves secrets named in `org.agentrc.secret.*` via the secret broker.
+4. Resolves any credential the agent references via a **platform-defined**
+   mechanism (secrets are [deferred](#121-secrets-deferred); the binding is TBD).
 5. For `--runtime` resources, fetches them now; applies `--fail-if-unavailable` /
    `--warn-if-unavailable`.
 6. May substitute embedded resources by honouring overridden `*.origin` labels.
@@ -579,7 +581,6 @@ the request namespace:
 | `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
 | `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
 | `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
-| `org.agentrc.secret.<name>` | `Action::"secret.resolve"` | `Secret::"<name>"` |
 
 **Enforcement properties a conformant platform MUST preserve** (these are
 Cedar's, and they are why Cedar is the engine):
@@ -608,21 +609,22 @@ defines platform conformance against this mapping.
 
 ## 12. Secrets and `HEALTHCHECK`
 
-### 12.1 Secrets are labels (no `CRED` keyword)
+### 12.1 Secrets (deferred)
 
-```dockerfile
-LABEL org.agentrc.secret.<name>=<scope>
-```
+Secret resolution is **out of scope for this draft** and intentionally
+unspecified. It is a subsystem in its own right (Vault, secret brokers, env
+injection, OIDC / workload identity) and will be designed separately — the
+Agentfile is **not** pre-committed to any one resolution model (no host-scoped
+broker, no fixed label schema) yet.
 
-```dockerfile
-LABEL org.agentrc.secret.github_token=host:api.github.com
-LABEL org.agentrc.secret.openai_key=host:api.openai.com
-```
+For now, an agent that needs a credential MAY reference it by name and leave
+**all** resolution to the platform / runner; the binding mechanism is TBD. See
+[§14.3](#143-deferred-to-a-later-version).
 
-The secret value is **never** in the Agentfile; the platform's broker resolves it
-at run time and injects it (a host-scoped substitution model in the spirit of
-[microsandbox](https://docs.microsandbox.dev/sandboxes/secrets)). This keeps the
-artifact portable and secret-free.
+> **Implementer note:** do not add a `SECRET` / `CRED` keyword or an
+> `org.agentrc.secret.*` label schema in this pass. Secrets are a future design
+> (Vault / broker / workload-identity integration), not a settled part of the
+> spec.
 
 ### 12.2 `HEALTHCHECK`
 
@@ -635,7 +637,7 @@ HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/ping
 ## 13. Complete worked example
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 
 # --- Base / inheritance -----------------------------------------------------
 FROM ghcr.io/acme/pii-redacted-base:1.4
@@ -675,8 +677,7 @@ ADD --remote --cached --fail-if-unavailable \
 ADD --remote --runtime --fail-if-unavailable \
     mcp://registry.internal.acme/servers/github:latest /mnt/mcp/github
 
-# --- Secrets (resolved by the platform broker at runtime) -------------------
-LABEL org.agentrc.secret.github_token=host:api.github.com
+# --- Secrets: DEFERRED — credential resolution is platform-defined (TBD, see §12.1) ---
 
 # --- Policy: model requests -------------------------------------------------
 POLICY model.name        claude-opus-4
@@ -739,7 +740,7 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 |---|---|
 | An **agent developer / adopter** | A Dockerfile-shaped recipe — four new keywords over keywords you already know — that builds with `docker build` or `arc build`. |
 | A **platform / runner author** | A labels-only contract: read `org.agentrc.*`, grant / narrow / reject, enforce with Cedar, fail closed. No need to parse the Agentfile. |
-| A **security / compliance reviewer** | One artifact whose labels state every request: tools, network, secrets-as-references, model, sub-agents — vetted before it runs. |
+| A **security / compliance reviewer** | One artifact whose labels state every request: tools, network, model, sub-agents, lifecycle — vetted before it runs. |
 | A **registry maintainer** | A standard OCI artifact with digests and `.origin` labels you can mirror, sign ([Sigstore](https://www.sigstore.dev/)), and attest ([SLSA](https://slsa.dev/)). |
 | A **standards / interop implementer** | A small grammar, a fixed label namespace, and a normative request → Cedar mapping to build against. |
 
@@ -749,8 +750,8 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 
 - **Four** new keywords: `IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`. Everything
   else is standard Dockerfile.
-- No `TOOL` / `MCP` / `SERVER` / `FUNC` / `CRED` / `MOUNT` / `MEMORY` /
-  `RATELIMIT` keywords.
+- No `TOOL` / `MCP` / `SERVER` / `FUNC` / `CRED` / `SECRET` / `AUDIT` / `MOUNT` /
+  `MEMORY` / `RATELIMIT` keywords.
 - Mount point is **`/mnt`** (`/mnt/tools`, `/mnt/skills`, `/mnt/mcp`,
   `/mnt/proc`, `/mnt/SOP`).
 - Tools / skills / MCP / SOP-file added via `COPY` (local) or `ADD --remote`
@@ -766,7 +767,12 @@ verified against the adversarial [conformance suite](/docs/conformance/).
   `agent.*`, `substrate.*`, `model.*`, `network` — all extensible.
 - Hook / interrupt URLs auto-derive an **explicit, attributed** `network` egress
   label; never a silent hole.
-- Secrets are `LABEL org.agentrc.secret.<name>=<scope>`; never inline values.
+- **Secrets are deferred** — no `SECRET` / `CRED` keyword, no
+  `org.agentrc.secret.*` schema in this pass
+  ([§12.1](#121-secrets-deferred)); credential resolution (Vault / broker /
+  workload-identity) is a future design.
+- **No `AUDIT` keyword.** Audit rides on `agent.hooks.on_tool_call` (a developer
+  sink) or a future `agent.audit` posture request — never its own keyword.
 - Embedded MCP / skills emit both digest and `.origin` labels so platforms can
   override.
 - `POLICY` is a **request**; the platform grants / narrows / rejects.
@@ -804,6 +810,10 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 
 ### 14.3 Deferred to a later version
 
+- **Secrets / credential resolution:** Vault, secret brokers, env injection,
+  OIDC / workload identity. No keyword and no label schema in this draft; the
+  Agentfile leaves credential binding entirely to the platform until this is
+  designed ([§12.1](#121-secrets-deferred)).
 - **A2A (agent-to-agent protocol):** Agent Cards, agent discovery, cross-agent
   delegation, and the governance algebra across an agent-to-agent call.
   Capability *exposure* (via `IDENTITY` / `CAPABILITY` / labels) is in this

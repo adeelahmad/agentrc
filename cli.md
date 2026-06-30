@@ -27,7 +27,7 @@ If you already have Docker / BuildKit, you need install nothing. Add the
 any image:
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 FROM python:3.11-slim
 IDENTITY name=hello version=1.0 author=you
 CAPABILITY text
@@ -62,12 +62,21 @@ agentrc pull   <ref>
 agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>]
 ```
 
-| Command | Purpose |
-|---|---|
-| `agentrc build` (`arc build`) | Compile an Agentfile to an OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources as layers. `--policy-mode inline\|digest` selects how the request set is encoded (see below). |
-| `agentrc push` (`arc push`) | Push the artifact to any OCI registry. |
-| `agentrc pull` (`arc pull`) | Pull an artifact from any OCI registry. |
-| `agentrc run` (`arc run`) | Run an artifact on a chosen substrate. `--isolation` / `--substrate` are **run-time** choices, never Agentfile directives. |
+The four **core** commands are `build`, `push`, `pull`, and `run` (spec §10);
+the rest are tooling around them. All commands are currently `planned`.
+
+| Command | Purpose | Status |
+|---|---|---|
+| `agentrc init` (`arc init`) | Scaffold a starter Agentfile. | `planned` |
+| `agentrc lint` (`arc lint`) | Check an Agentfile for keyword and request errors before building. | `planned` |
+| `agentrc lock` (`arc lock`) | Pin `ADD --remote` resources to digests for reproducible builds. | `planned` |
+| `agentrc build` (`arc build`) | **Core (§10).** Compile an Agentfile to an OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources as layers. `--policy-mode inline\|digest` selects how the request set is encoded (see below). | `planned` |
+| `agentrc inspect` (`arc inspect`) | Read an artifact's `org.agentrc.*` labels to review what an agent requests before it runs. | `planned` |
+| `agentrc sign` (`arc sign`) | Sign an artifact (Sigstore). | `planned` |
+| `agentrc verify` (`arc verify`) | Verify an artifact's signature and provenance. | `planned` |
+| `agentrc push` (`arc push`) | **Core (§10).** Push the artifact to any OCI registry. | `planned` |
+| `agentrc pull` (`arc pull`) | **Core (§10).** Pull an artifact from any OCI registry. | `planned` |
+| `agentrc run` (`arc run`) | **Core (§10).** Run an artifact on a chosen substrate. `--isolation` / `--substrate` are **run-time** choices, never Agentfile directives. | `planned` |
 
 ### `--policy-mode inline | digest`
 
@@ -115,7 +124,7 @@ org.agentrc.network.dns.api.github.com=443
 Inspect them with standard OCI tooling — `docker inspect`, `arc inspect` (in
 progress), or any registry client — to review exactly what an agent requests
 (identity, capabilities, requested model, requested egress, tools / skills / MCP
-with digests, secrets-as-references, sub-agent limits) **before** it runs.
+with digests, sub-agent limits) **before** it runs.
 
 ## Identical artifacts, two paths
 
@@ -123,8 +132,7 @@ The output of `docker build` through the frontend and the output of `arc build`
 MUST be **identical** OCI artifacts: same layers, same `org.agentrc.*` labels,
 same digest given the same inputs. The frontend and the CLI are two front doors
 to one compiler. At run time, the platform reads those labels, grants / narrows /
-rejects each request, resolves any `org.agentrc.secret.*` references via its
-broker, and enforces the grant with [Cedar, platform-side](/profiles/security/)
+rejects each request, and enforces the grant with [Cedar, platform-side](/profiles/security/)
 (deny-by-default, `forbid` over `permit`, tightening-only across `FROM`).
 
 ## In the meantime

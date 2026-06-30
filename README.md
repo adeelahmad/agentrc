@@ -6,7 +6,7 @@
 
 [**agentrc.ai**](https://agentrc.ai) · [Docs](https://agentrc.ai/docs/) · [Specification](https://agentrc.ai/spec/) · [Discord](https://discord.gg/jWx6Qak5D) · [GitHub](https://github.com/adeelahmad/agentrc)
 
-> ⚠️ **Working Draft (v1).** agentrc is an evolving specification draft, not a finished standard. Expect breaking changes.
+> ⚠️ **Working Draft (0.1.0-draft.5).** agentrc is an evolving specification draft, not a finished standard. Expect breaking changes.
 
 </div>
 
@@ -23,7 +23,7 @@ A single reviewable `Agentfile` declares:
 - **identity, capabilities, and objective** — who the agent is (`IDENTITY`), what modalities it supports (`CAPABILITY`), and its system prompt / standard operating procedure (`SOP`, embedded at `/mnt/SOP`);
 - **tools, skills, and MCP servers** — files placed into the `/mnt` tree with `COPY` (local) or `ADD --remote` (remote); the destination path determines the resource type;
 - **typed requests** — `POLICY` lines asking the platform for a model, network egress, or agent / substrate constraints (`model.*`, `network`, `agent.*`, `substrate.*`);
-- **secrets** — declared as `LABEL org.agentrc.secret.<name>=host:…`; the value never enters the artifact, and the platform broker resolves and injects it at run time;
+- **secrets** — **deferred**; this draft defines no secret keyword/schema and leaves credential resolution to the platform;
 - **packaging** — the build translates intent into `org.agentrc.*` [OCI](https://opencontainers.org/) labels; the platform reads the labels and **grants, narrows, or rejects** each request. Enforcement is **[Cedar](https://www.cedarpolicy.com/), platform-side** (deny-by-default), and Cedar is never written in the Agentfile.
 
 ## 📖 Read the docs
@@ -46,7 +46,7 @@ For LLMs: a machine-readable index is published at [`agentrc.ai/llms.txt`](https
 ## Example
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 FROM ghcr.io/acme/pii-redacted-base:1.4
 
 IDENTITY name=code-reviewer version=1.0 author=acme
@@ -64,8 +64,6 @@ COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
 ADD --remote --cached --fail-if-unavailable \
     https://registry.agentrc.io/skills/code-review:1.2.3 /mnt/skills/code-review
 
-LABEL org.agentrc.secret.github_token=host:api.github.com
-
 POLICY model.name      claude-opus-4
 POLICY model.fallback  claude-sonnet-4
 POLICY agent.tool_timeout 30s
@@ -82,7 +80,7 @@ Local preview and publishing notes are in [`README_DEV.md`](README_DEV.md).
 
 ## Acknowledgements
 
-agentrc builds on [Agent SOP](https://github.com/strands-agents/agent-sop) (an influence on the `SOP` keyword), [microsandbox](https://github.com/superradcompany/microsandbox) (host-scoped secret model → `LABEL org.agentrc.secret.*`), [UTCP](https://github.com/universal-tool-calling-protocol/utcp-specification), [MCP](https://github.com/modelcontextprotocol) (servers projected under `/mnt/mcp/`), [Cedar](https://github.com/cedar-policy/cedar) (the platform-side enforcement engine and compilation target for typed `POLICY` requests, never an author surface), [Agent Skills](https://github.com/agentskills/agentskills) (`SKILL.md` bundles under `/mnt/skills/`), [OCI](https://github.com/opencontainers) (artifact + `org.agentrc.*` labels), [Sigstore](https://github.com/sigstore), [SLSA](https://github.com/slsa-framework), [OpenTelemetry](https://github.com/open-telemetry), and [A2A](https://github.com/a2aproject/A2A) (a reference point for the deferred multi-agent workflow companion; the agent-to-agent protocol is out of scope this version). See [Acknowledgements](https://agentrc.ai/acknowledgements/).
+agentrc builds on [Agent SOP](https://github.com/strands-agents/agent-sop) (an influence on the `SOP` keyword), [microsandbox](https://github.com/superradcompany/microsandbox) (a reference for the deferred secrets design), [UTCP](https://github.com/universal-tool-calling-protocol/utcp-specification), [MCP](https://github.com/modelcontextprotocol) (servers projected under `/mnt/mcp/`), [Cedar](https://github.com/cedar-policy/cedar) (the platform-side enforcement engine and compilation target for typed `POLICY` requests, never an author surface), [Agent Skills](https://github.com/agentskills/agentskills) (`SKILL.md` bundles under `/mnt/skills/`), [OCI](https://github.com/opencontainers) (artifact + `org.agentrc.*` labels), [Sigstore](https://github.com/sigstore), [SLSA](https://github.com/slsa-framework), [OpenTelemetry](https://github.com/open-telemetry), and [A2A](https://github.com/a2aproject/A2A) (a reference point for the deferred multi-agent workflow companion; the agent-to-agent protocol is out of scope this version). See [Acknowledgements](https://agentrc.ai/acknowledgements/).
 
 ## License
 

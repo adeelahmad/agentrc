@@ -1,13 +1,13 @@
 ---
 layout: doc
 title: OCI Package
-description: "OCI Labels & Package profile (v1): the org.agentrc.* label namespace, layers, media types, policy encoding, override, and provenance for an agentrc OCI artifact."
+description: "OCI Labels & Package profile (0.1.0-draft.5): the org.agentrc.* label namespace, layers, media types, policy encoding, override, and provenance for an agentrc OCI artifact."
 permalink: /profiles/oci-package/
 ---
 # OCI Labels &amp; Package Profile
 
-**Version:** v1 — Working Draft  
-**Status:** Working Draft (`# syntax=agentrc.io/agentfile:v1`)  
+**Version:** 0.1.0-draft.5 — Working Draft  
+**Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** registry maintainers, platform / runner authors, security &amp; compliance reviewers
 
@@ -33,14 +33,14 @@ image. No proprietary registry, no special storage.
 
 > **Namespace.** The label namespace is **`org.agentrc.*`**. The legacy
 > `io.agentrc.*` / `io.agentio.*` namespaces from earlier drafts are **not used
-> in v1**; treat any occurrence as stale.
+> in 0.1.0-draft.5**; treat any occurrence as stale.
 
 ## 2. What a package contains
 
 | Part | Where it lives | Carries |
 |---|---|---|
 | **Embedded resources** | Standard image **layers** | The `/mnt` tree: `/mnt/tools/*`, `/mnt/skills/*`, `/mnt/mcp/*`, and `/mnt/SOP` for `COPY`'d / `--cached` resources. |
-| **Manifest** | Image **config labels** | The full `org.agentrc.*` label set — identity, capabilities, SOP pointer + digest, resource references, secret references, and `POLICY`-derived requests. |
+| **Manifest** | Image **config labels** | The full `org.agentrc.*` label set — identity, capabilities, SOP pointer + digest, resource references, and `POLICY`-derived requests. |
 | **Resolved policy manifest** *(optional)* | An extra **layer** | Present only under `--policy-mode digest`: a structured request manifest the labels point to by digest (see [§6](#6-policy-encoding-inline-vs-digest)). |
 
 Resources marked `--runtime` are **not** embedded as layers; only their
@@ -93,21 +93,11 @@ org.agentrc.mcp.github=sha256:abc123...
 org.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
 ```
 
-### 3.3 Secrets — references, never values
+Secrets are **deferred** in this draft — there is no `SECRET`/`CRED` keyword and
+no `org.agentrc.secret.*` schema; credential resolution is left entirely to the
+platform and is out of scope for now.
 
-```text
-org.agentrc.secret.github_token=host:api.github.com
-org.agentrc.secret.openai_key=host:api.openai.com
-```
-
-A secret label names the secret and its **host scope**. The value is **never**
-in the artifact — not in a layer, not in the config, not in a label. The
-platform's broker resolves and injects it at run time (host-scoped substitution
-in the spirit of [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets)).
-This keeps the artifact portable and secret-free, which a registry maintainer or
-reviewer can verify by inspection (see [§8](#8-review-before-run)).
-
-### 3.4 `POLICY`-derived requests
+### 3.3 `POLICY`-derived requests
 
 Each authored `POLICY <key> <value>` becomes `org.agentrc.<key>=<value>`. These
 are **requests**, not grants; the platform grants, narrows, or rejects each one
@@ -138,7 +128,7 @@ The `.source` annotation records which request produced the derived egress.
 Auto-derivation is convenience, not an implicit grant — the platform must still
 grant it.
 
-### 3.5 Namespace summary
+### 3.4 Namespace summary
 
 | Prefix | Meaning | Value form |
 |---|---|---|
@@ -147,7 +137,6 @@ grant it.
 | `org.agentrc.sop`, `org.agentrc.sop.sha256` | SOP pointer + digest. | `/mnt/SOP`, `<digest>` |
 | `org.agentrc.tool.*`, `.skill.*`, `.mcp.*` | Embedded or referenced resources. | `local` \| `<digest>` \| `runtime:<url>` |
 | `org.agentrc.tool.*.origin` (etc.) | Origin reference for an embedded resource. | `<url>` |
-| `org.agentrc.secret.*` | Secret reference + host scope. | `host:<host>` |
 | `org.agentrc.agent.*` | Agent-side operational requests. | per spec §8.1 |
 | `org.agentrc.substrate.*` | Substrate / resource requests. | per spec §8.2 |
 | `org.agentrc.model.*` | Model / capability requests. | per spec §8.3 |
@@ -250,13 +239,11 @@ vet an agent **before it ever runs**, with nothing more than `docker inspect` /
 - **Requested model** — `org.agentrc.model.*` (name, min context, capabilities, fallback).
 - **Requested network** — `org.agentrc.network.dns.*`, including `.source` for any auto-derived egress.
 - **Tools / skills / MCP** — `org.agentrc.tool.*` / `.skill.*` / `.mcp.*`, with digests and `.origin`.
-- **Secrets** — `org.agentrc.secret.*`: which secrets are needed and their host scope — **as references, never values**.
 - **Sub-agent &amp; lifecycle limits** — `org.agentrc.agent.sub_agents*`, timeouts, retries.
 
-Everything an agent *requests* is visible in the artifact; nothing it would
-*receive* (a secret value) is. The platform remains the authority that grants,
-narrows, or rejects each request and enforces via Cedar
-([Enforcement profile](/profiles/security/)).
+Everything an agent *requests* is visible in the artifact. The platform remains
+the authority that grants, narrows, or rejects each request and enforces via
+Cedar ([Enforcement profile](/profiles/security/)).
 
 ## 9. Registry operations
 
@@ -273,7 +260,7 @@ arc inspect    ghcr.io/acme/claims-triage:1.0
 docker inspect ghcr.io/acme/claims-triage:1.0
 ```
 
-The BuildKit frontend (`# syntax=agentrc.io/agentfile:v1` + `docker build`) and
+The BuildKit frontend (`# syntax=agentrc.agentfile/v0.1` + `docker build`) and
 `arc build` MUST produce **identical** OCI artifacts and labels ([spec §10](/spec/)).
 
 ## 10. Signing, provenance, and reproducibility
@@ -289,12 +276,12 @@ As a standard OCI artifact, an agent supports the usual supply-chain controls:
   and the optional policy manifest), a rebuild SHOULD yield byte-identical layers
   and labels.
 
-Because resources are content-addressed by digest and secrets are never
-embedded, the artifact is portable across registries and verifiable end to end.
+Because resources are content-addressed by digest, the artifact is portable
+across registries and verifiable end to end.
 
 ## 11. Conformance
 
-A package conforms to this profile (`agentrc/oci-labels/v1`) when:
+A package conforms to this profile (`agentrc/oci-labels/v0.1`) when:
 
 1. It is a valid OCI artifact whose embedded `/mnt` resources are carried as
    standard layers.
@@ -303,10 +290,8 @@ A package conforms to this profile (`agentrc/oci-labels/v1`) when:
 3. SOP appears only as a `/mnt/SOP` pointer + `sop.sha256` digest, never as inline
    label text.
 4. Every embedded MCP / skill carries both a digest value and an `.origin` label.
-5. No plaintext secret appears in any layer, label, or config field — only
-   `org.agentrc.secret.*` references.
-6. The request set is retrievable in the declared `--policy-mode` (inline or
+5. The request set is retrievable in the declared `--policy-mode` (inline or
    digest).
 
 See the adversarial [conformance suite](/docs/conformance/) for the
-`secret-never-in-artifact` and `embedded-override-origin` cases.
+`embedded-override-origin` case.

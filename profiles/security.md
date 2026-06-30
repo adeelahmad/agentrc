@@ -1,13 +1,13 @@
 ---
 layout: doc
 title: Enforcement (Cedar)
-description: "The agentrc Enforcement (Cedar) Profile (v1): how a platform compiles typed POLICY requests into Cedar and enforces them deny-by-default."
+description: "The agentrc Enforcement (Cedar) Profile (0.1.0-draft.5): how a platform compiles typed POLICY requests into Cedar and enforces them deny-by-default."
 permalink: /profiles/security/
 ---
 # Enforcement (Cedar) Profile
 
-**Version:** v1 — Working Draft  
-**Status:** Working Draft (`# syntax=agentrc.io/agentfile:v1`)  
+**Version:** 0.1.0-draft.5 — Working Draft  
+**Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** security & compliance reviewers, platform / runner authors
 
@@ -74,14 +74,17 @@ the request label's namespace:
 | `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
 | `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
 | `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
-| `org.agentrc.secret.<name>` | `Action::"secret.resolve"` | `Secret::"<name>"` |
 
-These six rows are the normative mapping a conformant platform MUST implement.
+These five rows are the normative mapping a conformant platform MUST implement.
 Auto-derived egress (a `network.dns.*` label derived from an `agent.hooks.*` or
 `agent.interrupt_endpoint` URL, [spec §8.5](/spec/)) maps through the
 `NetworkEgress` row exactly like an explicit `network` request — auto-derivation
 is an ergonomic convenience, **not** an implicit grant. The platform MUST still
 grant it; an un-granted auto-derived egress is denied.
+
+> Secrets are **deferred** in this draft — there is no `SECRET`/`CRED` keyword
+> and no `org.agentrc.secret.*` schema; credential resolution is left entirely to
+> the platform and is out of scope for now.
 
 ## 4. Enforcement properties a conformant platform MUST preserve
 
@@ -132,28 +135,7 @@ The effective grant is the request **evaluated against** the org ceiling. Where
 they disagree, `forbid` over `permit` and deny-by-default resolve it in favour
 of the tighter outcome.
 
-## 6. Secrets handling
-
-Secrets are declared as host-scoped `LABEL`s, never as a value in the artifact
-([spec §12.1](/spec/)):
-
-```dockerfile
-LABEL org.agentrc.secret.github_token=host:api.github.com
-```
-
-- The Agentfile **NAMES** the secret and its host scope only. The secret
-  **value MUST NOT** appear in the Agentfile, in any layer, in the image config,
-  in labels, in logs, in audit events, or in error messages — only the name and
-  scope are recorded.
-- The platform's **secret broker** resolves the named secret at run time
-  (`Action::"secret.resolve"`, §3) and injects it for the host scope it was
-  declared against (a host-scoped substitution model in the spirit of
-  [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets)).
-- A `secret.resolve` is itself subject to the grant decision: the platform may
-  refuse to resolve a secret it does not permit, and MUST fail closed (§7) if a
-  *required* secret cannot be resolved.
-
-## 7. Fail-closed behaviour
+## 6. Fail-closed behaviour
 
 A conformant platform MUST fail closed — refuse to grant, refuse to project the
 resource, or refuse to boot the agent — when it cannot uphold a required
@@ -164,19 +146,17 @@ constraint. Specifically, it MUST fail when:
 2. the compiled Cedar `PolicySet` cannot be evaluated;
 3. a required boundary (network, device, tool/MCP, sub-agent) cannot be
    enforced on the chosen substrate;
-4. a *required* secret named in `org.agentrc.secret.*` cannot be resolved by the
-   broker;
-5. a `--runtime --fail-if-unavailable` resource cannot be fetched at bootstrap
+4. a `--runtime --fail-if-unavailable` resource cannot be fetched at bootstrap
    ([spec §4.3](/spec/));
-6. an org `forbid` and an agent request would otherwise resolve to an unsafe
+5. an org `forbid` and an agent request would otherwise resolve to an unsafe
    grant.
 
 Failing closed means denying access or refusing to boot — never degrading to an
 ungoverned execution.
 
-## 8. Platform conformance requirements
+## 7. Platform conformance requirements
 
-To claim conformance to this profile (`agentrc/enforcement-cedar/v1`), a
+To claim conformance to this profile (`agentrc/enforcement-cedar/v0.1`), a
 platform MUST:
 
 1. Read authorization from `org.agentrc.*` labels only; it MUST NOT require or
@@ -188,10 +168,8 @@ platform MUST:
    a single `PolicySet` and decide under Cedar semantics.
 4. Preserve deny-by-default, order-independent `forbid` over `permit`, and
    monotonic intersection across `FROM` (§4).
-5. Resolve `org.agentrc.secret.*` only via the broker, host-scoped, never
-   exposing values (§6).
-6. Fail closed on every condition in §7.
-7. SHOULD emit an auditable record when it narrows, rejects, or substitutes a
+5. Fail closed on every condition in §6.
+6. SHOULD emit an auditable record when it narrows, rejects, or substitutes a
    request (override auditability is
    [open decision #4](/spec/); surfaced, not yet resolved).
 
