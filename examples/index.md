@@ -14,6 +14,7 @@ These examples demonstrate the intended style of agentrc declarations.
 - [Secure workspace Agentfile](/examples/Agentfile.secure-workspace)
 - [Code reviewer Agentfile](/examples/Agentfile.code-reviewer)
 - [Vault agent Agentfile](/examples/Agentfile.vault-agent)
+- [GitHub triager Agentfile](/examples/Agentfile.github-triager) — network egress + host-scoped credential injection
 - [Workflow draft YAML](/examples/agent-workflow.yaml)
 
 ## Minimal

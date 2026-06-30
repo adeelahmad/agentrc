@@ -1,0 +1,62 @@
+# syntax=agentrc.agentfile/v0.1
+
+# github-triager
+# A non-trivial example: an agent that reads new issues from a single GitHub
+# repository and drafts a triage comment. It demonstrates the parts the other
+# examples don't: outbound network egress restricted to one host, plus a
+# host-scoped credential that is injected on egress and never seen by the agent.
+
+AGENT github-triager
+CMD strands run --agent github-triager
+
+# A read-only workspace (triage rubric / comment templates) and a scratch dir.
+BIND ./workspace /workspace copy
+MOUNT /workspace ro
+MOUNT /tmp/agent rw
+
+# Capabilities: read local files + make HTTP requests to the GitHub API.
+TOOL utcp:file_read
+TOOL utcp:http_request
+
+# Network egress ceiling: GitHub API only. Everything else is denied by default.
+URL https://api.github.com
+
+# Credential: bound to api.github.com and injected as an Authorization header by
+# the broker on egress. The real token never enters the agent's environment;
+# the agent only ever holds a placeholder.
+CRED github_token env:GITHUB_TOKEN host:api.github.com inject:header
+
+AUDIT all
+
+POLICY
+  # Tools the agent may invoke.
+  permit(
+    principal == AgentRC::Agent::"github-triager",
+    action == AgentRC::Action::"tool.invoke",
+    resource in [AgentRC::Tool::"file_read", AgentRC::Tool::"http_request"]
+  );
+
+  # Egress is permitted only to the GitHub API host.
+  permit(
+    principal == AgentRC::Agent::"github-triager",
+    action == AgentRC::Action::"network.egress",
+    resource == AgentRC::Host::"api.github.com"
+  );
+
+  # The token may only be resolved for requests bound to that same host.
+  permit(
+    principal == AgentRC::Agent::"github-triager",
+    action == AgentRC::Action::"cred.resolve",
+    resource == AgentRC::Credential::"github_token"
+  )
+  when { context.host == "api.github.com" };
+
+  # Defense in depth: never resolve the credential for any other host, even if a
+  # future permit is added carelessly (deny wins).
+  forbid(
+    principal == AgentRC::Agent::"github-triager",
+    action == AgentRC::Action::"cred.resolve",
+    resource == AgentRC::Credential::"github_token"
+  )
+  when { context.host != "api.github.com" };
+END
