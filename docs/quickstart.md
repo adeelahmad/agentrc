@@ -14,8 +14,8 @@ permalink: /docs/quickstart/
 AGENT hello-local
 CMD python ./agent.py
 
-TOOL utci:file_read
-TOOL utci:current_time
+TOOL utcp:file_read
+TOOL utcp:current_time
 MOUNT /workspace ro
 AUDIT basic
 

@@ -259,6 +259,24 @@ h3 { font-size: 1.22rem; letter-spacing: -.02em; }
 .toc-card a { color: var(--muted); padding:.25rem 0; }
 .toc-card a:hover { color: var(--link-hover); text-decoration:none; }
 .doc-content { min-width:0; }
+.page-actions { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:flex-end; margin:0 0 .25rem; }
+.page-action {
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  padding:.34rem .66rem;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size:.82rem;
+  font-weight:600;
+  cursor:pointer;
+  line-height:1;
+}
+.page-action:hover { color: var(--text-strong); border-color: var(--line-strong); text-decoration:none; }
+.page-action svg { width:14px; height:14px; }
+.page-action.is-copied { color: var(--accent); border-color: var(--accent); }
 .doc-content > h1:first-child { font-size: clamp(2rem, 5vw, 3.45rem); }
 p, li { color: var(--text); }
 table { width:100%; border-collapse: collapse; margin: 1rem 0 1.5rem; overflow-x:auto; display:block; }

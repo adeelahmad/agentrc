@@ -160,7 +160,7 @@ A syntax marker MAY be carried as a comment so older parsers can ignore it:
 
 AGENT hello-local
 CMD strands run --agent hello-local
-TOOL utci:file_read
+TOOL utcp:file_read
 AUDIT basic
 
 POLICY
@@ -236,13 +236,15 @@ The command is interpreted inside the execution environment chosen by the runner
 Declares a tool capability.
 
 ```dockerfile
-TOOL utci:file_read
-TOOL utci:shell
+TOOL utcp:file_read
+TOOL utcp:shell
 TOOL strands:current_time
 TOOL mcp:github.get_issue
 ```
 
 A tool reference SHOULD identify a namespace and tool name. Tool metadata SHOULD include input schema, output schema, version, digest, risk tier, and provenance.
+
+AgentRC does not invent a tool-calling transport. Tools described and invoked through the **[Universal Tool Calling Protocol (UTCP)](https://www.utcp.io/)** use the `utcp:` namespace, and SHOULD follow the [UTCP specification](https://github.com/universal-tool-calling-protocol/utcp-specification) for their tool descriptions. Tools provided over the Model Context Protocol use the `mcp:` namespace (see §9.10).
 
 Declaring a tool does not automatically grant use of the tool unless the active security profile allows it. Under deny-by-default security, the tool must also be permitted by policy.
 
@@ -301,6 +303,8 @@ Declares an MCP dependency by logical name or registry reference.
 MCP github
 MCP registry://modelcontextprotocol/filesystem@1.0.2
 ```
+
+MCP dependencies follow the **[Model Context Protocol (MCP)](https://modelcontextprotocol.io/)** specification. AgentRC does not replace or re-specify MCP; it declares the dependency and governs it.
 
 An MCP declaration grants no ambient access. The runner must still apply policy, credentials, and network boundaries to MCP calls.
 
@@ -412,8 +416,8 @@ The default policy language is Cedar. A runner that claims Cedar support MUST ev
 Declare shorthand policy rules.
 
 ```dockerfile
-ALLOW invoke utci:file_read
-DENY invoke utci:shell
+ALLOW invoke utcp:file_read
+DENY invoke utcp:shell
 RATELIMIT file_write 20/hour
 ```
 
@@ -552,7 +556,7 @@ Optimizers are optional. A runner/compiler that does not support the optimizer M
 Declares a health probe.
 
 ```dockerfile
-HEALTHCHECK --interval=30s --timeout=5s CMD utci:ping
+HEALTHCHECK --interval=30s --timeout=5s CMD utcp:ping
 ```
 
 A runner MAY use health checks for lifecycle management. A runner that ignores health checks SHOULD report that the directive is unsupported.
@@ -576,7 +580,7 @@ Principles:
 
 ## 11. Cedar policy profile
 
-The default AgentRC policy profile is Cedar.
+The default AgentRC policy profile is **[Cedar](https://www.cedarpolicy.com/)**, the open-source authorization policy language created by AWS. AgentRC adopts Cedar's syntax and semantics as its policy lingua franca rather than defining a new policy language; policies are written in Cedar and evaluated with a Cedar-compatible evaluator.
 
 A Cedar request evaluates:
 
@@ -646,7 +650,7 @@ A lockfile SHOULD contain:
   },
   "tools": [
     {
-      "name": "utci:file_read",
+      "name": "utcp:file_read",
       "version": "1.0.0",
       "schema_hash": "sha256:...",
       "source": "registry://tools/file_read",

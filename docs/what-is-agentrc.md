@@ -42,6 +42,19 @@ AgentRC introduces one reviewable file and one portable package that make an age
 | A **platform / runner author** | Consume a neutral spec instead of inventing your own agent format. |
 | A **registry maintainer** | Distribute agents, bases, tools, and policies as signed, inspectable artifacts. |
 
+## Standards AgentRC builds on
+
+AgentRC is deliberately a thin governance layer over proven, open standards rather than a reinvention of them:
+
+| Concern | AgentRC uses | Namespace / form |
+|---|---|---|
+| **Tools** | [Universal Tool Calling Protocol (UTCP)](https://www.utcp.io/) — call tools over their native endpoints without a wrapper | `TOOL utcp:<name>` |
+| **MCP servers** | [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — the open protocol for model/tool context | `MCP <name>`, `TOOL mcp:<name>` |
+| **Policy** | [Cedar](https://www.cedarpolicy.com/) — the open authorization policy language from AWS | `POLICY … END` (Cedar syntax) |
+| **Packaging** | [OCI](https://opencontainers.org/) — content-addressed, signable artifacts | `vnd.agentrc.*` media types |
+
+AgentRC declares and governs these; it does not replace any of them.
+
 ## What AgentRC is not
 
 To stay useful to *every* runtime instead of competing with them, AgentRC deliberately does not define a runtime, a sandbox, a model API, an agent framework, a tool-call wire protocol, or a proprietary registry. See [Non-goals](/docs/non-goals/) for the full list.

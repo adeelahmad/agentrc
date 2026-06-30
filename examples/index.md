@@ -23,7 +23,7 @@ These examples demonstrate the intended style of AgentRC declarations.
 
 AGENT hello-local
 CMD python ./agent.py
-TOOL utci:file_read
+TOOL utcp:file_read
 AUDIT basic
 POLICY
   permit(

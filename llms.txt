@@ -1,0 +1,49 @@
+---
+layout: none
+permalink: /llms.txt
+sitemap: false
+---
+# {{ site.title }} — {{ site.tagline }}
+
+> {{ site.description }}
+
+AgentRC (Agent Run Config) is an open specification for declaring, packaging, securing, and sharing portable AI agents. It defines the contract an agent declares — its identity, entrypoint, tools, boundaries, and governing policy — while compatible runners decide how to execute it. AgentRC is not a runtime, sandbox, model provider, or agent framework.
+
+Every page on this site is also available as raw Markdown via the "View Markdown" link in its page actions, or directly from the repository source tree.
+
+## Start here
+
+- [What is AgentRC?]({{ '/docs/what-is-agentrc/' | absolute_url }}): Definition, the problem it solves, and why it is needed.
+- [Quickstart]({{ '/docs/quickstart/' | absolute_url }}): Write, validate, build, and publish your first Agentfile.
+
+## Specification
+
+- [AgentRC Specification]({{ '/spec/' | absolute_url }}): The full working draft — concepts, directives, package model, profiles, and conformance language.
+
+## Documentation
+
+- [Agentfile]({{ '/docs/agentfile/' | absolute_url }}): The single-agent declaration format.
+- [Security]({{ '/docs/security/' | absolute_url }}): Declarative boundaries for files, network, secrets, tools, and audit.
+- [Package model]({{ '/docs/package/' | absolute_url }}): What gets packaged, pinned, signed, and shared.
+- [Runners]({{ '/docs/runners/' | absolute_url }}): What compatible runners must enforce without AgentRC becoming a runtime.
+- [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial test-suite outline.
+- [Workflows]({{ '/docs/workflows/' | absolute_url }}): Non-normative multi-agent workflow companion draft.
+- [Non-goals]({{ '/docs/non-goals/' | absolute_url }}): What AgentRC deliberately does not define.
+
+## Profiles
+
+- [Core]({{ '/profiles/core/' | absolute_url }}): The minimal normative directive set and the full directive classification.
+- [Security]({{ '/profiles/security/' | absolute_url }}): Boundary, policy, credential, and audit semantics.
+- [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): Lockfile and OCI package layout, media types, and annotations.
+- [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): Optional command-oriented tool/function discovery surface.
+- [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Execution and enforcement obligations for runners.
+- [Workflow Draft]({{ '/profiles/workflow-draft/' | absolute_url }}): Step-function-shaped multi-agent orchestration draft.
+
+## Examples
+
+- [Examples]({{ '/examples/' | absolute_url }}): Sample Agentfiles and a workflow YAML.
+
+## Reference
+
+- [Changelog]({{ '/changelog/' | absolute_url }}): Site and spec changelog.
+- [Source repository](https://github.com/{{ site.repository }}): Specification source and reference implementation notes.

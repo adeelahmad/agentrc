@@ -77,7 +77,7 @@ A runner MAY provide equivalent CLI commands instead of filesystem projection:
 
 | Projection | CLI equivalent |
 |---|---|
-| `/agentrc/tools/file_read --path x` | `agentrc run tool utci:file_read --path x` |
+| `/agentrc/tools/file_read --path x` | `agentrc run tool utcp:file_read --path x` |
 | `/agentrc/functions/foo --json args.json` | `agentrc run function foo --json args.json` |
 | `cat /agentrc/proc/audit` | `agentrc dmesg` |
 | `cat /agentrc/proc/policy` | `agentrc policy show` |

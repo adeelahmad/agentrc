@@ -6,7 +6,7 @@ CMD strands run --agent vault-agent
 BROKER vault
 CRED db_password vault://secret/data/prod/db#password
 
-TOOL utci:file_read
+TOOL utcp:file_read
 AUDIT all
 
 POLICY

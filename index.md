@@ -22,8 +22,8 @@ permalink: /
 AGENT code-reviewer
 CMD claude --print
 
-TOOL utci:file_read
-TOOL utci:shell
+TOOL utcp:file_read
+TOOL utcp:shell
 MOUNT /workspace rw
 SECRET github_token env:GITHUB_TOKEN
 AUDIT all
