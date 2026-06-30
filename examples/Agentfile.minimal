@@ -1,17 +1,10 @@
-# syntax=agentrc.agentfile/v0.1
+# syntax=agentrc.io/agentfile:v1
+# Minimal agentrc Agentfile: a Dockerfile-shaped recipe for one local agent.
+# Build with `docker build -f Agentfile .` or `arc build .`; both emit identical org.agentrc.* labels.
 
-AGENT hello-local
-CMD strands run --agent hello-local
-
-TOOL utcp:file_read
-TOOL utcp:current_time
-
-AUDIT basic
-
-POLICY
-  permit(
-    principal == AgentRC::Agent::"hello-local",
-    action in [AgentRC::Action::"tool.invoke"],
-    resource in [AgentRC::Tool::"file_read", AgentRC::Tool::"current_time"]
-  );
-END
+IDENTITY name=hello version=1.0 author=you
+CAPABILITY text
+SOP You are a concise local assistant. Answer in one paragraph.
+CMD python ./agent.py
+COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
+POLICY model.name claude-opus-4

@@ -6,66 +6,72 @@ permalink: /changelog/
 ---
 # Changelog
 
-## 0.1.0-draft.4 — 2026-06-30
+## v1 — 2026-06-30
 
-### Added
+The rev-1 redesign. The Agentfile is now **Dockerfile-shaped**, the build emits
+`org.agentrc.*` OCI labels, and the platform reads those labels — never the
+Agentfile — to grant, narrow, or reject each request and enforce it with Cedar.
 
-- **`SOP` directive** — embed [Agent SOP](https://github.com/strands-agents/agent-sop)-style operating procedures (markdown, RFC-2119 constraints) inline in the Agentfile via `SOP … END`, or reference them as files/Agent Skills.
-- **Host-scoped secrets** — the `CRED` model now follows [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets): a secret is bound to allowed hosts, the value never enters the sandbox, and the runner substitutes it only at the network layer.
-- **Acknowledgements** page crediting the open standards agentrc builds on (Agent SOP, microsandbox, UTCP, MCP, Cedar, Agent Skills, OCI, Sigstore, SLSA, OpenTelemetry, A2A).
-- **CLI** page (coming soon), a site-wide **Working Draft** banner, and refreshed agentrc branding (logo, favicons, social card).
+### Changed (breaking)
 
-### Changed
+- **Redesigned the Agentfile to be Dockerfile-shaped.** There are now exactly
+  **four** new keywords — `IDENTITY`, `CAPABILITY`, `SOP`, and `POLICY` — layered
+  over standard Dockerfile keywords (`FROM`, `CMD`, `COPY`, `ADD`, `HEALTHCHECK`,
+  `LABEL`, `ENV`, `ARG`, `WORKDIR`, `USER`, `EXPOSE`, `RUN`). The mental model,
+  file shape, and tooling transfer directly from Docker.
+- **Removed the legacy directive family.** `AGENT`, `TOOL`, `TOOLSET`,
+  `FUNCTION`, `SKILL`, `SERVER`, `MCP`, `URL`, `CRED`, `BIND`, `MOUNT`, `PLUGIN`,
+  `ALLOW`, `DENY`, `RATELIMIT`, `TIMEOUT`, `LIMIT`, `SLICE`, `IMAGE`,
+  `ISOLATION`, `BROKER`, `BACKEND`, `TRACE`, `MEMORY`, `OPTIMIZER`, and `SHELL`
+  are gone, along with the inline Cedar `POLICY … END` block and the old
+  `SOP name … END` block form.
+- **Tools, skills, and MCP servers are now files under `/mnt`.** Add local
+  resources with `COPY` and remote ones with `ADD --remote` (plus delivery flags
+  `--cached`/`--runtime` and `--fail-if-unavailable`/`--warn-if-unavailable`).
+  The destination path under `/mnt` (`tools/`, `skills/`, `mcp/`, `SOP`)
+  determines the resource type.
+- **Secrets are labels.** A secret is declared as
+  `LABEL org.agentrc.secret.<name>=<scope>`; the value never enters the artifact,
+  and the platform's broker resolves and injects it at run time.
+- **Resource, model, network, and lifecycle requests are typed `POLICY` lines.**
+  Each `POLICY <namespaced.key> <value>` is a single request in the `agent.*`,
+  `substrate.*`, `model.*`, or `network` namespace.
+- **`POLICY` is a request, not enforcement.** The build emits `org.agentrc.*`
+  OCI labels; the platform reads the labels and **grants, narrows, or rejects**
+  each request, with deny-by-default applied to its grant decision.
+- **Cedar moved to a platform-side enforcement engine and compilation target.**
+  Cedar is no longer an author surface and MUST NOT appear in the Agentfile;
+  the platform compiles granted typed requests plus its own organization rules
+  into Cedar, with a normative request→Cedar mapping (`NetworkEgress`,
+  `tool.invoke`, `mcp.request`, `agent.delegate`, `device.access`,
+  `secret.resolve`) and the guarantees `forbid` overrides `permit`,
+  order-independently, and monotonic composition across `FROM`.
+- **Two build paths, identical artifacts.** The **BuildKit frontend**
+  (`# syntax=agentrc.io/agentfile:v1` then `docker build -f Agentfile`) and the
+  native **`agentrc` / `arc` CLI** (`build` / `push` / `pull` / `run`) produce
+  identical OCI artifacts. Substrate / isolation is a run-time choice
+  (`--isolation`, `--substrate`), never an Agentfile directive.
 
-- Lowercased the brand wordmark to **agentrc** everywhere (the Cedar `AgentRC::` namespace is unchanged).
-- Standardized the canonical domain on **agentrc.ai**.
+### Deferred
 
-## 0.1.0-draft.3 — 2026-06-30
+- **A2A (the agent-to-agent protocol)** — Agent Cards, discovery, cross-agent
+  delegation, and the governance algebra of an agent-to-agent call — is out of
+  scope for this version. Capability *exposure* via `IDENTITY` / `CAPABILITY` /
+  labels is in scope; the *protocol* is not.
 
-Rewritten after reviewing the current agentrc source archive.
+## Earlier history (superseded by v1)
 
-### Changed
+Before v1, agentrc was published as a series of **0.1.x working drafts** built on
+a different, much larger model: roughly thirty directives (`AGENT`, `TOOL`,
+`CRED`, `MOUNT`, and many more), an inline Cedar policy block authored directly
+in the Agentfile, and an `/agentrc` tool-projection root. **v1 replaces that
+model entirely** — see the breaking changes above. Those drafts also introduced
+the work that carried forward in spirit: host-scoped secrets (now
+`LABEL org.agentrc.secret.*`), embedded operating procedures (now the `SOP`
+keyword at `/mnt/SOP`), the standards acknowledgements, OCI-based packaging, and
+the standards-style site, brand, and theming.
 
-- Reframed agentrc as the **Agentfile and agent-package specification**, not an agent isolation orchestrator.
-- Moved runtime/driver concerns into a **Runner Conformance Profile** instead of the core specification.
-- Kept current implementation directives, but classified them into identity, capability, boundary, governance, runner-hint, and experimental groups.
-- Replaced the unsupported `SPEC` directive with parser-compatible `# syntax=agentrc.agentfile/v0.1`.
-- Standardized package distribution around OCI-compatible artifacts/images.
-- Added explicit lockfile and package schemas.
-- Added current implementation mapping and gap list.
-- Treated tools-as-files as an optional **Tool Projection Profile**, not the whole product.
-- Added a non-normative workflow companion draft for ASL-like multi-agent orchestration.
-
-### Corrected
-
-- Avoided claiming agentrc provides isolation directly.
-- Avoided claiming agentrc is a runtime or runner.
-- Avoided hard-binding agentrc to microsandbox, Firecracker, Docker, Strands, or any cloud.
-- Made `ISOLATION`, `IMAGE`, `SLICE`, `PLUGIN`, and `BACKEND` runner hints/profile directives rather than core product identity.
-
-### Known open issues
-
-- Real Cedar evaluator is required before Cedar profile conformance can be claimed.
-- Current `CRED` parsing has inconsistent named-reference behavior.
-- Current `BIND` parsing is inconsistent across implementation paths.
-- Multi-agent workflow policy composition is intentionally left open.
-
-## 0.1.0-draft.1 — 2026-06-30
-
-Initial GitHub-ready working draft.
-
-
-## 0.1.0-draft.3 — agentrc rebrand
-
-- Renamed public identity from AIO to agentrc — Agent Run Config.
-- Reframed the project as a publishable Jekyll documentation site.
-- Added GitHub Pages configuration, CNAME, documentation pages, layouts, CSS, and publishing workflow.
-- Preserved implementation work as reference tooling, not runtime identity.
-
-## v0.1-site.2 — Hybrid brand and theme support
-
-- Reworked the visual system into the selected hybrid direction: standards-style documentation with a subtle holographic agentrc mark.
-- Added light and dark theme support with a persistent user toggle.
-- Added system-theme detection and early theme application to reduce flash during page load.
-- Replaced the placeholder `rc` square with an agentrc `R` glyph and matching SVG favicon.
-- Updated CSS tokens so future brand assets can be adjusted centrally.
+The full, detailed history of the 0.1.x drafts is preserved in the repository's
+git log.
+</content>
+</invoke>

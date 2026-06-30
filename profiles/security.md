@@ -1,123 +1,202 @@
 ---
 layout: doc
-title: Security
-description: "Security profile."
+title: Enforcement (Cedar)
+description: "The agentrc Enforcement (Cedar) Profile (v1): how a platform compiles typed POLICY requests into Cedar and enforces them deny-by-default."
 permalink: /profiles/security/
 ---
-# Security
+# Enforcement (Cedar) Profile
 
-**Status:** Working Draft  
-**Version:** 0.1.0-draft.4
+**Version:** v1 — Working Draft  
+**Status:** Working Draft (`# syntax=agentrc.io/agentfile:v1`)  
+**Date:** 2026-06-30  
+**Audience:** security & compliance reviewers, platform / runner authors
 
-## Purpose
+> This profile is the normative home of [§11.2 of the specification](/spec/). It
+> defines how a conformant **platform** turns the `org.agentrc.*` request labels
+> emitted from an Agentfile into a [Cedar](https://www.cedarpolicy.com/)
+> `PolicySet`, and the enforcement properties that decision MUST preserve. The
+> keywords **MUST**, **MUST NOT**, **SHOULD**, and **MAY** follow
+> [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
-This profile defines how agentrc packages declare security boundaries and how Cedar is used as the default policy language.
+## 1. Cedar is platform-side only
 
-agentrc does not provide isolation itself. A compatible runner enforces declared boundaries or fails closed.
+Cedar is **not** an Agentfile author surface and **MUST NOT** appear in an
+Agentfile. Authors never write `permit`, `forbid`, or `when`. The only
+authorization vocabulary an author writes is the typed `POLICY` request
+([spec §8](/spec/)):
 
-## Boundary classes
+```dockerfile
+POLICY network dns:api.github.com:443
+POLICY agent.sub_agents true
+POLICY substrate.device /dev/gpu
+```
 
-| Boundary | Agentfile directive(s) | Example action |
+Cedar is the platform's **enforcement engine and compilation target**. The
+platform — never the author — compiles each granted request, together with its
+own organization rules, into one Cedar `PolicySet` and evaluates the grant. This
+keeps exactly **one author surface** (typed `POLICY` requests) and **one
+enforcement engine** (Cedar) beneath it, with a single normative mapping between
+them. There is no second, author-facing policy language.
+
+> A `POLICY` line is a **request**, not enforcement. The Agentfile expresses
+> *intent*; the platform holds *authority* and is free to **grant, narrow, or
+> reject** any request.
+
+## 2. The compilation
+
+The platform reads `org.agentrc.*` labels from the OCI image config — it does
+**not** parse the Agentfile — and compiles them into Cedar entities and
+policies:
+
+```text
+author writes          platform compiles to         platform enforces
+─────────────          ────────────────────         ─────────────────
+POLICY request   ──►   Cedar entities + policies     deny-by-default,
+(org.agentrc.*)        (granted request + org rules)  forbid > permit,
+                                                       order-independent,
+                                                       monotonic across FROM
+```
+
+A conformant platform MUST, for each request it elects to grant, derive Cedar
+entities / actions / resources and evaluate them under Cedar's semantics
+together with the organization's own Cedar policies.
+
+## 3. Request → Cedar mapping (normative)
+
+The **principal** is the agent identity, taken from
+`org.agentrc.identity.name`. The **action** and **resource** are derived from
+the request label's namespace:
+
+| Request label | Cedar action | Cedar resource |
 |---|---|---|
-| Tool access | `TOOL`, `ALLOW`, `DENY`, `POLICY` | `tool.invoke` |
-| Function access | `FUNCTION`, `POLICY` | `function.invoke` |
-| Skill access | `SKILL`, `POLICY` | `skill.invoke` |
-| Credential access | `CRED`, `BROKER`, `POLICY` | `cred.resolve` |
-| Network egress | `URL`, `SERVER`, `MCP`, `POLICY` | `network.egress` |
-| Filesystem access | `BIND`, `MOUNT`, `POLICY` | `filesystem.read`, `filesystem.write` |
-| Memory access | `MEMORY`, `POLICY` | `memory.read`, `memory.write` |
-| Rate limits | `RATELIMIT`, `LIMIT` | implementation-defined |
-| Audit | `AUDIT` | lifecycle/event emission |
+| `org.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
+| `org.agentrc.tool.<name>` (a projected tool) | `Action::"tool.invoke"` | `Tool::"<name>"` |
+| `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
+| `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
+| `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
+| `org.agentrc.secret.<name>` | `Action::"secret.resolve"` | `Secret::"<name>"` |
 
-## Deny-by-default
+These six rows are the normative mapping a conformant platform MUST implement.
+Auto-derived egress (a `network.dns.*` label derived from an `agent.hooks.*` or
+`agent.interrupt_endpoint` URL, [spec §8.5](/spec/)) maps through the
+`NetworkEgress` row exactly like an explicit `network` request — auto-derivation
+is an ergonomic convenience, **not** an implicit grant. The platform MUST still
+grant it; an un-granted auto-derived egress is denied.
 
-Under this profile, undeclared capability access is denied.
+## 4. Enforcement properties a conformant platform MUST preserve
 
-A runner MUST NOT provide:
+These are Cedar's semantics, and they are why Cedar is the engine.
 
-1. undeclared tool access;
-2. undeclared credential access;
-3. undeclared filesystem access;
-4. undeclared network egress;
-5. undeclared MCP server access.
+### 4.1 Deny-by-default
 
-## Fail-closed behavior
+Absence of a grant is a denial. A request that is unrecognised, an auto-derived
+egress that was not granted, or any action with no matching `permit` MUST be
+**denied**. A platform MUST NOT silently honour a request it did not explicitly
+grant.
 
-A runner MUST fail closed when:
+### 4.2 `forbid` overrides `permit`, order-independently
 
-1. policy cannot be parsed;
-2. policy cannot be evaluated;
-3. a required boundary cannot be enforced;
-4. a required audit stream cannot be produced;
-5. a declared credential cannot be resolved;
-6. a deny rule conflicts with an allow rule.
+An organization `forbid` (for example, *"no agent may reach the public
+internet"* or *"no agent may write to `/etc`"*) MUST defeat any agent request,
+**regardless of evaluation order**. A granted `POLICY` request can never widen
+past an org `forbid`. Because the org `forbid` is platform-side Cedar — not in
+the Agentfile — the author cannot author around it.
 
-## Cedar request shape
+### 4.3 Monotonic composition across `FROM`
 
-A Cedar authorization decision evaluates:
+When an agent inherits from another agent (`FROM another-agent`,
+[spec §2](/spec/)), the effective authorization is the **intersection** of
+ceilings:
 
-```text
-Principal · Action · Resource · Context
+- A child's granted set MUST NOT exceed its parent's.
+- A parent `forbid` is **un-loosenable** by the child.
+
+This is the runtime realization of the spec's *capabilities compose additively,
+policy composes by tightening only* rule. Capabilities accumulate; authority
+only narrows.
+
+## 5. Two-tier governance, one PolicySet
+
+The agent's `POLICY` requests are the **floor of intent**; the organization's
+own Cedar policies are the **ceiling of authority**. The platform compiles both
+into a single Cedar `PolicySet` and evaluates the grant:
+
+- **Floor (agent, in the artifact).** What the agent *asks* to do, as typed
+  `POLICY` requests compiled to `org.agentrc.*` labels. The author owns this and
+  never writes Cedar.
+- **Ceiling (organization, out-of-band).** What the org *permits or forbids*,
+  authored as Cedar policies by the security team, separate from any Agentfile.
+  The author never sees or touches it.
+
+The effective grant is the request **evaluated against** the org ceiling. Where
+they disagree, `forbid` over `permit` and deny-by-default resolve it in favour
+of the tighter outcome.
+
+## 6. Secrets handling
+
+Secrets are declared as host-scoped `LABEL`s, never as a value in the artifact
+([spec §12.1](/spec/)):
+
+```dockerfile
+LABEL org.agentrc.secret.github_token=host:api.github.com
 ```
 
-Recommended entities:
+- The Agentfile **NAMES** the secret and its host scope only. The secret
+  **value MUST NOT** appear in the Agentfile, in any layer, in the image config,
+  in labels, in logs, in audit events, or in error messages — only the name and
+  scope are recorded.
+- The platform's **secret broker** resolves the named secret at run time
+  (`Action::"secret.resolve"`, §3) and injects it for the host scope it was
+  declared against (a host-scoped substitution model in the spirit of
+  [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets)).
+- A `secret.resolve` is itself subject to the grant decision: the platform may
+  refuse to resolve a secret it does not permit, and MUST fail closed (§7) if a
+  *required* secret cannot be resolved.
 
-```text
-AgentRC::Agent::"<agent-name>"
-AgentRC::Tool::"<tool-name>"
-AgentRC::Function::"<function-name>"
-AgentRC::Skill::"<skill-name>"
-AgentRC::Credential::"<credential-name>"
-AgentRC::Host::"<host>"
-AgentRC::Path::"<path>"
-AgentRC::Memory::"<memory-name>"
-```
+## 7. Fail-closed behaviour
 
-Recommended actions:
+A conformant platform MUST fail closed — refuse to grant, refuse to project the
+resource, or refuse to boot the agent — when it cannot uphold a required
+constraint. Specifically, it MUST fail when:
 
-```text
-tool.invoke
-function.invoke
-skill.invoke
-cred.resolve
-network.egress
-filesystem.read
-filesystem.write
-memory.read
-memory.write
-mcp.request
-agent.delegate
-```
+1. a request label cannot be parsed or recognised against the
+   [label catalog](/profiles/oci-package/);
+2. the compiled Cedar `PolicySet` cannot be evaluated;
+3. a required boundary (network, device, tool/MCP, sub-agent) cannot be
+   enforced on the chosen substrate;
+4. a *required* secret named in `org.agentrc.secret.*` cannot be resolved by the
+   broker;
+5. a `--runtime --fail-if-unavailable` resource cannot be fetched at bootstrap
+   ([spec §4.3](/spec/));
+6. an org `forbid` and an agent request would otherwise resolve to an unsafe
+   grant.
 
-## Example Cedar policy
+Failing closed means denying access or refusing to boot — never degrading to an
+ungoverned execution.
 
-```cedar
-permit(
-  principal == AgentRC::Agent::"github-assistant",
-  action == AgentRC::Action::"tool.invoke",
-  resource == AgentRC::Tool::"http_request"
-)
-when { context.url.startsWith("https://api.github.com") };
+## 8. Platform conformance requirements
 
-forbid(
-  principal,
-  action == AgentRC::Action::"filesystem.write",
-  resource
-)
-when { context.path.startsWith("/etc") };
-```
+To claim conformance to this profile (`agentrc/enforcement-cedar/v1`), a
+platform MUST:
 
-## Credential handling
+1. Read authorization from `org.agentrc.*` labels only; it MUST NOT require or
+   parse the Agentfile source.
+2. Take the principal from `org.agentrc.identity.name` and derive actions /
+   resources per the mapping in §3 for every request it grants, including
+   auto-derived egress.
+3. Compile granted requests together with the organization's Cedar policies into
+   a single `PolicySet` and decide under Cedar semantics.
+4. Preserve deny-by-default, order-independent `forbid` over `permit`, and
+   monotonic intersection across `FROM` (§4).
+5. Resolve `org.agentrc.secret.*` only via the broker, host-scoped, never
+   exposing values (§6).
+6. Fail closed on every condition in §7.
+7. SHOULD emit an auditable record when it narrows, rejects, or substitutes a
+   request (override auditability is
+   [open decision #4](/spec/); surfaced, not yet resolved).
 
-Credential values MUST NOT appear in:
-
-1. Agentfile source;
-2. lockfiles;
-3. OCI annotations;
-4. package config;
-5. logs;
-6. audit events;
-7. error messages.
-
-Only references and credential names may be recorded.
-
+The full platform runtime contract — pulling the artifact, fetching `--runtime`
+resources, substituting embedded resources via `.origin`, projecting `/mnt`, and
+booting `CMD` — is the [Platform Conformance Profile](/profiles/runner-conformance/).
+The label namespace this profile reads is catalogued in the
+[OCI Labels &amp; Package Profile](/profiles/oci-package/).
