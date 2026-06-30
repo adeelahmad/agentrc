@@ -1,98 +1,123 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentrc.ai/schemas/agentrc-lock.v1.schema.json",
-  "title": "agentrc Lockfile",
+  "title": "agentrc Resolved Manifest",
+  "description": "The resolved resource manifest produced when an Agentfile is compiled to an OCI artifact. Records the exact bases, resources, SOP, and secret references that the build resolved, so a build is reproducible and a platform can audit what was embedded versus fetched at runtime.",
   "type": "object",
-  "required": ["version", "agentfile_hash", "timestamp"],
+  "required": ["version", "timestamp"],
   "properties": {
-    "version": { "type": "string" },
-    "build_id": { "type": "string" },
-    "agentfile_hash": { "type": "string" },
-    "timestamp": { "type": "string" },
-    "policy_hash": { "type": "string" },
-    "credential_names": {
-      "type": "array",
-      "items": { "type": "string" }
+    "version": {
+      "type": "string",
+      "description": "Manifest schema version (e.g. \"v1\")."
     },
-    "base_image": {
+    "build_id": {
+      "type": "string",
+      "description": "Opaque identifier for the build that produced this manifest."
+    },
+    "agentfile_sha256": {
+      "type": "string",
+      "description": "SHA-256 digest of the Agentfile source that was compiled."
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "RFC 3339 timestamp of when the build resolved this manifest."
+    },
+    "policy_mode": {
+      "type": "string",
+      "description": "How POLICY requests were encoded into labels: inline values in labels, or a digest of a structured manifest layer (see spec --policy-mode).",
+      "enum": ["inline", "digest"]
+    },
+    "labels_digest": {
+      "type": "string",
+      "description": "Digest over the emitted org.agentrc.* label set, for integrity checks."
+    },
+    "base": {
       "type": "object",
+      "description": "The resolved FROM base image or parent agent.",
       "properties": {
-        "registry": { "type": "string" },
-        "name": { "type": "string" },
-        "tag": { "type": "string" },
-        "digest": { "type": "string" }
+        "ref": {
+          "type": "string",
+          "description": "The FROM reference as authored (image or parent agent)."
+        },
+        "digest": {
+          "type": "string",
+          "description": "Content-addressed digest the ref resolved to."
+        }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
-    "tools": {
+    "resources": {
       "type": "array",
+      "description": "Resolved tools, skills, and MCP servers added via COPY (local) or ADD --remote, keyed by their /mnt destination.",
       "items": {
         "type": "object",
         "required": ["name"],
         "properties": {
-          "name": { "type": "string" },
-          "version": { "type": "string" },
-          "hash": { "type": "string" },
-          "schema_hash": { "type": "string" },
-          "source": { "type": "string" },
-          "digest": { "type": "string" }
+          "name": {
+            "type": "string",
+            "description": "Resource name (the basename under /mnt/<kind>/)."
+          },
+          "kind": {
+            "type": "string",
+            "description": "Resource type, determined by the destination path under /mnt.",
+            "enum": ["tool", "skill", "mcp"]
+          },
+          "dest": {
+            "type": "string",
+            "description": "Destination path under /mnt (e.g. /mnt/tools/file_read, /mnt/mcp/github)."
+          },
+          "delivery": {
+            "type": "string",
+            "description": "How the resource was delivered: local COPY, fetched and embedded at build (cached), or referenced and fetched at bootstrap (runtime).",
+            "enum": ["local", "cached", "runtime"]
+          },
+          "digest": {
+            "type": "string",
+            "description": "Resolved content digest for embedded resources (org.agentrc.<kind>.<name>)."
+          },
+          "origin": {
+            "type": "string",
+            "description": "Origin reference (org.agentrc.<kind>.<name>.origin) so a platform may re-point to a mirror without rebuilding."
+          },
+          "fail_mode": {
+            "type": "string",
+            "description": "Behaviour if the resource cannot be resolved: abort, or warn and continue.",
+            "enum": ["fail", "warn"]
+          }
         },
         "additionalProperties": true
       }
     },
-    "functions": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["path"],
-        "properties": {
-          "path": { "type": "string" },
-          "name": { "type": "string" },
-          "hash": { "type": "string" },
-          "type_hint_digest": { "type": "string" },
-          "source": { "type": "string" },
-          "version": { "type": "string" }
-        },
-        "additionalProperties": true
-      }
-    },
-    "skills": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "name": { "type": "string" },
-          "version": { "type": "string" },
-          "hash": { "type": "string" },
-          "source": { "type": "string" }
-        },
-        "additionalProperties": true
-      }
-    },
-    "sops": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "name": { "type": "string" },
-          "version": { "type": "string" },
-          "hash": { "type": "string" },
-          "source": { "type": "string" }
-        },
-        "additionalProperties": true
-      }
-    },
-    "toolsets": {
+    "sop": {
       "type": "object",
-      "additionalProperties": {
-        "type": "array",
-        "items": { "type": "string" }
-      }
+      "description": "The resolved SOP embedded at /mnt/SOP (pointer + digest, never the full text).",
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "description": "SHA-256 digest of the SOP file embedded at /mnt/SOP (org.agentrc.sop.sha256)."
+        }
+      },
+      "additionalProperties": true
     },
-    "memory": { "type": "object", "additionalProperties": true },
-    "optimizer": { "type": "object", "additionalProperties": true }
+    "secrets": {
+      "type": "array",
+      "description": "Secret references declared via LABEL org.agentrc.secret.<name>=<scope>. Values are never recorded here; the platform broker resolves them at run time.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Secret name (org.agentrc.secret.<name>)."
+          },
+          "scope": {
+            "type": "string",
+            "description": "Host-scoped grant, e.g. host:api.github.com."
+          }
+        },
+        "additionalProperties": true
+      }
+    }
   },
   "additionalProperties": true
 }

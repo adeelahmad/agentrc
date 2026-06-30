@@ -1,35 +1,54 @@
-# syntax=agentrc.agentfile/v0.1
+# syntax=agentrc.io/agentfile:v1
 
-AGENT secure-workspace
-CMD strands run --agent secure-workspace
+# A locked-down agent: minimal capability, no sub-agents, a single
+# allowed egress host, and tightly scoped tools. Everything below is a
+# REQUEST. The platform reads the org.agentrc.* labels (not this file) and
+# grants, narrows, or rejects each request, then enforces via Cedar.
 
-# Runner capability requirements. These are not the runtime; they are requested profiles.
-PLUGIN network
-PLUGIN filesystem
+# --- Base / inheritance -----------------------------------------------------
+FROM ghcr.io/acme/hardened-base:1.2
 
-MOUNT /workspace rw
-BIND ./repo /workspace copy
+# --- Identity ---------------------------------------------------------------
+IDENTITY name=secure-workspace version=1.0 author=acme
+IDENTITY description="Read/write files in a scoped workspace under strict, deny-by-default policy"
 
-TOOL utcp:file_read
-TOOL utcp:file_write
-TOOL utcp:current_time
+# --- Capabilities -----------------------------------------------------------
+CAPABILITY text
 
-URL https://api.github.com
-AUDIT all
-RATELIMIT file_write 5/min
-HEALTHCHECK --interval=60s --timeout=10s CMD utcp:ping
+# --- System prompt / objective ----------------------------------------------
+SOP <<EOF
+You are a workspace assistant operating under strict policy.
+Only read and write files in your assigned workspace.
+Never attempt to exfiltrate data or reach hosts you were not granted.
+If a task needs more than you are permitted, stop and report it.
+EOF
 
-POLICY
-  permit(
-    principal == AgentRC::Agent::"secure-workspace",
-    action in [AgentRC::Action::"tool.invoke"],
-    resource in [AgentRC::Tool::"file_read", AgentRC::Tool::"file_write", AgentRC::Tool::"current_time"]
-  );
+# --- Invocation surface -----------------------------------------------------
+CMD python -m secure_workspace.main
 
-  forbid(
-    principal,
-    action == AgentRC::Action::"filesystem.write",
-    resource
-  )
-  when { context.path.startsWith("/etc") };
-END
+# --- Tools (local, embedded) ------------------------------------------------
+COPY --chmod=755 ./tools/file_read  /mnt/tools/file_read
+COPY --chmod=755 ./tools/file_write /mnt/tools/file_write
+
+# --- Secrets (resolved by the platform broker at runtime; value never here) -
+LABEL org.agentrc.secret.github_token=host:api.github.com
+
+# --- Policy: substrate-side requests ----------------------------------------
+POLICY substrate.runtime.memory 2gb
+POLICY substrate.runtime.cpu    2
+
+# --- Policy: agent-side requests --------------------------------------------
+POLICY agent.tool_timeout 30s
+POLICY agent.sub_agents   false
+
+# --- Policy: network egress requests ----------------------------------------
+POLICY network dns:api.github.com:443
+
+# --- Liveness ---------------------------------------------------------------
+HEALTHCHECK --interval=60s --timeout=10s --retries=3 CMD /mnt/tools/file_read --agentrc-schema
+
+# Enforcement note: this file carries no policy language. The PLATFORM
+# enforces deny-by-default, and any org-level Cedar `forbid` (for example,
+# "no agent may write under /etc") lives platform-side and is un-loosenable
+# by this agent. Authors speak only typed POLICY requests; Cedar is never an
+# Agentfile author surface.
