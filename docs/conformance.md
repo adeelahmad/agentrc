@@ -1,63 +1,109 @@
 ---
 layout: doc
 title: Conformance
-description: "Conformance profile summary."
+description: "Profile-based conformance for agentrc v1, with an adversarial, fail-closed test suite that makes every profile claim verifiable."
 permalink: /docs/conformance/
 ---
 # Conformance
 
-agentrc conformance is profile-based.
+agentrc conformance is **profile-based**. An implementation — a compiler /
+BuildKit frontend, a registry, a platform / runner, or a workflow engine —
+states exactly which profiles it supports, and a profile claim is only valid if
+the implementation passes that profile's suite, including its **adversarial**
+cases.
 
-A tool, package builder, registry, runner, or workflow engine should state exactly which profiles it supports.
+> A specification without an executable test suite is prose. The conformance
+> suite is what makes a profile claim verifiable: an implementation either
+> passes a profile's suite or it does not. The adversarial cases prove the
+> implementation does the **safe** thing under bad input and fails **closed** —
+> not just the happy path.
 
-## Profile names
+## Profiles
 
-- `agentrc/core-agentfile/v0.1`
-- `agentrc/security-cedar/v0.1`
-- `agentrc/oci-package/v0.1`
-- `agentrc/tool-projection/v0.1`
-- `agentrc/runner/v0.1`
-- `agentrc/workflow/v0.1` draft
+Each profile corresponds to one of the [conformance profile pages](/profiles/),
+which carry the normative requirements. The suite below references them by short
+name.
+
+| Profile | Covers | Profile page |
+|---|---|---|
+| `agentrc/agentfile/v1` | Compiler / frontend: parse the Dockerfile-shaped Agentfile (four agentrc keywords + standard Dockerfile keywords) and compile to `org.agentrc.*` labels + layers. | [Core](/profiles/core/) |
+| `agentrc/enforcement-cedar/v1` | Platform-side Cedar enforcement of granted requests (deny-by-default, `forbid` > `permit`, monotonic `FROM`). | [Enforcement (Cedar)](/profiles/security/) |
+| `agentrc/oci-labels/v1` | The `org.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
+| `agentrc/projection/v1` | The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract. | [`/mnt` Projection](/profiles/tool-projection/) |
+| `agentrc/platform/v1` | Runtime behaviour: read labels, grant / narrow / reject, resolve secrets, fetch `--runtime` resources, substitute via `.origin`, enforce, boot `CMD`. | [Platform Conformance](/profiles/runner-conformance/) |
+| `agentrc/workflow/v1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for v1). | [Workflow Draft](/profiles/workflow-draft/) |
 
 ## Why profiles?
 
-A local validator should not need to implement microVM isolation. A registry should not need to evaluate every runtime boundary. A runner should not need to become a workflow engine.
+A compiler should not need to implement Cedar evaluation. A registry should not
+need to boot a substrate. A platform should not need to become a workflow
+engine. Splitting conformance into profiles keeps each surface implementable and
+lets an implementation advertise precisely what it does.
 
-Profiles keep the spec implementable.
+The boundary that matters most: the **compiler** (`agentrc/agentfile/v1`) reads
+the Agentfile and emits `org.agentrc.*` labels; every other profile consumes
+**labels**, never the Agentfile source. The suite enforces that separation.
 
-## Conformance suite (v0.1 outline)
+## Conformance suite (v1)
 
-A specification without an executable test suite is prose. The conformance suite is what makes a profile claim verifiable: an implementation either passes the suite for a profile or it does not. The suite is intentionally as important as the spec text, and it must include **adversarial** cases — the suite proves a runner does the safe thing under bad input, not just the happy path.
+The suite is intentionally as important as the spec text. The adversarial table
+is the core of it: each case has a single correct outcome, and a missed case
+means the implementation is **not conformant** to that profile no matter how
+many positive cases it passes.
 
 ### Positive cases
 
 | ID | Profile | Given | Expect |
 |---|---|---|---|
-| `core-parse-minimal` | Core | The minimal valid Agentfile | Parses; directive order preserved; structured tree emitted |
-| `core-policy-block` | Core | A `POLICY ... END` block | Inner lines captured verbatim, not parsed as directives |
-| `oci-roundtrip` | OCI Package | A built package | Push, pull by digest, and inspect reproduce identical content |
-| `cedar-permit` | Cedar | A request matching a `permit` | Allowed and (if `AUDIT` requires) recorded |
+| `agentfile-parse-minimal` | agentfile | The minimal valid Agentfile (`# syntax=agentrc.io/agentfile:v1`, `FROM`, `IDENTITY`, `SOP`, `CMD`) | Parses; instruction order preserved; `org.agentrc.identity.*` and `org.agentrc.sop` labels emitted |
+| `policy-to-label` | agentfile | `POLICY model.name claude-opus-4` | Emits `org.agentrc.model.name=claude-opus-4` (short form prefixed with `org.agentrc.`) |
+| `add-remote-runtime-recorded` | agentfile | `ADD --remote --runtime <url> /mnt/mcp/github` | No embedded layer; emits `org.agentrc.mcp.github=runtime:<url>` |
+| `oci-roundtrip` | oci-labels | A built artifact | Push, pull by digest, and inspect reproduce identical layers, config, and `org.agentrc.*` labels |
+| `egress-granted-allowed` | enforcement | A granted `org.agentrc.network.dns.api.github.com=443` request | `Action::"NetworkEgress"` to `Host::"api.github.com:443"` is allowed |
+| `mnt-projection-readable` | projection | A built artifact with tools and an SOP | `/mnt/tools/*` are executable; `/mnt/SOP` is a readable file; `/mnt/proc` is populated at boot |
 
 ### Adversarial / fail-closed cases
 
-These are the cases that catch real implementation gaps. Each one has a single correct outcome.
+These are the cases that catch real implementation gaps. Each has a single
+correct outcome.
 
 | ID | Profile | Given | MUST |
 |---|---|---|---|
-| `policy-unparseable-denies` | Cedar | Policy source that does not parse | **Deny** every request (fail closed), never allow |
-| `policy-eval-error-denies` | Cedar | Policy that errors during evaluation | **Deny** the request |
-| `forbid-overrides-permit` | Cedar | A request matched by both a `permit` and a `forbid` | **Deny** (deny wins) |
-| `unknown-required-directive` | Core / Runner | An unknown directive marked required | **Reject** the package, do not silently ignore |
-| `cred-value-redacted` | Security | A `CRED` resolves to a secret value | Value **redacted** from logs, audit, lockfile, and package metadata |
-| `cred-plaintext-rejected` | Security | A package containing a plaintext secret | **Reject** / fail validation |
-| `child-widens-forbid-fails` | Inheritance | A child package that removes or widens an inherited `forbid`/ceiling | **Fail** the build |
-| `audit-required-unsupported-fails` | Runner | `AUDIT` required but the runner cannot emit audit events | **Fail closed**, do not run |
-| `boundary-unsupported-fails` | Runner | A required boundary the runner cannot enforce | **Fail closed**, do not silently weaken |
+| `build-labels-identical` | agentfile | The **same** Agentfile built via the BuildKit frontend and via `arc build` | Produce an **identical** OCI artifact and identical `org.agentrc.*` labels — two front doors, one compiler |
+| `sop-pointer-not-inlined` | agentfile | A large `SOP` (heredoc or file-backed) | Embed it at `/mnt/SOP` and emit only `org.agentrc.sop=/mnt/SOP` + `org.agentrc.sop.sha256=<digest>` — **never** the full text in a label |
+| `unknown-request-denied` | enforcement | A request with no matching grant in the compiled `PolicySet` | **Deny** (deny-by-default); an unrecognised or un-granted request is never silently honoured |
+| `forbid-overrides-permit` | enforcement | An org `forbid` against an agent request that a `permit` would otherwise allow | **Deny**, **order-independently** — `forbid` always wins |
+| `child-widens-parent-fails` | enforcement | A child agent (`FROM another-agent`) whose requests exceed the parent's ceiling | Effective authorization is the **intersection** of ceilings; the widening request is rejected (a parent `forbid` is un-loosenable) |
+| `auto-egress-not-implicit` | enforcement | A `POLICY agent.hooks.pre <url>` that auto-derives `org.agentrc.network.dns.<host>` with `…source=auto:agent.hooks.pre` | The platform MUST still **grant** the derived egress; if ungranted → **deny**. Auto-derivation is convenience, never an implicit grant |
+| `secret-never-in-artifact` | oci-labels | The built artifact for an agent that names secrets | No plaintext secret value in any layer, label, or image config; only `org.agentrc.secret.<name>=<scope>` **references** |
+| `runtime-fetch-failclosed` | platform | An `ADD --remote --runtime --fail-if-unavailable` resource that is unreachable at boot | **Refuse to boot** (fail closed); never start the agent with the required resource missing |
+| `embedded-override-origin` | platform | An embedded MCP/skill whose `org.agentrc.<kind>.<name>.origin` is rewritten to an internal mirror at deploy time | Fetch from the **mirror** and run, **without rebuilding** the artifact |
 
-A runner that claims a profile but fails any of that profile's adversarial cases is **not conformant** to that profile, regardless of how many positive cases it passes.
+A platform or compiler that claims a profile but fails any of that profile's
+adversarial cases is **not conformant** to that profile, regardless of how many
+positive cases it passes.
 
-## Honest conformance status of the reference implementation
+These cases are the executable counterpart of the spec's normative properties:
+the request → Cedar mapping and the deny-by-default / `forbid` > `permit` /
+monotonic-`FROM` guarantees are defined in
+[§11.2 of the specification](/spec/) and the
+[Enforcement (Cedar) profile](/profiles/security/); the label and package shape
+in the [OCI Labels &amp; Package profile](/profiles/oci-package/); and the full
+platform decision flow in the
+[Platform Conformance profile](/profiles/runner-conformance/).
 
-agentrc is the specification; the reference implementation (the `aio-*` packages in this repository) is an implementation and test harness, **not** the definition. Spec-first work means the spec leads the implementation, so the implementation is expected to lag — and that gap must be labeled honestly rather than implied away.
+## Honest reference-implementation status
 
-As of this draft, the reference implementation should be described as passing only the profiles it actually passes today (Agentfile parsing and OCI packaging), and **not** yet claiming the Cedar profile or full fail-closed Security/Runner conformance until a real Cedar evaluator and the adversarial cases above are in place. Implementations MUST NOT advertise a profile they do not pass.
+agentrc is the **specification**; the reference work in this repository is an
+implementation and test harness, **not** the definition. The project is
+spec-first, so the implementation is expected to **lag** the spec — and that gap
+is labeled honestly rather than implied away.
+
+As of this Working Draft, the **BuildKit frontend** and the native **`agentrc` /
+`arc` CLI** are in progress: Agentfile parsing and the `org.agentrc.*` label
+emission (`agentrc/agentfile/v1`) and basic OCI packaging (`agentrc/oci-labels/v1`)
+are the furthest along. A complete Cedar evaluator and the full adversarial
+fail-closed suite for `agentrc/enforcement-cedar/v1` and `agentrc/platform/v1`
+are **not** yet in place, and those profiles are not claimed until they pass.
+
+Implementations **MUST NOT** advertise a profile they do not pass.

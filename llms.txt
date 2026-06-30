@@ -7,45 +7,45 @@ sitemap: false
 
 > {{ site.description }}
 
-agentrc (Agent Run Config) is an open specification for declaring, packaging, securing, and sharing portable AI agents. It defines the contract an agent declares — its identity, entrypoint, tools, boundaries, and governing policy — while compatible runners decide how to execute it. agentrc is not a runtime, sandbox, model provider, or agent framework.
+agentrc is an open specification for a **Dockerfile-shaped Agentfile** that declares, packages, and governs a portable AI agent. An author writes the Agentfile using four new keywords — `IDENTITY`, `CAPABILITY`, `SOP`, `POLICY` — over standard Dockerfile keywords (`FROM`, `CMD`, `COPY`, `ADD`, `LABEL`, `HEALTHCHECK`, …). Tools, skills, and MCP servers are files placed under `/mnt` with `COPY` (local) or `ADD --remote` (remote); resource, model, network, and lifecycle needs are typed `POLICY` requests. The build (BuildKit frontend or the `agentrc`/`arc` CLI) compiles the Agentfile into an OCI artifact and emits `org.agentrc.*` labels. The platform reads those labels — never the Agentfile — and grants, narrows, or rejects each request, enforcing the result with Cedar (deny-by-default, `forbid` over `permit`, tightening-only across `FROM`). agentrc is not a runtime, sandbox, model provider, or agent framework.
 
 Every page on this site is also available as raw Markdown via the "View Markdown" link in its page actions, or directly from the repository source tree.
 
 ## Start here
 
-- [What is agentrc?]({{ '/docs/what-is-agentrc/' | absolute_url }}): Definition, the problem it solves, and why it is needed.
-- [Quickstart]({{ '/docs/quickstart/' | absolute_url }}): Write, validate, build, and publish your first Agentfile.
+- [What is agentrc?]({{ '/docs/what-is-agentrc/' | absolute_url }}): What the Agentfile is, the problem it solves, and why a labels-only platform contract is needed.
+- [Quickstart]({{ '/docs/quickstart/' | absolute_url }}): Write an Agentfile, build it (frontend or `arc`), read its `org.agentrc.*` labels, push, and run.
 
 ## Specification
 
-- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full working draft — concepts, directives, package model, profiles, and conformance language.
+- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full v1 working draft — the four keywords, the `/mnt` projection, Agentfile → OCI label translation, platform runtime behaviour, and the platform-side Cedar enforcement model.
 
 ## Documentation
 
-- [Agentfile]({{ '/docs/agentfile/' | absolute_url }}): The single-agent declaration format.
-- [Security]({{ '/docs/security/' | absolute_url }}): Declarative boundaries for files, network, secrets, tools, and audit.
-- [Package model]({{ '/docs/package/' | absolute_url }}): What gets packaged, pinned, signed, and shared.
-- [Runners]({{ '/docs/runners/' | absolute_url }}): What compatible runners must enforce without agentrc becoming a runtime.
-- [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial test-suite outline.
-- [CLI]({{ '/cli/' | absolute_url }}): The agentrc command-line interface (coming soon).
-- [Workflows]({{ '/docs/workflows/' | absolute_url }}): Non-normative multi-agent workflow companion draft.
+- [Agentfile]({{ '/docs/agentfile/' | absolute_url }}): The Dockerfile-shaped, single-agent declaration format and its four new keywords.
+- [Security]({{ '/docs/security/' | absolute_url }}): Label-based boundaries (network, secrets-as-references, tools/MCP, devices, sub-agents) and platform-side Cedar enforcement.
+- [Package model]({{ '/docs/package/' | absolute_url }}): The OCI artifact — layers carrying `/mnt` resources, image config carrying `org.agentrc.*` labels, signing, and `.origin` override.
+- [Runners]({{ '/docs/runners/' | absolute_url }}): What a platform reads (labels) versus what a substrate executes (`CMD`), and the grant/narrow/reject contract.
+- [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial, fail-closed test-suite outline.
+- [CLI]({{ '/cli/' | absolute_url }}): The two build paths — the BuildKit frontend and the native `agentrc`/`arc` CLI (in progress).
+- [Workflows]({{ '/docs/workflows/' | absolute_url }}): Deferred, non-normative multi-agent companion that references packaged agents by digest (distinct from the deferred A2A protocol).
 - [Non-goals]({{ '/docs/non-goals/' | absolute_url }}): What agentrc deliberately does not define.
 
 ## Profiles
 
-- [Core]({{ '/profiles/core/' | absolute_url }}): The minimal normative directive set and the full directive classification.
-- [Security]({{ '/profiles/security/' | absolute_url }}): Boundary, policy, credential, and audit semantics.
-- [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): Lockfile and OCI package layout, media types, and annotations.
-- [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): Optional command-oriented tool/function discovery surface.
-- [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Execution and enforcement obligations for runners.
-- [Workflow Draft]({{ '/profiles/workflow-draft/' | absolute_url }}): Step-function-shaped multi-agent orchestration draft.
+- [Core]({{ '/profiles/core/' | absolute_url }}): The Agentfile core — the four keywords plus the standard Dockerfile keywords, compiled to `org.agentrc.*` labels and layers.
+- [Security]({{ '/profiles/security/' | absolute_url }}): The platform-side Cedar enforcement profile and the normative request → Cedar mapping.
+- [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): The `org.agentrc.*` label namespace, layer layout, media types, and annotations.
+- [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract.
+- [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, resolve secrets, enforce via Cedar, fail closed.
+- [Workflow Draft]({{ '/profiles/workflow-draft/' | absolute_url }}): Deferred, non-normative multi-agent orchestration companion.
 
 ## Examples
 
-- [Examples]({{ '/examples/' | absolute_url }}): Sample Agentfiles and a workflow YAML.
+- [Examples]({{ '/examples/' | absolute_url }}): Sample Agentfiles (minimal, secure workspace, code reviewer, vault agent) and a deferred workflow YAML.
 
 ## Reference
 
-- [Acknowledgements]({{ '/acknowledgements/' | absolute_url }}): The open standards agentrc builds on (Agent SOP, microsandbox, UTCP, MCP, Cedar, Agent Skills, OCI, Sigstore, SLSA, OpenTelemetry, A2A).
+- [Acknowledgements]({{ '/acknowledgements/' | absolute_url }}): The open standards agentrc builds on (Agent SOP, microsandbox, MCP, Cedar, Agent Skills, OCI, Sigstore, SLSA, OpenTelemetry, A2A).
 - [Changelog]({{ '/changelog/' | absolute_url }}): Site and spec changelog.
 - [Source repository](https://github.com/{{ site.repository }}): Specification source and reference implementation notes.
