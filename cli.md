@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: CLI
-description: "Building agentrc agents: the BuildKit frontend (nothing to install) and the native agentrc / arc CLI."
+description: "Building agentrc agents: the BuildKit frontend (no CLI to install) and the native agentrc / arc CLI — both in progress."
 permalink: /cli/
 ---
 # agentrc CLI
@@ -13,18 +13,23 @@ native `agentrc` CLI (alias `arc`). This page is the practical companion to
 [§10 of the specification](/spec/).
 
 <div class="callout">
-<strong>In progress.</strong> The native <code>agentrc</code> / <code>arc</code>
-CLI is being built. The BuildKit frontend path below works with any current
-Docker / BuildKit install. The <a href="/spec/">specification</a>, schemas, and
-examples on this site are the source of truth today; both build paths implement
-them and MUST emit the same labels and layers.
+<strong>In progress — neither path ships yet.</strong> The native
+<code>agentrc</code> / <code>arc</code> CLI is being built (every command is
+status <code>planned</code>, see the table below), and the BuildKit frontend
+image that <code># syntax=agentrc.agentfile/v0.1</code> resolves to is
+<strong>not yet published</strong> — so a stock <code>docker build</code> cannot
+route through it today either. The <a href="/spec/">specification</a>, schemas,
+and examples on this site are the source of truth today; both build paths are
+being implemented against them and MUST emit the same labels and layers.
 </div>
 
-## BuildKit frontend (nothing to install)
+## BuildKit frontend (no CLI to install)
 
-If you already have Docker / BuildKit, you need install nothing. Add the
-`# syntax=` directive as the **first line** of your `Agentfile` and build it like
-any image:
+This is the design: once the agentrc frontend image is published, anyone with
+Docker / BuildKit will need to install nothing extra — the `# syntax=` directive
+on the **first line** of an `Agentfile` pulls the frontend automatically. The
+frontend image is **not yet published** (see the note above), so the build below
+does not run today; it shows the intended flow:
 
 ```dockerfile
 # syntax=agentrc.agentfile/v0.1
