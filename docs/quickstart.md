@@ -12,6 +12,22 @@ emits, push the artifact, and run it. The Agentfile is Dockerfile-shaped — if 
 know `docker build`, you already know most of this. For the full normative
 grammar, see the [specification](/spec/).
 
+<div class="callout">
+<strong>Status: author today, build soon.</strong> agentrc is spec-first, and
+neither build path below ships yet. The native <code>agentrc</code> /
+<code>arc</code> CLI is still being built — <strong>every</strong> command
+(<code>build</code>, <code>inspect</code>, <code>push</code>, <code>run</code>)
+is status <code>planned</code> (see the <a href="/cli/">live CLI status
+table</a>). The BuildKit frontend image that
+<code># syntax=agentrc.agentfile/v0.1</code> resolves to is <strong>not yet
+published</strong> either, so a stock <code>docker build</code> can't route
+through it today. What you <em>can</em> do right now is <strong>step 1</strong>:
+author an <code>Agentfile</code> against the <a href="/spec/">specification</a>
+and reason about the <code>org.agentrc.*</code> labels it will emit (step 3).
+Read steps 2, 4, and 5 as the planned build → push → run interface, not commands
+you can execute yet.
+</div>
+
 ## 1. Create an `Agentfile`
 
 Four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) sit on top of
@@ -52,9 +68,10 @@ tool is just an executable placed under `/mnt/tools/`; its destination path unde
 There are two front doors to the same compiler — they produce **identical** OCI
 artifacts.
 
-**BuildKit frontend (nothing to install).** The `# syntax=` line routes the file
-through the agentrc frontend image, so a stock Docker / BuildKit install needs no
-extra tooling:
+**BuildKit frontend (no CLI to install).** The `# syntax=` line is designed to
+route the file through the agentrc frontend image, so that once that image is
+published a stock Docker / BuildKit install will need no extra tooling (the
+frontend image is [not yet published](/cli/)):
 
 ```bash
 docker build -f Agentfile -t ghcr.io/you/hello:1.0 .

@@ -499,8 +499,10 @@ docker build -f Agentfile -t ghcr.io/acme/my-agent:1.0 .
 
 The `# syntax=` directive routes the Agentfile through the agentrc frontend
 image, which parses the agentrc keywords, compiles to LLB, and produces the OCI
-artifact with all `org.agentrc.*` labels. Users who already have Docker /
-BuildKit need install nothing.
+artifact with all `org.agentrc.*` labels. By design, users who already have
+Docker / BuildKit then need install nothing. The frontend image is **not yet
+published** — like the CLI, this build path is `planned`; see the
+[CLI page](/cli/) for current status.
 
 ### 10.2 Native `agentrc` CLI
 
