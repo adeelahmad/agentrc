@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  {% include head.html %}
+  <body>
+    {% include header.html %}
+    <main class="doc-shell">
+      <aside class="toc-card">
+        <strong>AgentRC</strong>
+        <a href="{{ '/spec/' | relative_url }}">Specification</a>
+        <a href="{{ '/docs/agentfile/' | relative_url }}">Agentfile</a>
+        <a href="{{ '/docs/security/' | relative_url }}">Security</a>
+        <a href="{{ '/docs/package/' | relative_url }}">Package</a>
+        <a href="{{ '/docs/runners/' | relative_url }}">Runners</a>
+        <a href="{{ '/docs/workflows/' | relative_url }}">Workflow draft</a>
+      </aside>
+      <article class="doc-content">
+        {{ content }}
+      </article>
+    </main>
+    {% include footer.html %}
+  </body>
+</html>

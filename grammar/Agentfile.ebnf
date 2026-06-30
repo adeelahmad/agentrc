@@ -1,0 +1,35 @@
+(* AgentRC Agentfile grammar, v0.1.0-draft.2. *)
+
+agentfile       = { line } ;
+line            = ws , ( comment | directive | policy-end | empty ) , newline ;
+empty           = "" ;
+comment         = "#" , { any-char } ;
+inline-comment  = ws , "#" , { any-char } ;
+
+directive       = simple-directive [ inline-comment ]
+                | policy-block ;
+
+simple-directive = keyword , { ws , argument } ;
+keyword          = "AGENT" | "FROM" | "SHELL" | "CMD" | "TOOL" | "TOOLSET"
+                 | "FUNCTION" | "SKILL" | "SERVER" | "MCP" | "URL" | "CRED"
+                 | "BIND" | "MOUNT" | "PLUGIN" | "ALLOW" | "DENY" | "RATELIMIT"
+                 | "AUDIT" | "TIMEOUT" | "LIMIT" | "SLICE" | "IMAGE" | "ISOLATION"
+                 | "BROKER" | "BACKEND" | "TRACE" | "MEMORY" | "OPTIMIZER"
+                 | "HEALTHCHECK" ;
+
+policy-block    = "POLICY" , [ ws , policy-profile ] , newline ,
+                  { policy-line , newline } ,
+                  "END" ;
+policy-profile  = identifier ;
+policy-line     = { any-char - line-containing-only-END } ;
+
+argument        = bare-token ;
+bare-token      = { visible-char - ws } ;
+identifier      = letter , { letter | digit | "-" | "_" | "." | ":" } ;
+ws              = { " " | "\t" } ;
+newline         = "\n" | "\r\n" ;
+
+(*
+  v0.1 uses whitespace-separated arguments for compatibility with the current
+  implementation. Future versions may add quoted strings and line continuations.
+*)

@@ -1,0 +1,17 @@
+# syntax=agentrc.agentfile/v0.1
+
+AGENT hello-local
+CMD strands run --agent hello-local
+
+TOOL utci:file_read
+TOOL utci:current_time
+
+AUDIT basic
+
+POLICY
+  permit(
+    principal == AgentRC::Agent::"hello-local",
+    action in [AgentRC::Action::"tool.invoke"],
+    resource in [AgentRC::Tool::"file_read", AgentRC::Tool::"current_time"]
+  );
+END

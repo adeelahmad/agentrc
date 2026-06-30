@@ -1,0 +1,40 @@
+# syntax=agentrc.agentfile/v0.1
+
+AGENT code-reviewer
+CMD strands run --agent code-reviewer
+
+BIND ./repo /workspace copy
+MOUNT /workspace rw
+
+TOOL utci:file_read
+TOOL utci:shell
+SKILL pr-review
+AUDIT all
+
+POLICY
+  permit(
+    principal == AgentRC::Agent::"code-reviewer",
+    action == AgentRC::Action::"tool.invoke",
+    resource == AgentRC::Tool::"file_read"
+  );
+
+  permit(
+    principal == AgentRC::Agent::"code-reviewer",
+    action == AgentRC::Action::"tool.invoke",
+    resource == AgentRC::Tool::"shell"
+  )
+  when { context.path.startsWith("/workspace") };
+
+  forbid(
+    principal == AgentRC::Agent::"code-reviewer",
+    action == AgentRC::Action::"tool.invoke",
+    resource == AgentRC::Tool::"shell"
+  )
+  when { context.path == "/" };
+
+  permit(
+    principal == AgentRC::Agent::"code-reviewer",
+    action == AgentRC::Action::"skill.invoke",
+    resource == AgentRC::Skill::"pr-review"
+  );
+END

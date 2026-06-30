@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.agentio.dev/schemas/agentrc-lock.v1.schema.json",
+  "title": "AgentRC Lockfile",
+  "type": "object",
+  "required": ["version", "agentfile_hash", "timestamp"],
+  "properties": {
+    "version": { "type": "string" },
+    "build_id": { "type": "string" },
+    "agentfile_hash": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "policy_hash": { "type": "string" },
+    "credential_names": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "base_image": {
+      "type": "object",
+      "properties": {
+        "registry": { "type": "string" },
+        "name": { "type": "string" },
+        "tag": { "type": "string" },
+        "digest": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "hash": { "type": "string" },
+          "schema_hash": { "type": "string" },
+          "source": { "type": "string" },
+          "digest": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string" },
+          "name": { "type": "string" },
+          "hash": { "type": "string" },
+          "type_hint_digest": { "type": "string" },
+          "source": { "type": "string" },
+          "version": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "hash": { "type": "string" },
+          "source": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "toolsets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "memory": { "type": "object", "additionalProperties": true },
+    "optimizer": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": true
+}

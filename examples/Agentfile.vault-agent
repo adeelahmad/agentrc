@@ -1,0 +1,24 @@
+# syntax=agentrc.agentfile/v0.1
+
+AGENT vault-agent
+CMD strands run --agent vault-agent
+
+BROKER vault
+CRED db_password vault://secret/data/prod/db#password
+
+TOOL utci:file_read
+AUDIT all
+
+POLICY
+  permit(
+    principal == AgentRC::Agent::"vault-agent",
+    action == AgentRC::Action::"tool.invoke",
+    resource == AgentRC::Tool::"file_read"
+  );
+
+  permit(
+    principal == AgentRC::Agent::"vault-agent",
+    action == AgentRC::Action::"cred.resolve",
+    resource == AgentRC::Credential::"db_password"
+  );
+END
