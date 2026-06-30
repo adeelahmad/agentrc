@@ -4,7 +4,7 @@ AGENT vault-agent
 CMD strands run --agent vault-agent
 
 BROKER vault
-CRED db_password vault://secret/data/prod/db#password
+CRED db_password vault://secret/data/prod/db#password host:db.internal.example
 
 TOOL utcp:file_read
 AUDIT all

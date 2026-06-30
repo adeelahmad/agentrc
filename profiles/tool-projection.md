@@ -7,13 +7,13 @@ permalink: /profiles/tool-projection/
 # Tool Projection
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
 This optional profile defines a command-oriented way for agents and humans to discover and invoke declared capabilities.
 
-This profile does not make AgentRC a runtime. It defines a portable surface a compatible runner may expose.
+This profile does not make agentrc a runtime. It defines a portable surface a compatible runner may expose.
 
 ## Projection root
 

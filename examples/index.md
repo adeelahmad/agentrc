@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Examples
-description: "AgentRC example Agentfiles and workflow drafts."
+description: "agentrc example Agentfiles and workflow drafts."
 permalink: /examples/
 ---
 # Examples
 
-These examples demonstrate the intended style of AgentRC declarations.
+These examples demonstrate the intended style of agentrc declarations.
 
 ## Files
 

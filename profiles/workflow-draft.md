@@ -7,7 +7,7 @@ permalink: /profiles/workflow-draft/
 # Workflow Draft
 
 **Status:** Non-normative sketch  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 

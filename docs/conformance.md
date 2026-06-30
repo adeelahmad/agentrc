@@ -6,7 +6,7 @@ permalink: /docs/conformance/
 ---
 # Conformance
 
-AgentRC conformance is profile-based.
+agentrc conformance is profile-based.
 
 A tool, package builder, registry, runner, or workflow engine should state exactly which profiles it supports.
 
@@ -58,6 +58,6 @@ A runner that claims a profile but fails any of that profile's adversarial cases
 
 ## Honest conformance status of the reference implementation
 
-AgentRC is the specification; the reference implementation (the `aio-*` packages in this repository) is an implementation and test harness, **not** the definition. Spec-first work means the spec leads the implementation, so the implementation is expected to lag — and that gap must be labeled honestly rather than implied away.
+agentrc is the specification; the reference implementation (the `aio-*` packages in this repository) is an implementation and test harness, **not** the definition. Spec-first work means the spec leads the implementation, so the implementation is expected to lag — and that gap must be labeled honestly rather than implied away.
 
 As of this draft, the reference implementation should be described as passing only the profiles it actually passes today (Agentfile parsing and OCI packaging), and **not** yet claiming the Cedar profile or full fail-closed Security/Runner conformance until a real Cedar evaluator and the adversarial cases above are in place. Implementations MUST NOT advertise a profile they do not pass.

@@ -7,28 +7,29 @@ sitemap: false
 
 > {{ site.description }}
 
-AgentRC (Agent Run Config) is an open specification for declaring, packaging, securing, and sharing portable AI agents. It defines the contract an agent declares — its identity, entrypoint, tools, boundaries, and governing policy — while compatible runners decide how to execute it. AgentRC is not a runtime, sandbox, model provider, or agent framework.
+agentrc (Agent Run Config) is an open specification for declaring, packaging, securing, and sharing portable AI agents. It defines the contract an agent declares — its identity, entrypoint, tools, boundaries, and governing policy — while compatible runners decide how to execute it. agentrc is not a runtime, sandbox, model provider, or agent framework.
 
 Every page on this site is also available as raw Markdown via the "View Markdown" link in its page actions, or directly from the repository source tree.
 
 ## Start here
 
-- [What is AgentRC?]({{ '/docs/what-is-agentrc/' | absolute_url }}): Definition, the problem it solves, and why it is needed.
+- [What is agentrc?]({{ '/docs/what-is-agentrc/' | absolute_url }}): Definition, the problem it solves, and why it is needed.
 - [Quickstart]({{ '/docs/quickstart/' | absolute_url }}): Write, validate, build, and publish your first Agentfile.
 
 ## Specification
 
-- [AgentRC Specification]({{ '/spec/' | absolute_url }}): The full working draft — concepts, directives, package model, profiles, and conformance language.
+- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full working draft — concepts, directives, package model, profiles, and conformance language.
 
 ## Documentation
 
 - [Agentfile]({{ '/docs/agentfile/' | absolute_url }}): The single-agent declaration format.
 - [Security]({{ '/docs/security/' | absolute_url }}): Declarative boundaries for files, network, secrets, tools, and audit.
 - [Package model]({{ '/docs/package/' | absolute_url }}): What gets packaged, pinned, signed, and shared.
-- [Runners]({{ '/docs/runners/' | absolute_url }}): What compatible runners must enforce without AgentRC becoming a runtime.
+- [Runners]({{ '/docs/runners/' | absolute_url }}): What compatible runners must enforce without agentrc becoming a runtime.
 - [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial test-suite outline.
+- [CLI]({{ '/cli/' | absolute_url }}): The agentrc command-line interface (coming soon).
 - [Workflows]({{ '/docs/workflows/' | absolute_url }}): Non-normative multi-agent workflow companion draft.
-- [Non-goals]({{ '/docs/non-goals/' | absolute_url }}): What AgentRC deliberately does not define.
+- [Non-goals]({{ '/docs/non-goals/' | absolute_url }}): What agentrc deliberately does not define.
 
 ## Profiles
 
@@ -45,5 +46,6 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 
 ## Reference
 
+- [Acknowledgements]({{ '/acknowledgements/' | absolute_url }}): The open standards agentrc builds on (Agent SOP, microsandbox, UTCP, MCP, Cedar, Agent Skills, OCI, Sigstore, SLSA, OpenTelemetry, A2A).
 - [Changelog]({{ '/changelog/' | absolute_url }}): Site and spec changelog.
 - [Source repository](https://github.com/{{ site.repository }}): Specification source and reference implementation notes.

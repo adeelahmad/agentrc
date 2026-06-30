@@ -9,7 +9,25 @@ MOUNT /workspace rw
 TOOL utcp:file_read
 TOOL utcp:shell
 SKILL pr-review
+CRED github_token env:GITHUB_TOKEN host:api.github.com
 AUDIT all
+
+SOP pr-review
+  ## Overview
+  Review a pull request diff for correctness, security, and clarity.
+
+  ## Parameters
+  - **diff** (required): the unified diff under review
+
+  ## Steps
+  ### 1. Triage
+  - You MUST read the full diff before commenting.
+  - You MUST NOT approve while any required check is failing.
+
+  ### 2. Report
+  - You SHOULD group findings by severity (blocker, high, low).
+  - You MAY propose concrete patches.
+END
 
 POLICY
   permit(

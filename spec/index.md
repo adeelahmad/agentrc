@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Specification
-description: "AgentRC Agentfile and Package Specification working draft."
+description: "agentrc Agentfile and Package Specification working draft."
 permalink: /spec/
 ---
-# AgentRC Specification
+# agentrc Specification
 
-**Version:** 0.1.0-draft.2  
+**Version:** 0.1.0-draft.4  
 **Status:** Working Draft  
 **Editor:** [Adeel Ahmad](https://www.linkedin.com/in/adeelahmadch)  
 **Date:** 2026-06-30  
@@ -14,7 +14,7 @@ permalink: /spec/
 
 ## 1. Status of this document
 
-This document is a working draft of the AgentRC Agentfile and Package Specification.
+This document is a working draft of the agentrc Agentfile and Package Specification.
 
 This specification defines:
 
@@ -30,7 +30,7 @@ The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, **SHOULD NOT**, 
 
 ## 2. Abstract
 
-AgentRC defines a portable declaration and packaging format for AI agents.
+agentrc defines a portable declaration and packaging format for AI agents.
 
 The **Agentfile** declares what an agent is and what it is allowed to request. The **agent package** carries the Agentfile, lockfile, policy, tools, functions, skills, metadata, and optional source artifacts. Compatible **runners** execute the package and enforce the declared boundaries.
 
@@ -46,7 +46,7 @@ The intended result is separation of concerns:
 | Cloud/runtime-specific enforcement | Runner implementation |
 | Multi-agent orchestration | Future workflow companion spec |
 
-AgentRC allows developers to define an agent once, security teams to review it before execution, registries to share it as a reusable artifact, and runners to execute it without requiring the agent to be rewritten for a specific runtime or cloud.
+agentrc allows developers to define an agent once, security teams to review it before execution, registries to share it as a reusable artifact, and runners to execute it without requiring the agent to be rewritten for a specific runtime or cloud.
 
 ## 3. Design goals
 
@@ -63,7 +63,7 @@ The design goals are:
 
 ## 4. Non-goals
 
-AgentRC does not define:
+agentrc does not define:
 
 1. a new runtime;
 2. a new sandboxing technology;
@@ -76,7 +76,7 @@ AgentRC does not define:
 9. cloud infrastructure provisioning;
 10. a central proprietary registry.
 
-AgentRC packages declare requirements. Compatible runners decide whether and how they can satisfy those requirements.
+agentrc packages declare requirements. Compatible runners decide whether and how they can satisfy those requirements.
 
 ## 5. Core terminology
 
@@ -94,7 +94,7 @@ An **agent package** is the built artifact produced from an Agentfile. It contai
 
 ### 5.4 Runner
 
-A **runner** is an implementation that can execute an AgentRC package. Examples include a local CLI runner, a container runner, a gVisor-backed runner, a microVM runner, a serverless runner, or a managed cloud runner.
+A **runner** is an implementation that can execute an agentrc package. Examples include a local CLI runner, a container runner, a gVisor-backed runner, a microVM runner, a serverless runner, or a managed cloud runner.
 
 A runner is outside the core Agentfile format. A runner may claim conformance to one or more profiles defined by this specification.
 
@@ -108,19 +108,19 @@ A **boundary** is a declared limit on a capability. Boundaries include filesyste
 
 ### 5.7 Policy
 
-A **policy** is a machine-evaluable rule set governing a capability request. The default AgentRC policy profile is Cedar.
+A **policy** is a machine-evaluable rule set governing a capability request. The default agentrc policy profile is Cedar.
 
 ### 5.8 Registry
 
-A **registry** is a content-addressed distribution system that stores AgentRC packages or package components. OCI registries are the default distribution mechanism.
+A **registry** is a content-addressed distribution system that stores agentrc packages or package components. OCI registries are the default distribution mechanism.
 
 ### 5.9 Profile
 
-A **profile** is a named subset of conformance requirements. AgentRC uses profiles so the specification can remain neutral while still allowing concrete implementations to prove compatibility.
+A **profile** is a named subset of conformance requirements. agentrc uses profiles so the specification can remain neutral while still allowing concrete implementations to prove compatibility.
 
 ## 6. Layering model
 
-AgentRC is divided into six layers.
+agentrc is divided into six layers.
 
 | Layer | Purpose | Defined here? |
 |---|---|---|
@@ -144,7 +144,7 @@ Rules:
 3. Inline comments MAY appear after whitespace followed by `#`.
 4. Directive names are uppercase ASCII tokens.
 5. Arguments are whitespace-separated unless a future profile defines quoting semantics.
-6. `POLICY` opens a block and `END` closes it.
+6. `POLICY` and `SOP` open multi-line blocks closed by `END`.
 7. Unknown directives MUST fail validation unless explicitly placed in an extension namespace profile.
 
 A syntax marker MAY be carried as a comment so older parsers can ignore it:
@@ -200,11 +200,11 @@ FROM python:3.11-slim
 FROM scratch
 ```
 
-`FROM` MAY refer to an AgentRC agent package, an OCI image, or `scratch`.
+`FROM` MAY refer to an agentrc agent package, an OCI image, or `scratch`.
 
-If the reference is an AgentRC package, inheritance rules apply. If the reference is an ordinary OCI image, it is treated as a base execution environment and no agent inheritance is implied.
+If the reference is an agentrc package, inheritance rules apply. If the reference is an ordinary OCI image, it is treated as a base execution environment and no agent inheritance is implied.
 
-A child package MUST NOT weaken inherited security ceilings from a parent AgentRC package.
+A child package MUST NOT weaken inherited security ceilings from a parent agentrc package.
 
 ### 9.3 `SHELL`
 
@@ -244,7 +244,7 @@ TOOL mcp:github.get_issue
 
 A tool reference SHOULD identify a namespace and tool name. Tool metadata SHOULD include input schema, output schema, version, digest, risk tier, and provenance.
 
-AgentRC does not invent a tool-calling transport. Tools described and invoked through the **[Universal Tool Calling Protocol (UTCP)](https://www.utcp.io/)** use the `utcp:` namespace, and SHOULD follow the [UTCP specification](https://github.com/universal-tool-calling-protocol/utcp-specification) for their tool descriptions. Tools provided over the Model Context Protocol use the `mcp:` namespace (see §9.10).
+agentrc does not invent a tool-calling transport. Tools described and invoked through the **[Universal Tool Calling Protocol (UTCP)](https://www.utcp.io/)** use the `utcp:` namespace, and SHOULD follow the [UTCP specification](https://github.com/universal-tool-calling-protocol/utcp-specification) for their tool descriptions. Tools provided over the Model Context Protocol use the `mcp:` namespace (see §9.10).
 
 Declaring a tool does not automatically grant use of the tool unless the active security profile allows it. Under deny-by-default security, the tool must also be permitted by policy.
 
@@ -304,7 +304,7 @@ MCP github
 MCP registry://modelcontextprotocol/filesystem@1.0.2
 ```
 
-MCP dependencies follow the **[Model Context Protocol (MCP)](https://modelcontextprotocol.io/)** specification. AgentRC does not replace or re-specify MCP; it declares the dependency and governs it.
+MCP dependencies follow the **[Model Context Protocol (MCP)](https://modelcontextprotocol.io/)** specification. agentrc does not replace or re-specify MCP; it declares the dependency and governs it.
 
 An MCP declaration grants no ambient access. The runner must still apply policy, credentials, and network boundaries to MCP calls.
 
@@ -321,29 +321,42 @@ Network access is deny-by-default under the Security Declaration Profile. A decl
 
 ### 9.12 `CRED`
 
-Declares a credential reference.
+Declares a credential or secret reference.
+
+agentrc adopts the **host-scoped placeholder-substitution** secret model defined by **[microsandbox](https://docs.microsandbox.dev/sandboxes/secrets)**. A secret is bound to a **source** and to one or more **allowed hosts**. The real value MUST NOT enter the agent's execution environment: the agent only ever sees a placeholder, and a conforming runner swaps the placeholder for the real value at the **network layer**, only for outbound requests to the secret's allowed hosts.
 
 ```dockerfile
-CRED github_token env:GITHUB_TOKEN
-CRED db_password vault://secret/data/prod/db#password
-CRED github_token keyring:github_token
-CRED https://api.github.com bearer env:GITHUB_TOKEN
-CRED github_api https://api.github.com bearer env:GITHUB_TOKEN
+CRED github_token env:GITHUB_TOKEN host:api.github.com
+CRED openai_key  env:OPENAI_API_KEY host:api.openai.com
+CRED stripe_key  env:STRIPE_KEY     host:*.stripe.com inject:header
+CRED db_password vault://secret/data/prod/db#password host:db.internal.example
+CRED github_token keyring:github_token host:api.github.com
 ```
 
-A package MUST NOT contain plaintext secret values.
+Syntax:
 
-The following credential forms are recognized by this draft:
+```text
+CRED <name> <source> host:<host-or-pattern> [host:<host-or-pattern> ...] [inject:header|query]
+```
 
-| Form | Meaning |
+| Part | Meaning |
 |---|---|
-| `CRED <name> env:<VAR>` | Resolve named credential from environment variable |
-| `CRED <name> vault://<path>#<key>` | Resolve named credential from Vault-like backend |
-| `CRED <name> keyring:<key>` | Resolve named credential from an OS/user keyring |
-| `CRED <url> <auth-type> env:<VAR>` | Bind credential source to URL for compatibility with current tooling |
-| `CRED <name> <url> <auth-type> env:<VAR>` | Named credential bound to URL and auth type |
+| `<name>` | Logical secret name. The agent environment sees a placeholder (e.g. `$<NAME>`), never the value. |
+| `env:<VAR>` | Source the value from an environment variable on the host resolving the package. |
+| `vault://<path>#<key>` | Source the value from a Vault-like backend. |
+| `keyring:<key>` | Source the value from an OS/user keyring. |
+| `host:<host>` | An allowed destination host the secret may be substituted into. Patterns such as `*.stripe.com` are permitted. Requests to any other host MUST NOT receive the value. |
+| `inject:header` \| `inject:query` | Where the runner injects the secret on an allowed request. Defaults to `header`. |
 
-Runners MUST redact credential values from logs, audit events, lockfiles, and package metadata.
+Rules:
+
+1. A package MUST NOT contain plaintext secret values.
+2. The secret value MUST NOT be exposed to agent code, tools, the filesystem, environment dumps, traces, or audit — only a placeholder is visible inside the sandbox.
+3. A runner MUST substitute the value only for outbound requests to a declared allowed host; a secret with no `host:` binding MUST NOT be substituted into any request.
+4. Runners MUST redact credential values from logs, audit events, lockfiles, and package metadata.
+5. If a runner cannot enforce host-scoped substitution for a required secret, it MUST fail closed rather than expose the value to the sandbox.
+
+For backward compatibility a runner MAY accept a host-less `CRED <name> <source>`, but it SHOULD warn, because an unbound secret cannot be safely placeholder-substituted.
 
 ### 9.13 `BIND`
 
@@ -472,7 +485,7 @@ Declares resource shape requirements.
 SLICE cpu=2 mem=2048
 ```
 
-`SLICE` is a runner resource hint/profile directive. It does not require AgentRC to define resource isolation itself.
+`SLICE` is a runner resource hint/profile directive. It does not require agentrc to define resource isolation itself.
 
 ### 9.22 `IMAGE`
 
@@ -482,7 +495,7 @@ Declares an image expected by a runner or package builder.
 IMAGE ghcr.io/agentrc/dev-sandbox:1.0
 ```
 
-`IMAGE` is an execution/package hint. It MUST NOT be interpreted as making AgentRC a runtime.
+`IMAGE` is an execution/package hint. It MUST NOT be interpreted as making agentrc a runtime.
 
 ### 9.23 `ISOLATION`
 
@@ -561,9 +574,50 @@ HEALTHCHECK --interval=30s --timeout=5s CMD utcp:ping
 
 A runner MAY use health checks for lifecycle management. A runner that ignores health checks SHOULD report that the directive is unsupported.
 
+### 9.30 `SOP`
+
+Declares a **Standard Operating Procedure** — a reusable, natural-language instruction set that guides the agent through a multi-step task. agentrc adopts the **[Agent SOP](https://github.com/strands-agents/agent-sop)** model from Strands Agents: SOPs are markdown instruction sets with parameterized inputs and RFC 2119 constraints (`MUST` / `SHOULD` / `MAY`) that steer agent behavior without rigid scripting.
+
+A `SOP` may be referenced from a file or registry, or embedded inline in the Agentfile as a block closed by `END`:
+
+```dockerfile
+# Reference an external SOP (markdown, or an Agent Skill SKILL.md bundle)
+SOP ./sops/code-review.md
+SOP ghcr.io/org/sops/incident-response:1.2
+
+# Or embed an SOP directly in the Agentfile
+SOP code-review
+  ## Overview
+  Review a pull request for correctness and security.
+
+  ## Parameters
+  - **diff** (required): the unified diff to review
+
+  ## Steps
+  ### 1. Triage
+  - You MUST read the full diff before commenting.
+  - You MUST NOT approve if any required check is failing.
+
+  ### 2. Report
+  - You SHOULD group findings by severity.
+  - You MAY suggest concrete patches.
+END
+```
+
+The two forms are distinguished by the argument: an `SOP` line whose argument is a file path or registry/OCI reference (it contains `/`, `://`, or a file extension) is the **single-line reference** form; otherwise the argument is a bare name and the directive **opens a block** closed by a line containing only `END`.
+
+An SOP SHOULD follow the Agent SOP section structure (`Overview`, `Parameters`, `Steps` with constraints, optional `Examples` and `Troubleshooting`). Because Agent SOPs are distributable as the open `SKILL.md` [Agent Skills](https://agentskills.io/) format, an SOP MAY also be packaged and resolved as a `SKILL` (§9.8).
+
+Semantics:
+
+1. Embedded SOP blocks are captured verbatim, exactly like `POLICY` blocks, and MUST NOT be parsed as Agentfile directives.
+2. SOP content is **instruction**, not capability or authority: an SOP MUST NOT grant access that policy and boundary declarations do not already permit. Instructions never widen the security ceiling.
+3. SOP references SHOULD be pinned by digest in the lockfile so the embedded guidance is reproducible.
+4. A runner that injects SOP instructions into the agent's context SHOULD record which SOPs were active when `AUDIT` requires it.
+
 ## 10. Security model
 
-AgentRC security is declarative and reviewable.
+agentrc security is declarative and reviewable.
 
 The Agentfile declares requested boundaries; a conforming runner enforces supported boundaries or fails closed.
 
@@ -573,18 +627,18 @@ Principles:
 2. **Deny by default** — undeclared access is not granted under the Security Declaration Profile.
 3. **Fail closed** — unsupported required security controls cause failure, not silent weakening.
 4. **Deny wins** — forbids override permits.
-5. **Secrets are references** — no plaintext secret values appear in source, lockfile, package, logs, or audit.
+5. **Secrets are host-scoped references** — no plaintext secret values appear in source, lockfile, package, logs, or audit. Following [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets), a secret value never enters the sandbox; the agent sees a placeholder and the runner substitutes the real value only at the network layer for the secret's declared allowed hosts.
 6. **Policy travels with package** — policy source or compiled policy profile is content-addressed and included in the package.
 7. **Inheritance tightens** — child packages cannot weaken inherited ceilings.
 8. **Operator override is explicit** — any override is outside the package and auditable.
 
 ## 11. Cedar policy profile
 
-The default AgentRC policy profile is **[Cedar](https://www.cedarpolicy.com/)**, the open-source authorization policy language created by AWS. AgentRC adopts Cedar's syntax and semantics as its policy lingua franca rather than defining a new policy language; policies are written in Cedar and evaluated with a Cedar-compatible evaluator.
+The default agentrc policy profile is **[Cedar](https://www.cedarpolicy.com/)**, the open-source authorization policy language created by AWS. agentrc adopts Cedar's syntax and semantics as its policy lingua franca rather than defining a new policy language; policies are written in Cedar and evaluated with a Cedar-compatible evaluator.
 
 A Cedar request evaluates:
 
-| Cedar element | AgentRC meaning |
+| Cedar element | agentrc meaning |
 |---|---|
 | Principal | agent identity, caller, or delegated agent |
 | Action | operation such as `tool.invoke`, `function.invoke`, `cred.resolve`, `network.egress` |
@@ -617,7 +671,7 @@ A runner that claims support for the Cedar profile MUST:
 
 ## 12. Agent package model
 
-An AgentRC package is a content-addressed bundle containing:
+An agentrc package is a content-addressed bundle containing:
 
 1. `Agentfile`;
 2. `agentrc.lock`;
@@ -674,6 +728,14 @@ A lockfile SHOULD contain:
       "source": "./skills/pr-review"
     }
   ],
+  "sops": [
+    {
+      "name": "pr-review",
+      "version": "1.0.0",
+      "hash": "sha256:...",
+      "source": "inline"
+    }
+  ],
   "policy_hash": "sha256:...",
   "credential_names": ["github_token"],
   "timestamp": "2026-06-30T00:00:00Z"
@@ -684,7 +746,7 @@ A lockfile MUST NOT contain credential values.
 
 ## 14. OCI package profile
 
-AgentRC packages SHOULD be distributable using OCI-compatible registries.
+agentrc packages SHOULD be distributable using OCI-compatible registries.
 
 Recommended media types:
 
@@ -739,11 +801,11 @@ Registry clients SHOULD support:
 6. dependency graph display;
 7. offline/cache mode.
 
-AgentRC does not require a central registry. Public community registries, private enterprise registries, and air-gapped registries should all be possible.
+agentrc does not require a central registry. Public community registries, private enterprise registries, and air-gapped registries should all be possible.
 
 ## 16. Inheritance and monotonic security
 
-If `FROM` references another AgentRC package, the child inherits the parent package's declared capabilities and restrictions.
+If `FROM` references another agentrc package, the child inherits the parent package's declared capabilities and restrictions.
 
 A child package MAY:
 
@@ -795,7 +857,7 @@ Recommended projection:
 /agentrc/proc/limits
 ```
 
-This profile is optional. It should not be used to imply AgentRC is a runtime. It is a portability profile that runners may implement.
+This profile is optional. It should not be used to imply agentrc is a runtime. It is a portability profile that runners may implement.
 
 ## 18. Runner conformance profile
 
@@ -813,7 +875,7 @@ A runner claiming the Core Runner Profile MUST:
 8. never leak credential values in logs or audit;
 9. report the effective execution profile.
 
-A runner MAY be implemented using local processes, containers, gVisor, microVMs, cloud jobs, Kubernetes, SSH, serverless workers, or managed agent runtimes. The implementation substrate is not specified by AgentRC.
+A runner MAY be implemented using local processes, containers, gVisor, microVMs, cloud jobs, Kubernetes, SSH, serverless workers, or managed agent runtimes. The implementation substrate is not specified by agentrc.
 
 ## 19. Multi-agent workflows
 
@@ -887,7 +949,7 @@ Packages SHOULD include the Agentfile version as package metadata and OCI annota
 
 ## 23. Compatibility with existing work
 
-This draft is aligned with the current AgentRC repository structure:
+This draft is aligned with the current agentrc repository structure:
 
 - `packages/aio-core` contains Agentfile parsing, types, audit, and Cedar scaffolding.
 - `packages/aio-buildtime` contains compile, lock, schema, OCI, and registry package work.
@@ -895,7 +957,7 @@ This draft is aligned with the current AgentRC repository structure:
 - `packages/aio` contains the CLI.
 - `examples/` contains current Agentfile examples.
 
-This draft intentionally frames runtime code as implementation and test harness, not as the definition of AgentRC itself.
+This draft intentionally frames runtime code as implementation and test harness, not as the definition of agentrc itself.
 
 ## 24. Open questions
 
@@ -904,7 +966,7 @@ This draft intentionally frames runtime code as implementation and test harness,
 3. Should Cedar be mandatory for security-conformant runners or only the default policy profile?
 4. Should `ALLOW`/`DENY` shorthand remain long-term or compile immediately into Cedar?
 5. Should tool projection be required for all runners or only for developer/local profiles?
-6. Should an AgentRC package be modeled as an OCI image, OCI artifact, or both?
+6. Should an agentrc package be modeled as an OCI image, OCI artifact, or both?
 7. What minimal metadata should be required before publishing a package to a public registry?
 8. How should multi-agent workflow policy ceilings compose across package boundaries?
 9. Should `MODEL` be a directive, or should model selection remain inside `CMD`/runner configuration?
@@ -912,7 +974,7 @@ This draft intentionally frames runtime code as implementation and test harness,
 
 ## 25. Summary
 
-AgentRC is the Agentfile and agent-package specification.
+agentrc is the Agentfile and agent-package specification.
 
-The Agentfile declares one agent. The lockfile pins its resolved dependencies. The package makes it portable. The policy makes its boundaries reviewable. The registry makes it shareable. Compatible runners execute it. AgentRC itself remains the neutral declaration, packaging, and governance layer.
+The Agentfile declares one agent. The lockfile pins its resolved dependencies. The package makes it portable. The policy makes its boundaries reviewable. The registry makes it shareable. Compatible runners execute it. agentrc itself remains the neutral declaration, packaging, and governance layer.
 

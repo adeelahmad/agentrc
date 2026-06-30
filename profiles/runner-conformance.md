@@ -7,13 +7,13 @@ permalink: /profiles/runner-conformance/
 # Runner Conformance
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
-This profile describes what a runner must do if it claims compatibility with AgentRC packages.
+This profile describes what a runner must do if it claims compatibility with agentrc packages.
 
-AgentRC itself is not the runner. This profile exists so independent runtimes, clouds, CLIs, or sandboxes can state what level of AgentRC support they provide.
+agentrc itself is not the runner. This profile exists so independent runtimes, clouds, CLIs, or sandboxes can state what level of agentrc support they provide.
 
 ## Required disclosure
 
@@ -30,9 +30,9 @@ A runner SHOULD publish a support statement containing:
 
 ## Core requirements
 
-A runner claiming AgentRC Runner Profile conformance MUST:
+A runner claiming agentrc Runner Profile conformance MUST:
 
-1. read an AgentRC package or Agentfile source;
+1. read an agentrc package or Agentfile source;
 2. validate the Agentfile or fail with a diagnostic;
 3. resolve and verify the lockfile where present;
 4. execute `CMD` or fail with unsupported entrypoint;

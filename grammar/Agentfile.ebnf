@@ -1,4 +1,4 @@
-(* AgentRC Agentfile grammar, v0.1.0-draft.2. *)
+(* agentrc Agentfile grammar, v0.1.0-draft.4. *)
 
 agentfile       = { line } ;
 line            = ws , ( comment | directive | policy-end | empty ) , newline ;
@@ -7,7 +7,9 @@ comment         = "#" , { any-char } ;
 inline-comment  = ws , "#" , { any-char } ;
 
 directive       = simple-directive [ inline-comment ]
-                | policy-block ;
+                | sop-reference [ inline-comment ]
+                | policy-block
+                | sop-block ;
 
 simple-directive = keyword , { ws , argument } ;
 keyword          = "AGENT" | "FROM" | "SHELL" | "CMD" | "TOOL" | "TOOLSET"
@@ -22,6 +24,20 @@ policy-block    = "POLICY" , [ ws , policy-profile ] , newline ,
                   "END" ;
 policy-profile  = identifier ;
 policy-line     = { any-char - line-containing-only-END } ;
+
+(*
+  SOP has two forms, disambiguated by the argument:
+    - single-line reference: the argument is a file path or registry/OCI
+      reference (contains "/", "://", or a file extension) and no block follows;
+    - inline block: the argument is a bare name and the directive opens a
+      verbatim block closed by a line containing only END (like POLICY).
+*)
+sop-reference   = "SOP" , ws , reference ;
+reference       = bare-token ;
+sop-block       = "SOP" , ws , identifier , newline ,
+                  { sop-line , newline } ,
+                  "END" ;
+sop-line        = { any-char - line-containing-only-END } ;
 
 argument        = bare-token ;
 bare-token      = { visible-char - ws } ;

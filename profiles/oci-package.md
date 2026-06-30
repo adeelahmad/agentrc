@@ -7,13 +7,13 @@ permalink: /profiles/oci-package/
 # OCI Package
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
 This profile defines how an Agentfile source tree is packaged for registry distribution.
 
-An AgentRC package is a portable agent recipe. It is not a live VM snapshot and not a runtime-specific checkpoint.
+An agentrc package is a portable agent recipe. It is not a live VM snapshot and not a runtime-specific checkpoint.
 
 ## Source tree
 

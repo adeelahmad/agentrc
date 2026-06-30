@@ -1,16 +1,16 @@
 ---
 layout: doc
-title: What is AgentRC?
-description: "What AgentRC is, the problem it solves, and why it is needed."
+title: What is agentrc?
+description: "What agentrc is, the problem it solves, and why it is needed."
 permalink: /docs/what-is-agentrc/
 ---
-# What is AgentRC?
+# What is agentrc?
 
-**AgentRC** (Agent Run Config) is an open specification for **declaring, packaging, securing, and sharing AI agents** as portable, content-addressed artifacts.
+**agentrc** (Agent Run Config) is an open specification for **declaring, packaging, securing, and sharing AI agents** as portable, content-addressed artifacts.
 
 It defines the *contract* an agent declares — what it is, how it starts, what it may touch, and how those boundaries are governed. Compatible **runners** decide how to execute that contract on their own substrate.
 
-AgentRC is **not** a runtime, sandbox, cloud platform, model provider, or agent framework. It is the neutral declaration, packaging, and governance layer that sits *above* all of those.
+agentrc is **not** a runtime, sandbox, cloud platform, model provider, or agent framework. It is the neutral declaration, packaging, and governance layer that sits *above* all of those.
 
 ## The problem
 
@@ -23,9 +23,9 @@ AI agents are becoming real software that reads files, calls tools, spends crede
 
 The result: the same agent gets reimplemented per platform, its real privileges are unknowable, and nobody can sign off on it before it runs.
 
-## What AgentRC solves
+## What agentrc solves
 
-AgentRC introduces one reviewable file and one portable package that make an agent's contract explicit and enforceable:
+agentrc introduces one reviewable file and one portable package that make an agent's contract explicit and enforceable:
 
 - **One declaration, any runner.** An `Agentfile` describes a single agent — its entrypoint, tools, mounts, network, credentials, and policy — independent of where it runs. Define once; run on Docker, gVisor, Firecracker, a cloud job, or a local process.
 - **Security by declaration.** Every capability and boundary is written down explicitly. There is no ambient authority: undeclared access is denied by default, and policy travels *with* the package.
@@ -35,29 +35,32 @@ AgentRC introduces one reviewable file and one portable package that make an age
 
 ## Who it is for
 
-| You are… | AgentRC lets you… |
+| You are… | agentrc lets you… |
 |---|---|
 | An **agent developer** | Define an agent once and have it run across runtimes without rewriting it. |
 | A **security or compliance reviewer** | Read one file to see — and sign off on — exactly what an agent may access. |
 | A **platform / runner author** | Consume a neutral spec instead of inventing your own agent format. |
 | A **registry maintainer** | Distribute agents, bases, tools, and policies as signed, inspectable artifacts. |
 
-## Standards AgentRC builds on
+## Standards agentrc builds on
 
-AgentRC is deliberately a thin governance layer over proven, open standards rather than a reinvention of them:
+agentrc is deliberately a thin governance layer over proven, open standards rather than a reinvention of them:
 
-| Concern | AgentRC uses | Namespace / form |
+| Concern | agentrc uses | Namespace / form |
 |---|---|---|
 | **Tools** | [Universal Tool Calling Protocol (UTCP)](https://www.utcp.io/) — call tools over their native endpoints without a wrapper | `TOOL utcp:<name>` |
 | **MCP servers** | [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — the open protocol for model/tool context | `MCP <name>`, `TOOL mcp:<name>` |
 | **Policy** | [Cedar](https://www.cedarpolicy.com/) — the open authorization policy language from AWS | `POLICY … END` (Cedar syntax) |
+| **Instructions** | [Agent SOP](https://github.com/strands-agents/agent-sop) — natural-language, RFC-2119-constrained operating procedures | `SOP … END` |
+| **Skills** | [Agent Skills](https://agentskills.io/) — the open `SKILL.md` format | `SKILL <name>` |
+| **Secrets** | [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets) — host-scoped placeholder substitution | `CRED <name> <src> host:<host>` |
 | **Packaging** | [OCI](https://opencontainers.org/) — content-addressed, signable artifacts | `vnd.agentrc.*` media types |
 
-AgentRC declares and governs these; it does not replace any of them.
+agentrc declares and governs these; it does not replace any of them.
 
-## What AgentRC is not
+## What agentrc is not
 
-To stay useful to *every* runtime instead of competing with them, AgentRC deliberately does not define a runtime, a sandbox, a model API, an agent framework, a tool-call wire protocol, or a proprietary registry. See [Non-goals](/docs/non-goals/) for the full list.
+To stay useful to *every* runtime instead of competing with them, agentrc deliberately does not define a runtime, a sandbox, a model API, an agent framework, a tool-call wire protocol, or a proprietary registry. See [Non-goals](/docs/non-goals/) for the full list.
 
 ## Where to go next
 

@@ -7,7 +7,7 @@ permalink: /profiles/core/
 # Core
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.3
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
@@ -25,7 +25,7 @@ An implementation claiming this profile MUST:
 2. ignore blank lines and comments;
 3. parse known directives case-sensitively;
 4. preserve directive order for lockfile generation and review;
-5. capture `POLICY ... END` blocks without interpreting inner lines as Agentfile directives;
+5. capture `POLICY ... END` and `SOP ... END` blocks without interpreting inner lines as Agentfile directives;
 6. reject unknown directives unless an extension profile is enabled;
 7. produce a structured parse tree suitable for linting and package generation;
 8. report line numbers for parse failures.
@@ -60,6 +60,7 @@ Every directive defined by this specification is assigned to exactly one profile
 |---|---|---|
 | **Core Agentfile** | `AGENT` `FROM` `CMD` `TOOL` `MOUNT` `CRED` `URL` `POLICY` `AUDIT` | Normative, v0.1 |
 | **Capability Extensions** | `TOOLSET` `FUNCTION` `SKILL` `SERVER` `MCP` `MEMORY` | Optional |
+| **Instruction Embedding** | `SOP` | Optional (Agent SOP / Agent Skills) |
 | **Security Shorthand & Limits** | `ALLOW` `DENY` `RATELIMIT` `TIMEOUT` `LIMIT` | Optional (lowers into the Security profile) |
 | **Placement / Run Manifest** | `ISOLATION` `IMAGE` `SLICE` `BACKEND` `BIND` `BROKER` `PLUGIN` | Optional, non-portable (see below) |
 | **Observability** | `TRACE` `HEALTHCHECK` | Optional |
@@ -79,7 +80,7 @@ This mirrors the Dockerfile (build) vs. Compose/run (placement) separation and i
 
 ## Compatibility notes
 
-The current AgentRC implementation recognizes the full directive family above, though not every directive has full semantic enforcement. This profile defines target semantics; implementations should publish a support matrix rather than implying all recognized directives are enforced.
+The current agentrc implementation recognizes the full directive family above, though not every directive has full semantic enforcement. This profile defines target semantics; implementations should publish a support matrix rather than implying all recognized directives are enforced.
 
 ## Validation recommendations
 
