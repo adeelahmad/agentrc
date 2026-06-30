@@ -1,58 +1,50 @@
-# syntax=agentrc.agentfile/v0.1
+# syntax=agentrc.io/agentfile:v1
 
-AGENT code-reviewer
-CMD strands run --agent code-reviewer
+# A code-review agent: inherits a hardened base, declares its identity and
+# objective, mounts one local tool and one remote skill, and asks the platform
+# for a model, a tool timeout, and egress to GitHub. Cedar enforcement and
+# secret resolution are entirely platform-side.
 
-BIND ./repo /workspace copy
-MOUNT /workspace rw
+FROM ghcr.io/acme/pii-redacted-base:1.4
 
-TOOL utcp:file_read
-TOOL utcp:shell
-SKILL pr-review
-CRED github_token env:GITHUB_TOKEN host:api.github.com
-AUDIT all
+IDENTITY name=code-reviewer version=1.0 author=acme
+IDENTITY description="Reviews pull requests for correctness, security, and clarity"
 
-SOP pr-review
-  ## Overview
-  Review a pull request diff for correctness, security, and clarity.
+CAPABILITY text
+CAPABILITY streaming
+CAPABILITY function-calling
 
-  ## Parameters
-  - **diff** (required): the unified diff under review
+SOP <<EOF
+You are a senior code reviewer.
+Read the full diff before commenting. Group findings by severity.
+Never approve while a required check is failing. Escalate anything ambiguous to a human.
+EOF
 
-  ## Steps
-  ### 1. Triage
-  - You MUST read the full diff before commenting.
-  - You MUST NOT approve while any required check is failing.
+CMD claude --print
 
-  ### 2. Report
-  - You SHOULD group findings by severity (blocker, high, low).
-  - You MAY propose concrete patches.
-END
+# Tools — a local executable and a remote skill bundle
+COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
+ADD --remote --cached --fail-if-unavailable \
+    https://registry.agentrc.io/skills/code-review:1.2.3 /mnt/skills/code-review
 
-POLICY
-  permit(
-    principal == AgentRC::Agent::"code-reviewer",
-    action == AgentRC::Action::"tool.invoke",
-    resource == AgentRC::Tool::"file_read"
-  );
+# MCP server, resolved on the target network at bootstrap
+ADD --remote --runtime --fail-if-unavailable \
+    mcp://registry.internal.acme/servers/github:latest /mnt/mcp/github
 
-  permit(
-    principal == AgentRC::Agent::"code-reviewer",
-    action == AgentRC::Action::"tool.invoke",
-    resource == AgentRC::Tool::"shell"
-  )
-  when { context.path.startsWith("/workspace") };
+# Secret — resolved and injected by the platform broker, never in this file
+LABEL org.agentrc.secret.github_token=host:api.github.com
 
-  forbid(
-    principal == AgentRC::Agent::"code-reviewer",
-    action == AgentRC::Action::"tool.invoke",
-    resource == AgentRC::Tool::"shell"
-  )
-  when { context.path == "/" };
+# Model requests
+POLICY model.name        claude-opus-4
+POLICY model.min_context 200k
+POLICY model.fallback    claude-sonnet-4
 
-  permit(
-    principal == AgentRC::Agent::"code-reviewer",
-    action == AgentRC::Action::"skill.invoke",
-    resource == AgentRC::Skill::"pr-review"
-  );
-END
+# Agent-side operational requests
+POLICY agent.idle_timeout 5m
+POLICY agent.tool_timeout 30s
+POLICY agent.max_retries  3
+
+# Network egress requests
+POLICY network dns:api.github.com:443
+
+HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/ping

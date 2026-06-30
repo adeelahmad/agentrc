@@ -1,51 +1,127 @@
-(* agentrc Agentfile grammar, v0.1.0-draft.4. *)
-
-agentfile       = { line } ;
-line            = ws , ( comment | directive | policy-end | empty ) , newline ;
-empty           = "" ;
-comment         = "#" , { any-char } ;
-inline-comment  = ws , "#" , { any-char } ;
-
-directive       = simple-directive [ inline-comment ]
-                | sop-reference [ inline-comment ]
-                | policy-block
-                | sop-block ;
-
-simple-directive = keyword , { ws , argument } ;
-keyword          = "AGENT" | "FROM" | "SHELL" | "CMD" | "TOOL" | "TOOLSET"
-                 | "FUNCTION" | "SKILL" | "SERVER" | "MCP" | "URL" | "CRED"
-                 | "BIND" | "MOUNT" | "PLUGIN" | "ALLOW" | "DENY" | "RATELIMIT"
-                 | "AUDIT" | "TIMEOUT" | "LIMIT" | "SLICE" | "IMAGE" | "ISOLATION"
-                 | "BROKER" | "BACKEND" | "TRACE" | "MEMORY" | "OPTIMIZER"
-                 | "HEALTHCHECK" ;
-
-policy-block    = "POLICY" , [ ws , policy-profile ] , newline ,
-                  { policy-line , newline } ,
-                  "END" ;
-policy-profile  = identifier ;
-policy-line     = { any-char - line-containing-only-END } ;
-
 (*
-  SOP has two forms, disambiguated by the argument:
-    - single-line reference: the argument is a file path or registry/OCI
-      reference (contains "/", "://", or a file extension) and no block follows;
-    - inline block: the argument is a bare name and the directive opens a
-      verbatim block closed by a line containing only END (like POLICY).
+  agentrc Agentfile grammar — v1 (# syntax=agentrc.io/agentfile:v1).
+
+  The Agentfile is Dockerfile-shaped. Standard Dockerfile keywords (FROM, CMD,
+  COPY, ADD, HEALTHCHECK, LABEL, ENV, ARG, WORKDIR, USER, EXPOSE, RUN) keep their
+  Dockerfile semantics. agentrc adds exactly FOUR keywords — IDENTITY, CAPABILITY,
+  SOP, POLICY — and one extension to ADD (the --remote flag plus delivery flags).
+
+  This grammar covers the agentrc-specific surface and the standard keywords that
+  carry agentrc meaning. Full Dockerfile instruction syntax (line continuations,
+  JSON-array exec form, parser directives) is inherited from the Dockerfile spec
+  and is intentionally not re-specified here.
 *)
-sop-reference   = "SOP" , ws , reference ;
-reference       = bare-token ;
-sop-block       = "SOP" , ws , identifier , newline ,
-                  { sop-line , newline } ,
-                  "END" ;
-sop-line        = { any-char - line-containing-only-END } ;
 
-argument        = bare-token ;
-bare-token      = { visible-char - ws } ;
-identifier      = letter , { letter | digit | "-" | "_" | "." | ":" } ;
-ws              = { " " | "\t" } ;
-newline         = "\n" | "\r\n" ;
+agentfile        = { line } ;
+line             = ws , ( comment | instruction | empty ) , newline ;
+empty            = "" ;
+comment          = "#" , { any-char } ;          (* includes the # syntax= directive *)
+inline-comment   = ws , "#" , { any-char } ;
+
+instruction      = dockerfile-instruction
+                 | identity
+                 | capability
+                 | sop
+                 | policy ;
+
+(* ------------------------------------------------------------------ *)
+(* Standard Dockerfile keywords (semantics per the Dockerfile spec).   *)
+(* ADD is extended with --remote and delivery flags (see add).         *)
+(* ------------------------------------------------------------------ *)
+dockerfile-instruction
+                 = from | cmd | copy | add | healthcheck | label
+                 | env | arg | workdir | user | expose | run ;
+
+from             = "FROM" , ws , reference , [ ws , "AS" , ws , identifier ] ;
+cmd              = "CMD" , ws , { any-char } ;
+copy             = "COPY" , { ws , flag } , ws , source , ws , dest ;
+healthcheck      = "HEALTHCHECK" , { ws , flag } , ws , "CMD" , ws , { any-char } ;
+label            = "LABEL" , ws , key-value , { ws , key-value } ;
+env              = "ENV" , ws , { any-char } ;
+arg              = "ARG" , ws , { any-char } ;
+workdir          = "WORKDIR" , ws , path ;
+user             = "USER" , ws , bare-token ;
+expose           = "EXPOSE" , ws , { any-char } ;
+run              = "RUN" , { ws , flag } , ws , { any-char } ;
 
 (*
-  v0.1 uses whitespace-separated arguments for compatibility with the current
-  implementation. Future versions may add quoted strings and line continuations.
+  ADD — local form is standard Dockerfile; remote form takes --remote plus
+  delivery flags. Destination MUST be under /mnt; the path determines the
+  resource type (/mnt/tools, /mnt/skills, /mnt/mcp, or /mnt/SOP).
+*)
+add              = "ADD" , { ws , add-flag } , ws , source , ws , dest ;
+add-flag         = "--remote"
+                 | "--cached" | "--runtime"
+                 | "--fail-if-unavailable" | "--warn-if-unavailable"
+                 | "--chmod=" , mode
+                 | "--chown=" , owner ;
+
+(* ------------------------------------------------------------------ *)
+(* The four agentrc keywords.                                          *)
+(* ------------------------------------------------------------------ *)
+
+(* IDENTITY: one or more key=value pairs; repeatable across lines. *)
+identity         = "IDENTITY" , ws , key-value , { ws , key-value } ;
+
+(* CAPABILITY: exactly one capability value per line. *)
+capability       = "CAPABILITY" , ws , capability-value ;
+capability-value = bare-token ;        (* text | streaming | function-calling | multimodal | vision | audio | agentic | ... *)
+
+(*
+  SOP has three forms:
+    - inline:   SOP <text to end of line>
+    - heredoc:  SOP <<DELIM \n ...verbatim... \n DELIM
+    - file:     authored as COPY ./sop.md /mnt/SOP or ADD --remote <url> /mnt/SOP
+                (i.e. an ordinary copy/add instruction, not the SOP keyword)
+  Heredoc body is captured verbatim and MUST NOT be parsed as instructions.
+*)
+sop              = sop-inline | sop-heredoc ;
+sop-inline       = "SOP" , ws , sop-text ;
+sop-text         = { any-char } - ( ws , "<<" , { any-char } ) ;
+sop-heredoc      = "SOP" , ws , "<<" , delimiter , newline ,
+                   { heredoc-line , newline } ,
+                   delimiter ;
+delimiter        = identifier ;
+heredoc-line     = { any-char } - line-equal-to-delimiter ;
+
+(*
+  POLICY: exactly one typed request per line. No block, no END.
+  The key is a dotted, namespaced token; namespaces: agent.* | substrate.* |
+  model.* | network. The compiler prepends org.agentrc. when emitting labels.
+*)
+policy           = "POLICY" , ws , policy-key , ws , policy-value ;
+policy-key       = namespaced-key | "network" ;
+namespaced-key   = namespace , "." , { ( letter | digit | "_" ) , [ "." ] } ;
+namespace        = "agent" | "substrate" | "model" ;
+policy-value     = { any-char } ;       (* e.g. 5m, 8gb, claude-opus-4, dns:api.github.com:443 *)
+
+(* ------------------------------------------------------------------ *)
+(* Shared lexical productions.                                         *)
+(* ------------------------------------------------------------------ *)
+flag             = "--" , bare-token ;
+key-value        = key , "=" , value ;
+key              = identifier ;
+value            = quoted-string | bare-token ;
+quoted-string    = '"' , { any-char - '"' } , '"' ;
+reference        = bare-token ;          (* image or agent ref, e.g. python:3.11-slim, ghcr.io/acme/base:1.4 *)
+source           = bare-token ;          (* local path or remote URL/OCI/mcp:// reference *)
+dest             = path ;                (* destination; agentrc resources resolve under /mnt *)
+path             = bare-token ;
+mode             = { digit } ;
+owner            = bare-token ;          (* user[:group] *)
+
+argument         = bare-token ;
+bare-token       = { visible-char - ws } ;
+identifier       = letter , { letter | digit | "-" | "_" | "." | ":" } ;
+ws               = { " " | "\t" } ;
+newline          = "\n" | "\r\n" ;
+
+(*
+  Notes:
+  - The removed keywords AGENT, TOOL, TOOLSET, FUNCTION, SKILL, SERVER, MCP, URL,
+    CRED, BIND, MOUNT, PLUGIN, ALLOW, DENY, RATELIMIT, TIMEOUT, LIMIT, SLICE,
+    IMAGE, ISOLATION, BROKER, BACKEND, TRACE, MEMORY, OPTIMIZER, and SHELL are NOT
+    part of v1. Tools/skills/MCP are COPY/ADD; secrets are LABELs; resource/model/
+    network/lifecycle are POLICY requests.
+  - Cedar never appears in an Agentfile; it is the platform-side enforcement engine.
 *)

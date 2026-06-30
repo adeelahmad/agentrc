@@ -1,38 +1,172 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentrc.ai/schemas/agentrc-package.v1.schema.json",
-  "title": "agentrc Agent Package Config",
+  "title": "agentrc Agent Package",
+  "description": "The v1 agent package manifest, derived from the org.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
   "type": "object",
-  "required": ["name", "entry_point", "policy_hash"],
+  "required": ["identity"],
+  "additionalProperties": true,
   "properties": {
-    "name": { "type": "string" },
-    "entry_point": { "type": "string" },
-    "agentfile_version": { "type": "string" },
-    "required_tools": {
-      "type": "array",
-      "items": { "type": "string" }
+    "agentfile_syntax": {
+      "type": "string",
+      "description": "The Agentfile syntax directive the package was built with.",
+      "examples": ["agentrc.io/agentfile:v1"]
     },
-    "required_functions": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "required_skills": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "credential_names": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "policy_hash": { "type": "string" },
-    "required_runner_profiles": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "annotations": {
+    "identity": {
       "type": "object",
-      "additionalProperties": { "type": "string" }
+      "description": "Who/what the agent is. Derived from org.agentrc.identity.* labels (IDENTITY keyword).",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "author": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "examples": [
+        {
+          "name": "claims-triage",
+          "version": "1.0",
+          "author": "acme",
+          "description": "Triages insurance claims by severity and routes escalations"
+        }
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Supported modalities/patterns. Derived from org.agentrc.capability.* labels (CAPABILITY keyword).",
+      "items": { "type": "string" },
+      "examples": [["text", "streaming", "function-calling"]]
+    },
+    "sop": {
+      "type": "object",
+      "description": "Pointer and digest for the agent's system prompt / objective, embedded at /mnt/SOP. Derived from org.agentrc.sop and org.agentrc.sop.sha256 (the label is a pointer plus digest, never the full text).",
+      "additionalProperties": true,
+      "properties": {
+        "path": {
+          "type": "string",
+          "const": "/mnt/SOP",
+          "description": "The readable SOP file location inside the projection."
+        },
+        "sha256": {
+          "type": "string",
+          "description": "Digest of the embedded SOP file."
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "description": "Tools, skills, and MCP servers added with COPY (local) or ADD --remote. The destination path under /mnt determines the kind. Derived from org.agentrc.tool.* / skill.* / mcp.* labels and their .origin pairs.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": ["tool", "skill", "mcp"],
+            "description": "Resource type, determined by the /mnt subtree the resource lands in (/mnt/tools, /mnt/skills, /mnt/mcp)."
+          },
+          "dest": {
+            "type": "string",
+            "description": "Destination path under /mnt.",
+            "examples": ["/mnt/tools/http_get", "/mnt/mcp/github"]
+          },
+          "delivery": {
+            "type": "string",
+            "enum": ["local", "cached", "runtime"],
+            "description": "How the resource is delivered: local (COPY), cached (ADD --remote --cached, embedded as a layer at build), or runtime (ADD --remote --runtime, fetched at bootstrap)."
+          },
+          "digest": {
+            "type": "string",
+            "description": "Resolved content digest for an embedded resource.",
+            "examples": ["sha256:abc123..."]
+          },
+          "origin": {
+            "type": "string",
+            "description": "Origin reference, emitted alongside the digest for embedded MCP servers and skills so a platform may re-point to an internal mirror without rebuilding (org.agentrc.<kind>.<name>.origin).",
+            "examples": ["https://registry.agentrc.io/mcp/github:latest"]
+          },
+          "fail_mode": {
+            "type": "string",
+            "enum": ["fail", "warn"],
+            "description": "What happens if the resource cannot be resolved: fail (--fail-if-unavailable, default) or warn (--warn-if-unavailable)."
+          }
+        }
+      },
+      "examples": [
+        [
+          { "name": "http_get", "kind": "tool", "dest": "/mnt/tools/http_get", "delivery": "cached", "digest": "sha256:abc123...", "origin": "https://registry.agentrc.io/tools/http_get:latest" },
+          { "name": "github", "kind": "mcp", "dest": "/mnt/mcp/github", "delivery": "runtime", "origin": "mcp://registry.internal.acme/servers/github:latest", "fail_mode": "fail" }
+        ]
+      ]
+    },
+    "secrets": {
+      "type": "array",
+      "description": "Secret references the platform broker resolves and injects at run time. Derived from org.agentrc.secret.* labels (LABEL keyword). The secret value is never in the artifact.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string" },
+          "scope": {
+            "type": "string",
+            "description": "Host scope the secret is bound to.",
+            "examples": ["host:api.github.com"]
+          }
+        }
+      },
+      "examples": [[{ "name": "github_token", "scope": "host:api.github.com" }]]
+    },
+    "policy": {
+      "type": "object",
+      "description": "Typed requests the platform grants, narrows, or rejects. Derived from POLICY-line labels org.agentrc.agent.* / substrate.* / model.* / network.dns.*.",
+      "additionalProperties": true,
+      "properties": {
+        "agent": {
+          "type": "object",
+          "description": "Agent-side operational constraints, state, and lifecycle (org.agentrc.agent.*).",
+          "additionalProperties": true
+        },
+        "substrate": {
+          "type": "object",
+          "description": "Substrate / runtime resource requests (org.agentrc.substrate.*).",
+          "additionalProperties": true
+        },
+        "model": {
+          "type": "object",
+          "description": "Model and model-capability requests (org.agentrc.model.*).",
+          "additionalProperties": true
+        },
+        "network": {
+          "type": "array",
+          "description": "Egress requests as host:port entries (org.agentrc.network.dns.*).",
+          "items": { "type": "string" },
+          "examples": [["api.github.com:443", "internal.acme:*"]]
+        }
+      },
+      "examples": [
+        {
+          "agent": { "idle_timeout": "5m", "sub_agents.max": "5" },
+          "substrate": { "runtime.memory": "8gb", "ptty": "true" },
+          "model": { "name": "claude-opus-4", "min_context": "200k" },
+          "network": ["api.github.com:443"]
+        }
+      ]
+    },
+    "labels": {
+      "type": "object",
+      "description": "The raw org.agentrc.* label set as read from the OCI image config, for platforms that prefer the flat view.",
+      "additionalProperties": { "type": "string" },
+      "examples": [
+        {
+          "org.agentrc.identity.name": "claims-triage",
+          "org.agentrc.model.name": "claude-opus-4",
+          "org.agentrc.network.dns.api.github.com": "443"
+        }
+      ]
     }
-  },
-  "additionalProperties": true
+  }
 }
