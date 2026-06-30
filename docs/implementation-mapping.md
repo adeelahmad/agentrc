@@ -1,21 +1,21 @@
 ---
 layout: doc
 title: Implementation mapping
-description: "How current implementation work maps onto the v1 agentrc model: a frontend/compiler, a platform enforcement engine, a secret broker, OCI labels, substrates, and the /mnt projection."
+description: "How current implementation work maps onto the 0.1.0-draft.5 agentrc model: a frontend/compiler, a platform enforcement engine, OCI labels, substrates, and the /mnt projection."
 permalink: /docs/implementation-mapping/
 ---
 # Implementation mapping
 
 agentrc is **spec-first**. The [Agentfile specification](/spec/) is the source of
 truth; the implementation follows it. This page is an honest map from the current
-implementation work to the v1 model — and a clear statement of where the code
+implementation work to the v0.1 model — and a clear statement of where the code
 **lags** the spec.
 
 > **Read this as: "what already exists" vs. "what the spec says it should
 > become."** Where the two disagree, the spec wins and the implementation is the
 > thing that has to change.
 
-## The v1 model in one diagram
+## The v0.1 model in one diagram
 
 ```text
 Agentfile ──build──►  OCI artifact (labels + layers)  ──run──►  Platform
@@ -31,11 +31,11 @@ exactly one role in this pipeline.
 
 ## Component map
 
-| Current implementation work | v1 role | What it produces / consumes |
+| Current implementation work | v0.1 role | What it produces / consumes |
 |---|---|---|
 | Agentfile parser | **Frontend / compiler** — translates the Agentfile into an OCI artifact | Reads the four agentrc keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) plus standard Dockerfile keywords; emits `org.agentrc.*` labels and `/mnt` layers per [spec §9](/spec/). |
 | Cedar policy gate | **Platform enforcement engine** — compilation target for typed requests | Consumes the granted `org.agentrc.*` request labels (never the Agentfile), compiles them plus org rules into one Cedar `PolicySet`, evaluates deny-by-default. See [Enforcement profile](/profiles/security/). |
-| Secret broker work | **Platform secret broker** — resolves secret references | Reads `LABEL org.agentrc.secret.<name>=<scope>` references and injects the resolved value at run time; the value is never in the artifact. |
+| Credential handling | **Deferred — platform-defined** | Secrets are out of scope for this draft: there is no agentrc secret schema. An agent that needs a credential leaves resolution entirely to the platform (Vault / broker / env / workload identity). |
 | OCI image / package work | **OCI labels & package** | Builds the standard OCI artifact: layers carry `/mnt` resources, the image config carries the `org.agentrc.*` labels. See [OCI labels & package profile](/profiles/oci-package/). |
 | microVM / runner drivers | **One substrate among many** — execution driver for `CMD` | A substrate executes `CMD`; it is selected at run time (`arc run --isolation` / `--substrate`), **not** in the Agentfile. microVM is one substrate, not the product identity. |
 | Tool patching / projection | **`/mnt` projection** | Projects `/mnt/tools`, `/mnt/skills`, `/mnt/mcp`, and populates `/mnt/proc`; loads the SOP from `/mnt/SOP`. See [projection profile](/profiles/tool-projection/). |
@@ -47,7 +47,7 @@ the public identity of the project — the **Agentfile** and the `org.agentrc.*`
 ## What each component owes the spec
 
 **Frontend / compiler.** Two front doors, one artifact. The BuildKit frontend
-(routed by `# syntax=agentrc.io/agentfile:v1`) and the native `arc build` MUST
+(routed by `# syntax=agentrc.agentfile/v0.1`) and the native `arc build` MUST
 emit **identical** OCI artifacts — same labels, same layers. The compiler MUST
 embed `--cached` resources as layers, record `--runtime` resources as references,
 emit both a digest and an `.origin` label for embedded MCP servers and skills,
@@ -62,10 +62,10 @@ identity as the principal, and preserves Cedar's properties: deny-by-default,
 `forbid` over `permit` order-independently, and monotonic intersection across
 `FROM`. The normative mapping lives in the [Enforcement profile](/profiles/security/).
 
-**Platform secret broker.** The Agentfile only *names* a secret and its host
-scope (`LABEL org.agentrc.secret.github_token=host:api.github.com`). The broker
-resolves and injects the value at run time, host-scoped. The value never enters
-the artifact, the labels, or the logs.
+**Credentials (deferred).** Secrets are out of scope for this draft. There is no
+`SECRET`/`CRED` keyword and no agentrc secret schema; an agent that needs a
+credential leaves resolution entirely to the platform (Vault / broker / env /
+workload identity). A credential model may be specified in a later version.
 
 **OCI labels & package.** A built agent is an ordinary OCI artifact: it pushes,
 pulls, signs (Sigstore), and mirrors through any OCI-compatible registry. The
@@ -88,7 +88,7 @@ The implementation **lags the spec**, and we label that gap rather than hide it.
 |---|---|---|
 | Frontend / compiler (Agentfile → labels) | Normative ([§9](/spec/)) | In progress — keyword parsing and label translation are partial; the two build paths are not yet byte-identical. |
 | Platform enforcement (Cedar) | Normative ([§11.2](/spec/)) | Prototype gate exists; the full request → Cedar mapping and `FROM` intersection are not complete. |
-| Secret broker | Normative | Host-scoped resolution prototyped; not all backends covered. |
+| Credentials | Deferred — out of scope this draft | No agentrc secret schema; credential resolution is platform-defined. |
 | OCI labels & package | Normative | Label emission works; signing / provenance attestation is partial. |
 | `/mnt` projection | Normative | Tool projection works; `/mnt/proc` runtime population is incomplete. |
 | Substrates | Run-time choice | microVM and local drivers exist; others are adapters yet to be written. |

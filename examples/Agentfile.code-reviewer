@@ -1,9 +1,10 @@
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 
-# A code-review agent: inherits a hardened base, declares its identity and
-# objective, mounts one local tool and one remote skill, and asks the platform
-# for a model, a tool timeout, and egress to GitHub. Cedar enforcement and
-# secret resolution are entirely platform-side.
+# A code-review agent that extends the canonical "hello" example: inherits a
+# hardened base, declares its identity and objective, projects one local tool, a
+# remote skill, and an MCP server under /mnt, and asks the platform for a model,
+# a tool timeout, and egress to GitHub. Cedar enforcement is entirely
+# platform-side; credential resolution is deferred (platform-defined).
 
 FROM ghcr.io/acme/pii-redacted-base:1.4
 
@@ -31,8 +32,9 @@ ADD --remote --cached --fail-if-unavailable \
 ADD --remote --runtime --fail-if-unavailable \
     mcp://registry.internal.acme/servers/github:latest /mnt/mcp/github
 
-# Secret — resolved and injected by the platform broker, never in this file
-LABEL org.agentrc.secret.github_token=host:api.github.com
+# Credentials (e.g. a GitHub token) are DEFERRED: this file names no secret and
+# no resolution mechanism. The platform binds any required credential at run
+# time (see the spec's "Secrets (deferred)" section).
 
 # Model requests
 POLICY model.name        claude-opus-4

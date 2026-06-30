@@ -6,8 +6,8 @@ permalink: /profiles/runner-conformance/
 ---
 # Platform Conformance Profile
 
-**Version:** v1 — Working Draft  
-**Status:** Working Draft (`# syntax=agentrc.io/agentfile:v1`)  
+**Version:** 0.1.0-draft.5 — Working Draft  
+**Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** platform / runner authors
 
@@ -16,6 +16,14 @@ permalink: /profiles/runner-conformance/
 > **platform** (the runtime / operator / organization authority that runs an
 > agentrc agent) must do to claim conformance. It is the operational companion to
 > the [Specification](/spec/) and the [Enforcement profile](/profiles/security/).
+
+This profile (`agentrc/platform/v0.1`) defines **platform-conformance** — reading
+labels and granting / projecting / enforcing them — which is distinct from
+**build-conformance**, a compiler emitting correct `org.agentrc.*` labels from an
+Agentfile, which lives in the [Core profile](/profiles/core/).
+
+> Secrets are **deferred** in this draft; credential resolution is platform-defined
+> and out of scope.
 
 ## Purpose
 
@@ -60,29 +68,26 @@ A platform claiming **agentrc Platform Conformance** MUST, at deploy / run time:
    platform policy and available resources, and **grant, narrow, or reject** it.
    Narrowing and rejection SHOULD be auditable (this auditability requirement is
    [open decision #4](/spec/)).
-4. **Resolve secrets** named in `org.agentrc.secret.<name>=<scope>` via the
-   platform's secret broker, at run time only. The value is never in the artifact;
-   the platform injects it host-scoped (see [Secrets](#secrets)).
-5. **Fetch `--runtime` resources now.** For each `org.agentrc.<kind>.<name>=runtime:<url>`
+4. **Fetch `--runtime` resources now.** For each `org.agentrc.<kind>.<name>=runtime:<url>`
    label, fetch the resource at bootstrap and apply its failure mode:
    `--fail-if-unavailable` (default — refuse to boot) or `--warn-if-unavailable`
    (log and continue).
-6. **Honour `*.origin` overrides.** The platform MAY substitute an embedded
+5. **Honour `*.origin` overrides.** The platform MAY substitute an embedded
    (`--cached`) resource by reading an overridden `org.agentrc.<kind>.<name>.origin`
    label — e.g. re-point a public MCP server to an internal mirror — without
    rebuilding the artifact.
-7. **Enforce via Cedar** (see [Enforcement](#enforcement)): deny-by-default,
+6. **Enforce via Cedar** (see [Enforcement](#enforcement)): deny-by-default,
    `forbid` over `permit` order-independently, and monotonic intersection across
    `FROM`.
-8. **Project the filesystem and boot `CMD`.** Load the SOP from `/mnt/SOP`,
+7. **Project the filesystem and boot `CMD`.** Load the SOP from `/mnt/SOP`,
    select / validate the model from `model.*`, project `/mnt/tools`, `/mnt/skills`,
    and `/mnt/mcp`, populate `/mnt/proc` with the live grant / identity / budget /
    audit state, then run `CMD` on the chosen substrate with the granted
    constraints.
-9. **Fail closed.** If any *required* constraint cannot be enforced — an
-   un-honourable secret scope, a network grant the platform cannot confine, a
-   device it cannot isolate — the platform MUST refuse to boot rather than run
-   the agent with weaker guarantees than were requested.
+8. **Fail closed.** If any *required* constraint cannot be enforced — a network
+   grant the platform cannot confine, a device it cannot isolate — the platform
+   MUST refuse to boot rather than run the agent with weaker guarantees than were
+   requested.
 
 ## Resolving labels
 
@@ -98,26 +103,11 @@ The label namespaces a conformant platform consumes:
 | `org.agentrc.model.*` | `POLICY model.*` | Model selection / fallback / required capabilities. |
 | `org.agentrc.network.dns.*` | `POLICY network` + auto-derived | Egress grants; auto-derived entries carry a `.source` attribution. |
 | `org.agentrc.tool.*` / `.skill.*` / `.mcp.*` | `COPY` / `ADD --remote` | Resource delivery: `local`, `<digest>` (+ `.origin`), or `runtime:<url>`. |
-| `org.agentrc.secret.*` | `LABEL` | Names + host-scope of secrets the broker must resolve. |
 
 The platform MUST support **both** policy encodings: **inline** values in labels,
 and **digest** form where a label carries the digest of a structured manifest
 embedded as a layer. The build seam is `--policy-mode inline|digest`; which is the
 default is [open decision #1](/spec/).
-
-## Secrets
-
-```text
-org.agentrc.secret.github_token=host:api.github.com
-```
-
-The secret **value never enters the artifact.** The platform's broker resolves the
-named secret, scoped to the declared host, and injects it at run time (a
-host-scoped substitution model in the spirit of
-[microsandbox](https://docs.microsandbox.dev/sandboxes/secrets)). A conformant
-platform MUST resolve secrets only at run time, MUST redact resolved values from
-logs and audit records, and MUST fail closed if a required secret cannot be
-resolved within its declared scope.
 
 ## Enforcement
 
@@ -134,7 +124,6 @@ actions from the request labels (principal = `org.agentrc.identity.name`):
 | `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
 | `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
 | `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
-| `org.agentrc.secret.<name>` | `Action::"secret.resolve"` | `Secret::"<name>"` |
 
 The enforcement properties a conformant platform MUST preserve (these are
 [Cedar's](https://www.cedarpolicy.com/)):
@@ -184,15 +173,14 @@ manifest for placement.
 A conformant platform SHOULD publish a support statement so authors and security
 reviewers know what to expect. It SHOULD declare:
 
-1. supported Agentfile syntax version (e.g. `agentrc.io/agentfile:v1`);
+1. supported Agentfile syntax version (e.g. `agentrc.agentfile/v0.1`);
 2. which `org.agentrc.*` label namespaces it reads and honours;
 3. supported policy encoding(s) — inline, digest, or both;
-4. supported secret broker backends and host-scope model;
-5. supported substrates / isolation modes, if any;
-6. resource delivery support — `--cached`, `--runtime`, and `*.origin` override;
-7. audit / export formats for grant / narrow / reject decisions;
-8. unsupported labels or constraints, and the failure behaviour for each;
-9. known security limitations.
+4. supported substrates / isolation modes, if any;
+5. resource delivery support — `--cached`, `--runtime`, and `*.origin` override;
+6. audit / export formats for grant / narrow / reject decisions;
+7. unsupported labels or constraints, and the failure behaviour for each;
+8. known security limitations.
 
 ## Verifying conformance
 

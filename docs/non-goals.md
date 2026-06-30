@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Non-goals
-description: "What the agentrc Agentfile specification (v1) deliberately does not define."
+description: "What the agentrc Agentfile specification (0.1.0-draft.5) deliberately does not define."
 permalink: /docs/non-goals/
 ---
 # Non-goals
@@ -46,6 +46,11 @@ contract small and adoptable, agentrc deliberately does **not** define:
     describes exactly one agent. External orchestration that references packaged
     agents by digest is a separate, non-normative
     [workflow draft](/docs/workflows/), not part of the Agentfile core.
+11. **A secrets manager — credential resolution is deferred and platform-defined.**
+    This draft defines no `SECRET`/`CRED` keyword and no secret schema. An agent
+    that needs a credential leaves resolution entirely to the platform (Vault /
+    broker / env / workload identity); a credential model may come in a later
+    version.
 
 agentrc also does **not replace** the standards it builds on — it composes with
 them: MCP, Cedar, OCI, OpenTelemetry, Sigstore, SLSA, Docker / BuildKit,

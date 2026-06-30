@@ -18,7 +18,7 @@ Four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) sit on top of
 standard Dockerfile keywords. Save this as `Agentfile`:
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 
 # --- Who the agent is -------------------------------------------------------
 IDENTITY name=hello version=1.0 author=you

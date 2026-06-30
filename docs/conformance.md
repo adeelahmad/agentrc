@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Conformance
-description: "Profile-based conformance for agentrc v1, with an adversarial, fail-closed test suite that makes every profile claim verifiable."
+description: "Profile-based conformance for agentrc 0.1.0-draft.5, with an adversarial, fail-closed test suite that makes every profile claim verifiable."
 permalink: /docs/conformance/
 ---
 # Conformance
@@ -26,12 +26,12 @@ name.
 
 | Profile | Covers | Profile page |
 |---|---|---|
-| `agentrc/agentfile/v1` | Compiler / frontend: parse the Dockerfile-shaped Agentfile (four agentrc keywords + standard Dockerfile keywords) and compile to `org.agentrc.*` labels + layers. | [Core](/profiles/core/) |
-| `agentrc/enforcement-cedar/v1` | Platform-side Cedar enforcement of granted requests (deny-by-default, `forbid` > `permit`, monotonic `FROM`). | [Enforcement (Cedar)](/profiles/security/) |
-| `agentrc/oci-labels/v1` | The `org.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
-| `agentrc/projection/v1` | The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract. | [`/mnt` Projection](/profiles/tool-projection/) |
-| `agentrc/platform/v1` | Runtime behaviour: read labels, grant / narrow / reject, resolve secrets, fetch `--runtime` resources, substitute via `.origin`, enforce, boot `CMD`. | [Platform Conformance](/profiles/runner-conformance/) |
-| `agentrc/workflow/v1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for v1). | [Workflow Draft](/profiles/workflow-draft/) |
+| `agentrc/agentfile/v0.1` | **Build conformance** — the compiler / frontend: parse the Dockerfile-shaped Agentfile (four agentrc keywords + standard Dockerfile keywords) and compile Agentfile → `org.agentrc.*` labels + layers. | [Core](/profiles/core/) |
+| `agentrc/enforcement-cedar/v0.1` | Platform-side Cedar enforcement of granted requests (deny-by-default, `forbid` > `permit`, monotonic `FROM`). | [Enforcement (Cedar)](/profiles/security/) |
+| `agentrc/oci-labels/v0.1` | The `org.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
+| `agentrc/projection/v0.1` | The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract. | [`/mnt` Projection](/profiles/tool-projection/) |
+| `agentrc/platform/v0.1` | **Platform conformance** — runtime behaviour: read labels, grant / narrow / reject, project requests, fetch `--runtime` resources, substitute via `.origin`, enforce, boot `CMD`. | [Platform Conformance](/profiles/runner-conformance/) |
+| `agentrc/workflow/v0.1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for 0.1.0-draft.5). | [Workflow Draft](/profiles/workflow-draft/) |
 
 ## Why profiles?
 
@@ -40,11 +40,14 @@ need to boot a substrate. A platform should not need to become a workflow
 engine. Splitting conformance into profiles keeps each surface implementable and
 lets an implementation advertise precisely what it does.
 
-The boundary that matters most: the **compiler** (`agentrc/agentfile/v1`) reads
-the Agentfile and emits `org.agentrc.*` labels; every other profile consumes
-**labels**, never the Agentfile source. The suite enforces that separation.
+The boundary that matters most: **build conformance** (`agentrc/agentfile/v0.1`)
+is the compiler — it reads the Agentfile and emits `org.agentrc.*` labels —
+while **platform conformance** (`agentrc/platform/v0.1`) reads those labels and
+grants / projects / enforces them. Every profile other than build conformance
+consumes **labels**, never the Agentfile source. The suite enforces that
+separation.
 
-## Conformance suite (v1)
+## Conformance suite (0.1.0-draft.5)
 
 The suite is intentionally as important as the spec text. The adversarial table
 is the core of it: each case has a single correct outcome, and a missed case
@@ -55,7 +58,7 @@ many positive cases it passes.
 
 | ID | Profile | Given | Expect |
 |---|---|---|---|
-| `agentfile-parse-minimal` | agentfile | The minimal valid Agentfile (`# syntax=agentrc.io/agentfile:v1`, `FROM`, `IDENTITY`, `SOP`, `CMD`) | Parses; instruction order preserved; `org.agentrc.identity.*` and `org.agentrc.sop` labels emitted |
+| `agentfile-parse-minimal` | agentfile | The minimal valid Agentfile (`# syntax=agentrc.agentfile/v0.1`, `FROM`, `IDENTITY`, `SOP`, `CMD`) | Parses; instruction order preserved; `org.agentrc.identity.*` and `org.agentrc.sop` labels emitted |
 | `policy-to-label` | agentfile | `POLICY model.name claude-opus-4` | Emits `org.agentrc.model.name=claude-opus-4` (short form prefixed with `org.agentrc.`) |
 | `add-remote-runtime-recorded` | agentfile | `ADD --remote --runtime <url> /mnt/mcp/github` | No embedded layer; emits `org.agentrc.mcp.github=runtime:<url>` |
 | `oci-roundtrip` | oci-labels | A built artifact | Push, pull by digest, and inspect reproduce identical layers, config, and `org.agentrc.*` labels |
@@ -75,7 +78,6 @@ correct outcome.
 | `forbid-overrides-permit` | enforcement | An org `forbid` against an agent request that a `permit` would otherwise allow | **Deny**, **order-independently** — `forbid` always wins |
 | `child-widens-parent-fails` | enforcement | A child agent (`FROM another-agent`) whose requests exceed the parent's ceiling | Effective authorization is the **intersection** of ceilings; the widening request is rejected (a parent `forbid` is un-loosenable) |
 | `auto-egress-not-implicit` | enforcement | A `POLICY agent.hooks.pre <url>` that auto-derives `org.agentrc.network.dns.<host>` with `…source=auto:agent.hooks.pre` | The platform MUST still **grant** the derived egress; if ungranted → **deny**. Auto-derivation is convenience, never an implicit grant |
-| `secret-never-in-artifact` | oci-labels | The built artifact for an agent that names secrets | No plaintext secret value in any layer, label, or image config; only `org.agentrc.secret.<name>=<scope>` **references** |
 | `runtime-fetch-failclosed` | platform | An `ADD --remote --runtime --fail-if-unavailable` resource that is unreachable at boot | **Refuse to boot** (fail closed); never start the agent with the required resource missing |
 | `embedded-override-origin` | platform | An embedded MCP/skill whose `org.agentrc.<kind>.<name>.origin` is rewritten to an internal mirror at deploy time | Fetch from the **mirror** and run, **without rebuilding** the artifact |
 
@@ -101,9 +103,9 @@ is labeled honestly rather than implied away.
 
 As of this Working Draft, the **BuildKit frontend** and the native **`agentrc` /
 `arc` CLI** are in progress: Agentfile parsing and the `org.agentrc.*` label
-emission (`agentrc/agentfile/v1`) and basic OCI packaging (`agentrc/oci-labels/v1`)
+emission (`agentrc/agentfile/v0.1`) and basic OCI packaging (`agentrc/oci-labels/v0.1`)
 are the furthest along. A complete Cedar evaluator and the full adversarial
-fail-closed suite for `agentrc/enforcement-cedar/v1` and `agentrc/platform/v1`
+fail-closed suite for `agentrc/enforcement-cedar/v0.1` and `agentrc/platform/v0.1`
 are **not** yet in place, and those profiles are not claimed until they pass.
 
 Implementations **MUST NOT** advertise a profile they do not pass.

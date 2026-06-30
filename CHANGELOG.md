@@ -6,9 +6,9 @@ permalink: /changelog/
 ---
 # Changelog
 
-## v1 — 2026-06-30
+## 0.1.0-draft.5 — 2026-06-30
 
-The rev-1 redesign. The Agentfile is now **Dockerfile-shaped**, the build emits
+The Dockerfile-shaped redesign. The Agentfile is now **Dockerfile-shaped**, the build emits
 `org.agentrc.*` OCI labels, and the platform reads those labels — never the
 Agentfile — to grant, narrow, or reject each request and enforce it with Cedar.
 
@@ -30,9 +30,10 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   `--cached`/`--runtime` and `--fail-if-unavailable`/`--warn-if-unavailable`).
   The destination path under `/mnt` (`tools/`, `skills/`, `mcp/`, `SOP`)
   determines the resource type.
-- **Secrets are labels.** A secret is declared as
-  `LABEL org.agentrc.secret.<name>=<scope>`; the value never enters the artifact,
-  and the platform's broker resolves and injects it at run time.
+- **Secrets are deferred** — removed the `org.agentrc.secret.*` / `LABEL`-secret
+  model; no `SECRET`/`CRED` keyword and no secret schema in this draft.
+  Credential resolution is platform-defined and out of scope (future design).
+- **Removed `AUDIT`** — audit rides on `POLICY agent.hooks.on_tool_call`.
 - **Resource, model, network, and lifecycle requests are typed `POLICY` lines.**
   Each `POLICY <namespaced.key> <value>` is a single request in the `agent.*`,
   `substrate.*`, `model.*`, or `network` namespace.
@@ -43,11 +44,11 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   Cedar is no longer an author surface and MUST NOT appear in the Agentfile;
   the platform compiles granted typed requests plus its own organization rules
   into Cedar, with a normative request→Cedar mapping (`NetworkEgress`,
-  `tool.invoke`, `mcp.request`, `agent.delegate`, `device.access`,
-  `secret.resolve`) and the guarantees `forbid` overrides `permit`,
-  order-independently, and monotonic composition across `FROM`.
+  `tool.invoke`, `mcp.request`, `agent.delegate`, `device.access`) and the
+  guarantees `forbid` overrides `permit`, order-independently, and monotonic
+  composition across `FROM`.
 - **Two build paths, identical artifacts.** The **BuildKit frontend**
-  (`# syntax=agentrc.io/agentfile:v1` then `docker build -f Agentfile`) and the
+  (`# syntax=agentrc.agentfile/v0.1` then `docker build -f Agentfile`) and the
   native **`agentrc` / `arc` CLI** (`build` / `push` / `pull` / `run`) produce
   identical OCI artifacts. Substrate / isolation is a run-time choice
   (`--isolation`, `--substrate`), never an Agentfile directive.
@@ -59,19 +60,16 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   scope for this version. Capability *exposure* via `IDENTITY` / `CAPABILITY` /
   labels is in scope; the *protocol* is not.
 
-## Earlier history (superseded by v1)
+## Earlier history (superseded by 0.1.0-draft.5)
 
-Before v1, agentrc was published as a series of **0.1.x working drafts** built on
+Before 0.1.0-draft.5, agentrc was published as a series of **0.1.x working drafts** built on
 a different, much larger model: roughly thirty directives (`AGENT`, `TOOL`,
 `CRED`, `MOUNT`, and many more), an inline Cedar policy block authored directly
-in the Agentfile, and an `/agentrc` tool-projection root. **v1 replaces that
+in the Agentfile, and an `/agentrc` tool-projection root. **0.1.0-draft.5 replaces that
 model entirely** — see the breaking changes above. Those drafts also introduced
-the work that carried forward in spirit: host-scoped secrets (now
-`LABEL org.agentrc.secret.*`), embedded operating procedures (now the `SOP`
+the work that carried forward in spirit: embedded operating procedures (now the `SOP`
 keyword at `/mnt/SOP`), the standards acknowledgements, OCI-based packaging, and
 the standards-style site, brand, and theming.
 
 The full, detailed history of the 0.1.x drafts is preserved in the repository's
 git log.
-</content>
-</invoke>

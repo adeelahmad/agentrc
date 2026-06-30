@@ -7,7 +7,7 @@ permalink: /docs/workflows/
 # agentrc Workflow draft (deferred companion)
 
 > **Status: deferred and non-normative.** Nothing on this page is part of the
-> [v1 Agentfile specification](/spec/). It sketches a *future* companion layer
+> [0.1.0-draft.5 Agentfile specification](/spec/). It sketches a *future* companion layer
 > and is published only so the boundary is explicit.
 
 An **Agentfile declares one agent.** Multi-agent applications need a separate
@@ -16,10 +16,10 @@ is **out of scope for this version** and is described here only as direction.
 
 ## What is in scope vs. deferred
 
-There are two distinct things people mean by "multi-agent," and v1 draws a hard
+There are two distinct things people mean by "multi-agent," and v0.1 draws a hard
 line between them:
 
-| Concern | Status in v1 |
+| Concern | Status in v0.1 |
 |---|---|
 | **Capability *exposure*** — declaring who the agent is and what modalities / patterns it supports, via `IDENTITY`, `CAPABILITY`, and the resulting `org.agentrc.*` labels. | **In scope.** Part of the [spec](/spec/). |
 | **The A2A *protocol*** — Agent Cards, agent discovery, cross-agent delegation, and the governance algebra across an agent-to-agent call. | **Deferred.** Not in this version (see the spec's [deferred list](/spec/)). |
@@ -45,7 +45,7 @@ A future workflow file might look like this:
 
 ```yaml
 # Deferred, non-normative companion — NOT part of the Agentfile core.
-version: agentrc.workflow/v1
+version: agentrc.workflow/v0.1
 name: review-and-notify
 
 agents:
@@ -85,7 +85,7 @@ later companion — and the agent-to-agent *protocol* itself remains deferred.
 
 ## Where to go next
 
-- [Specification](/spec/) — the normative v1 Agentfile model.
+- [Specification](/spec/) — the normative v0.1 Agentfile model.
 - [What agentrc is not](/docs/non-goals/) — why the workflow layer and the A2A
   protocol are out of scope.
 - [Workflow draft profile](/profiles/workflow-draft/) — the (deferred) profile

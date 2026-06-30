@@ -1,5 +1,5 @@
 (*
-  agentrc Agentfile grammar — v1 (# syntax=agentrc.io/agentfile:v1).
+  agentrc Agentfile grammar — v0.1 (# syntax=agentrc.agentfile/v0.1).
 
   The Agentfile is Dockerfile-shaped. Standard Dockerfile keywords (FROM, CMD,
   COPY, ADD, HEALTHCHECK, LABEL, ENV, ARG, WORKDIR, USER, EXPOSE, RUN) keep their
@@ -119,9 +119,10 @@ newline          = "\n" | "\r\n" ;
 (*
   Notes:
   - The removed keywords AGENT, TOOL, TOOLSET, FUNCTION, SKILL, SERVER, MCP, URL,
-    CRED, BIND, MOUNT, PLUGIN, ALLOW, DENY, RATELIMIT, TIMEOUT, LIMIT, SLICE,
-    IMAGE, ISOLATION, BROKER, BACKEND, TRACE, MEMORY, OPTIMIZER, and SHELL are NOT
-    part of v1. Tools/skills/MCP are COPY/ADD; secrets are LABELs; resource/model/
-    network/lifecycle are POLICY requests.
+    CRED, SECRET, AUDIT, BIND, MOUNT, PLUGIN, ALLOW, DENY, RATELIMIT, TIMEOUT,
+    LIMIT, SLICE, IMAGE, ISOLATION, BROKER, BACKEND, TRACE, MEMORY, OPTIMIZER, and
+    SHELL are NOT part of v0.1. Tools/skills/MCP are COPY/ADD; resource/model/
+    network/lifecycle are POLICY requests; audit rides on agent.hooks.*; secrets
+    are deferred (no SECRET/CRED keyword, no org.agentrc.secret.* schema).
   - Cedar never appears in an Agentfile; it is the platform-side enforcement engine.
 *)

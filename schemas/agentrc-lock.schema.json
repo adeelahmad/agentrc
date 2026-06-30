@@ -2,13 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentrc.ai/schemas/agentrc-lock.v1.schema.json",
   "title": "agentrc Resolved Manifest",
-  "description": "The resolved resource manifest produced when an Agentfile is compiled to an OCI artifact. Records the exact bases, resources, SOP, and secret references that the build resolved, so a build is reproducible and a platform can audit what was embedded versus fetched at runtime.",
+  "description": "The resolved resource manifest produced when an Agentfile is compiled to an OCI artifact. Records the exact bases, resources, and SOP that the build resolved, so a build is reproducible and a platform can audit what was embedded versus fetched at runtime.",
   "type": "object",
   "required": ["version", "timestamp"],
   "properties": {
     "version": {
       "type": "string",
-      "description": "Manifest schema version (e.g. \"v1\")."
+      "description": "Manifest schema version (e.g. \"0.1.0-draft.5\")."
     },
     "build_id": {
       "type": "string",
@@ -98,25 +98,6 @@
         }
       },
       "additionalProperties": true
-    },
-    "secrets": {
-      "type": "array",
-      "description": "Secret references declared via LABEL org.agentrc.secret.<name>=<scope>. Values are never recorded here; the platform broker resolves them at run time.",
-      "items": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Secret name (org.agentrc.secret.<name>)."
-          },
-          "scope": {
-            "type": "string",
-            "description": "Host-scoped grant, e.g. host:api.github.com."
-          }
-        },
-        "additionalProperties": true
-      }
     }
   },
   "additionalProperties": true

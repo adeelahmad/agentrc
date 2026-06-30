@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Profiles
-description: "agentrc conformance profiles for the v1 Agentfile model: core, enforcement, OCI labels, projection, platform, and the deferred workflow companion."
+description: "agentrc conformance profiles for the v0.1 Agentfile model: core, enforcement, OCI labels, projection, platform, and the deferred workflow companion."
 permalink: /profiles/
 ---
 
