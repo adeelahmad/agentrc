@@ -8,7 +8,7 @@ permalink: /
   <div>
     <div class="eyebrow">Agent Run Config</div>
     <h1>Portable, governed AI agents.</h1>
-    <p class="lead">agentrc is an open specification for packaging one AI agent as a portable, governed artifact. An Agentfile declares the agent's identity, capabilities, system prompt, tools and skills, and its requests for models, resources, and network access — as typed policy a security team can review. The package is distributable through OCI-compatible registries; compatible runners decide how to execute it and enforce the declared boundaries. agentrc is not a runtime, cloud, model provider, or agent framework.</p>
+    <p class="lead"><strong>Like <code>bashrc</code> or <code>zshrc</code>, but for an agent.</strong> agentrc is an open specification for packaging one AI agent as a portable, governed artifact. An Agentfile declares the agent's identity, capabilities, system prompt, tools and skills, and its requests for models, resources, and network access — as typed policy a security team can review. The package is distributable through OCI-compatible registries; compatible runners decide how to execute it and enforce the declared boundaries. agentrc is not a runtime, cloud, model provider, or agent framework.</p>
     <div class="cta-row">
       <a class="button primary" href="{{ '/spec/' | relative_url }}">Read the specification</a>
       <a class="button" href="{{ '/docs/quickstart/' | relative_url }}">Start with an Agentfile</a>
