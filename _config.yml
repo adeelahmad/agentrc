@@ -1,12 +1,14 @@
-title: AgentRC
+title: agentrc
 tagline: Agent Run Config
 description: Open specification for declaring, packaging, securing, and sharing portable AI agents.
-url: "https://agentrc.io"
+url: "https://agentrc.ai"
 baseurl: ""
 repository: adeelahmad/agentrc
 author:
   name: Adeel Ahmad
   url: https://github.com/adeelahmad
+  linkedin: https://www.linkedin.com/in/adeelahmadch
+logo: /assets/brand/agentrc-icon-light.png
 markdown: kramdown
 kramdown:
   input: GFM
@@ -24,10 +26,13 @@ defaults:
       path: ""
     values:
       layout: default
+      image: /assets/brand/agentrc-og.png
 collections:
   spec_pages:
     output: true
 nav:
+  - title: What is agentrc?
+    url: /docs/what-is-agentrc/
   - title: Spec
     url: /spec/
   - title: Docs
@@ -36,6 +41,8 @@ nav:
     url: /examples/
   - title: Profiles
     url: /profiles/
+  - title: CLI
+    url: /cli/
   - title: GitHub
     url: https://github.com/adeelahmad/agentrc
 plugins:

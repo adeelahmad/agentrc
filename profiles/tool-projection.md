@@ -7,13 +7,13 @@ permalink: /profiles/tool-projection/
 # Tool Projection
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
 This optional profile defines a command-oriented way for agents and humans to discover and invoke declared capabilities.
 
-This profile does not make AgentRC a runtime. It defines a portable surface a compatible runner may expose.
+This profile does not make agentrc a runtime. It defines a portable surface a compatible runner may expose.
 
 ## Projection root
 
@@ -77,7 +77,7 @@ A runner MAY provide equivalent CLI commands instead of filesystem projection:
 
 | Projection | CLI equivalent |
 |---|---|
-| `/agentrc/tools/file_read --path x` | `agentrc run tool utci:file_read --path x` |
+| `/agentrc/tools/file_read --path x` | `agentrc run tool utcp:file_read --path x` |
 | `/agentrc/functions/foo --json args.json` | `agentrc run function foo --json args.json` |
 | `cat /agentrc/proc/audit` | `agentrc dmesg` |
 | `cat /agentrc/proc/policy` | `agentrc policy show` |

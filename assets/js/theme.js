@@ -32,6 +32,30 @@
     });
   });
 
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-copy-md]') : null;
+    if (!btn) return;
+    var url = btn.getAttribute('data-md-url');
+    if (!url) return;
+    var label = btn.querySelector('span');
+    var original = label ? label.textContent : '';
+    fetch(url)
+      .then(function (r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
+      .then(function (text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+        throw new Error('clipboard unavailable');
+      })
+      .then(function () {
+        btn.classList.add('is-copied');
+        if (label) label.textContent = 'Copied!';
+        setTimeout(function () {
+          btn.classList.remove('is-copied');
+          if (label) label.textContent = original;
+        }, 1600);
+      })
+      .catch(function () { window.open(url, '_blank', 'noopener'); });
+  });
+
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     var listener = function () {

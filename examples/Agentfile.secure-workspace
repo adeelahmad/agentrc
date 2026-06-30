@@ -10,14 +10,14 @@ PLUGIN filesystem
 MOUNT /workspace rw
 BIND ./repo /workspace copy
 
-TOOL utci:file_read
-TOOL utci:file_write
-TOOL utci:current_time
+TOOL utcp:file_read
+TOOL utcp:file_write
+TOOL utcp:current_time
 
 URL https://api.github.com
 AUDIT all
 RATELIMIT file_write 5/min
-HEALTHCHECK --interval=60s --timeout=10s CMD utci:ping
+HEALTHCHECK --interval=60s --timeout=10s CMD utcp:ping
 
 POLICY
   permit(

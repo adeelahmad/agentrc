@@ -1,6 +1,6 @@
 # Current Implementation Mapping
 
-**Input reviewed:** uploaded AgentRC source archive containing Go and Python packages, examples, current README/HOWTO, parser code, lockfile code, OCI scaffolding, policy scaffolding, runner/driver experiments, and v2.5 proposal assets.
+**Input reviewed:** uploaded agentrc source archive containing Go and Python packages, examples, current README/HOWTO, parser code, lockfile code, OCI scaffolding, policy scaffolding, runner/driver experiments, and v2.5 proposal assets.
 
 ## What exists today
 
@@ -22,7 +22,7 @@
 
 ## Main correction made in this draft
 
-The uploaded work contains runtime/driver modules. That is useful implementation work, but it should not define the identity of AgentRC.
+The uploaded work contains runtime/driver modules. That is useful implementation work, but it should not define the identity of agentrc.
 
 This draft treats those modules as:
 
@@ -44,16 +44,16 @@ aio — Agent Isolation Orchestrator
 Recommended public/spec title:
 
 ```text
-AgentRC Specification
+agentrc Specification
 ```
 
 or:
 
 ```text
-AgentRC — Agentfile and Agent Package Specification
+agentrc — Agentfile and Agent Package Specification
 ```
 
-Avoid “isolation orchestrator” in public positioning. It makes AgentRC sound like a runtime and drags it into competition with Docker, gVisor, Firecracker, microsandbox, Kubernetes, and cloud runners.
+Avoid “isolation orchestrator” in public positioning. It makes agentrc sound like a runtime and drags it into competition with Docker, gVisor, Firecracker, microsandbox, Kubernetes, and cloud runners.
 
 ## Directive compatibility notes
 
@@ -86,13 +86,13 @@ These should be turned into GitHub issues:
 3. **CRED grammar mismatch** — current examples use `CRED db_password vault://...`, but one parser path treats two-argument `CRED` as URL/auth rather than name/ref. The spec standardizes named credential references.
 4. **BIND arity mismatch** — one implementation path expects `BIND <host> <target> <mode>`, another accepts two arguments. The spec recommends three arguments and allows two-argument compatibility normalization.
 5. **`ISOLATION` placement** — current work has `ISOLATION` in Agentfile and `--isolation` runtime flags. The draft keeps `ISOLATION` as compatibility but recommends moving placement into runner config later.
-6. **OCI config alignment** — current OCI annotations use `io.agentio.*`; the spec keeps that namespace and clarifies recommended media types.
+6. **OCI config alignment** — current OCI annotations use the legacy `io.agentio.*` namespace; the spec standardizes on `io.agentrc.*` to match the `AgentRC::` policy namespace and `vnd.agentrc.*` media types. Runners should migrate annotations and MAY read the legacy namespace for backward compatibility.
 7. **Agent identity** — some examples infer identity from `CMD` or package context. Published packages should declare `AGENT` explicitly.
 8. **Spec versioning** — current parser does not support a `SPEC` directive. The draft uses a parser-compatible comment: `# syntax=agentrc.agentfile/v0.1`.
 
 ## Recommended next repo changes
 
-1. Rename public README heading to “AgentRC Specification”.
+1. Rename public README heading to “agentrc Specification”.
 2. Move runtime language under “compatible runners” or “reference tooling”.
 3. Add `/docs/spec/` with this draft.
 4. Add `/docs/profiles/` with profile docs.

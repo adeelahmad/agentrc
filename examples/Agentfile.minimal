@@ -3,8 +3,8 @@
 AGENT hello-local
 CMD strands run --agent hello-local
 
-TOOL utci:file_read
-TOOL utci:current_time
+TOOL utcp:file_read
+TOOL utcp:current_time
 
 AUDIT basic
 

@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Non-goals
-description: "What AgentRC deliberately does not define."
+description: "What agentrc deliberately does not define."
 permalink: /docs/non-goals/
 ---
 # Non-goals
 
-AgentRC deliberately does not define:
+agentrc deliberately does not define:
 
 1. a runtime;
 2. a sandboxing implementation;

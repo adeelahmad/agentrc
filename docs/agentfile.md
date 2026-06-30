@@ -25,10 +25,11 @@ The Agentfile does not describe a cluster, fleet, workflow, or runtime implement
 | `SERVER` | MCP server or compatible tool server |
 | `MOUNT` | Filesystem boundary |
 | `URL` | Network egress boundary |
-| `SECRET` / `CRED` | Runtime credential requirement |
+| `CRED` | Host-scoped credential reference (placeholder-substitution model) |
 | `LIMIT` | Resource, time, or output cap |
 | `RATELIMIT` | Invocation or egress rate cap |
 | `AUDIT` | Audit capture level |
+| `SOP ... END` | Embedded Standard Operating Procedure (instructions) |
 | `POLICY ... END` | Inline policy block |
 
 ## Minimal pattern

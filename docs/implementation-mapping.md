@@ -1,16 +1,16 @@
 ---
 layout: doc
 title: Implementation mapping
-description: "How the current AIO work maps into AgentRC."
+description: "How the current AIO work maps into agentrc."
 permalink: /docs/implementation-mapping/
 ---
 # Implementation mapping
 
 The uploaded current work contains useful implementation material: Agentfile parsing, runner experimentation, Cedar policy gates, secret broker work, OCI-related pieces, and projection ideas.
 
-In the AgentRC framing, these should be renamed and positioned carefully:
+In the agentrc framing, these should be renamed and positioned carefully:
 
-| Current implementation idea | AgentRC framing |
+| Current implementation idea | agentrc framing |
 |---|---|
 | AIO runtime | reference tooling or runner experiment |
 | SubstrateDriver | runner adapter interface |
