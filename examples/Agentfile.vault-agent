@@ -1,13 +1,16 @@
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 
-# vault-agent — secret-broker focus.
-# This Agentfile only NAMES a secret and its host scope; the value never
-# enters the artifact or the running agent. The secret SOURCE (e.g. HashiCorp
-# Vault) is platform-side: the platform's broker resolves the named secret and
-# injects it at the network layer, only for the allowed host.
+# vault-agent — an agent that needs a credential it does NOT carry.
+#
+# Secrets are DEFERRED in this draft: the Agentfile defines no secret keyword and
+# no credential schema. This agent talks to an internal database, but the way its
+# database credential is resolved and injected is left entirely to the platform
+# (a future secrets subsystem — Vault, a broker, env injection, or workload
+# identity). The Agentfile only declares the egress it needs and the objective;
+# the credential never appears here, in any layer, or in any label.
 
 IDENTITY name=vault-agent version=1.0 author=acme
-IDENTITY description="Reads from an internal database using a platform-injected credential"
+IDENTITY description="Reads from an internal database using a platform-injected credential (resolution deferred)"
 
 CAPABILITY text
 
@@ -18,12 +21,9 @@ CMD python -m vault_agent.main
 # Local tool, embedded as a layer.
 COPY --chmod=755 ./tools/db_query /mnt/tools/db_query
 
-# Secret as a reference, never a value. The label NAMES the secret and scopes
-# it to one host; the platform's secret broker (e.g. Vault) resolves the value
-# at run time and injects it for db.internal.example only. No CRED keyword, no
-# secret material in the Agentfile, the layers, or the labels.
-LABEL org.agentrc.secret.db_password=host:db.internal.example
-
 # Egress request: reach the database host on its port. The platform grants,
 # narrows, or rejects this; deny-by-default means no other egress is honoured.
 POLICY network dns:db.internal.example:5432
+
+# How the database credential is provided to the agent is PLATFORM-DEFINED and
+# out of scope for this draft — see the spec's "Secrets (deferred)" section.

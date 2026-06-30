@@ -1,4 +1,4 @@
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 
 # A locked-down agent: minimal capability, no sub-agents, a single
 # allowed egress host, and tightly scoped tools. Everything below is a
@@ -30,8 +30,8 @@ CMD python -m secure_workspace.main
 COPY --chmod=755 ./tools/file_read  /mnt/tools/file_read
 COPY --chmod=755 ./tools/file_write /mnt/tools/file_write
 
-# --- Secrets (resolved by the platform broker at runtime; value never here) -
-LABEL org.agentrc.secret.github_token=host:api.github.com
+# --- Secrets: DEFERRED — no secret declared here; credential resolution, if
+#     any is needed, is platform-defined (see the spec's "Secrets (deferred)"). -
 
 # --- Policy: substrate-side requests ----------------------------------------
 POLICY substrate.runtime.memory 2gb

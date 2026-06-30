@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Examples
-description: "Example agentrc Agentfiles (v1) and the deferred workflow companion draft."
+description: "Example agentrc Agentfiles (0.1.0-draft.5) and the deferred workflow companion draft."
 permalink: /examples/
 ---
 # Examples
 
-These are concrete, copy-pasteable Agentfiles in the v1 model: a
+These are concrete, copy-pasteable Agentfiles in the v0.1 model: a
 Dockerfile-shaped recipe with four new keywords (`IDENTITY`, `CAPABILITY`,
 `SOP`, `POLICY`) over standard Dockerfile keywords. Each builds with either
 `docker build -f Agentfile .` (via the BuildKit frontend) or `arc build .` —
@@ -19,28 +19,37 @@ for the full keyword reference.
 - [Minimal Agentfile](/examples/Agentfile.minimal) — the smallest useful agent.
 - [Secure workspace Agentfile](/examples/Agentfile.secure-workspace) — a locked-down agent with tight `POLICY` requests.
 - [Code reviewer Agentfile](/examples/Agentfile.code-reviewer) — tools, a skill, and an MCP server projected under `/mnt`.
-- [Vault agent Agentfile](/examples/Agentfile.vault-agent) — secrets as references resolved by the platform broker.
+- [Vault agent Agentfile](/examples/Agentfile.vault-agent) — needs a database credential, but credential resolution is **deferred** (platform-defined).
 - [Workflow draft YAML](/examples/agent-workflow.yaml) — a **deferred, non-normative** companion (see below).
 
 ## Minimal
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
-# Minimal agentrc Agentfile: a Dockerfile-shaped recipe for one local agent.
-# Build with `docker build -f Agentfile .` or `arc build .`; both emit identical org.agentrc.* labels.
-
-IDENTITY name=hello version=1.0 author=you
+# syntax=agentrc.agentfile/v0.1
+IDENTITY name=hello version=0.1 author=acme
+IDENTITY description="Minimal AgentRC agent"
 CAPABILITY text
-SOP You are a concise local assistant. Answer in one paragraph.
+SOP You are a minimal example agent. Read a file when asked; do nothing else.
 CMD python ./agent.py
+
+# Tool (local, embedded) — projected under /mnt/tools/
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
-POLICY model.name claude-opus-4
+
+# Model + operational requests (platform grants, narrows, or rejects)
+POLICY model.name         claude-sonnet-4
+POLICY agent.tool_timeout 30s
+
+# Network egress request
+POLICY network dns:api.example.com:443
+
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/ping
 ```
 
 This compiles to labels such as `org.agentrc.identity.name=hello`,
-`org.agentrc.capability.text=true`, `org.agentrc.tool.file_read=local`, and
-`org.agentrc.model.name=claude-opus-4`. The `SOP` is embedded as a readable file
-at `/mnt/SOP` and recorded as a pointer plus digest
+`org.agentrc.capability.text=true`, `org.agentrc.tool.file_read=local`,
+`org.agentrc.model.name=claude-sonnet-4`, and
+`org.agentrc.network.dns.api.example.com=443`. The `SOP` is embedded as a
+readable file at `/mnt/SOP` and recorded as a pointer plus digest
 (`org.agentrc.sop=/mnt/SOP`), never inlined into a label. The platform reads
 those labels — not the Agentfile — when it decides what to honour.
 

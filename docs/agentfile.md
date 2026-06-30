@@ -25,8 +25,7 @@ before running it. It does not describe a cluster, fleet, or workflow.
 
 > There is **no** `TOOL`, `MCP`, `SERVER`, `FUNCTION`, `CRED`, `MOUNT`,
 > `MEMORY`, or `RATELIMIT` keyword. Tools, skills, and MCP servers are added with
-> `COPY` / `ADD`; secrets are `LABEL`s; memory, context, CPU, and model are
-> `POLICY` requests.
+> `COPY` / `ADD`; memory, context, CPU, and model are `POLICY` requests.
 
 ## Standard Dockerfile keywords agentrc uses
 
@@ -40,7 +39,7 @@ documented extension.
 | `COPY` | Add **local** tools, skills, MCP bundles, or an SOP file into the `/mnt` tree. |
 | `ADD` | Add **remote** resources via `--remote` plus delivery flags (`--cached` / `--runtime`, `--fail-if-unavailable` / `--warn-if-unavailable`). |
 | `HEALTHCHECK` | Liveness probe; MAY invoke a projected tool. |
-| `LABEL` | Standard metadata; carries secrets (`org.agentrc.secret.*`) and any hand-authored `org.agentrc.*` metadata. |
+| `LABEL` | Standard OCI metadata; available for hand-authored `org.agentrc.*` metadata. |
 | `ENV` / `ARG` / `WORKDIR` / `USER` / `EXPOSE` / `RUN` | Standard Dockerfile semantics, unchanged. |
 
 ## The `/mnt` projection layout
@@ -65,7 +64,7 @@ exposes its schema via `--agentrc-schema` (JSON to stdout) **or** ships a siblin
 ## Minimal pattern
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 FROM python:3.11-slim
 
 IDENTITY name=hello version=1.0 author=you
@@ -94,11 +93,10 @@ the Agentfile.
   tooling transferable.
 - **Minimum new surface.** The four new keywords cover exactly what Dockerfile
   cannot express about an agent: identity, capabilities, the system prompt, and
-  typed requests. Resources are just files under `/mnt`; secrets are just
-  `LABEL`s.
+  typed requests. Resources are just files under `/mnt`.
 - **The frontend interprets them.** The four agentrc keywords and the
   `ADD --remote` extension are interpreted by the **agentrc BuildKit frontend**
-  (`# syntax=agentrc.io/agentfile:v1`) or the `agentrc` / `arc` CLI; both produce
+  (`# syntax=agentrc.agentfile/v0.1`) or the `agentrc` / `arc` CLI; both produce
   identical OCI artifacts. A stock `docker build` without the frontend
   understands only the standard Dockerfile keywords.
 

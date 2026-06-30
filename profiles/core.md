@@ -1,13 +1,13 @@
 ---
 layout: doc
 title: Core
-description: "Agentfile Core Profile (v1): parse the Dockerfile-shaped Agentfile and compile it to org.agentrc.* labels and layers."
+description: "Agentfile Core Profile (0.1.0-draft.5): parse the Dockerfile-shaped Agentfile and compile it to org.agentrc.* labels and layers."
 permalink: /profiles/core/
 ---
 # Agentfile Core Profile
 
-**Version:** v1 — Working Draft  
-**Status:** Working Draft (`# syntax=agentrc.io/agentfile:v1`)  
+**Version:** 0.1.0-draft.5 — Working Draft  
+**Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** compiler / frontend authors (the `agentrc` BuildKit frontend and the `agentrc` / `arc` CLI)
 
@@ -53,14 +53,14 @@ all of these.
 | `COPY` | Dockerfile | Add **local** tools, skills, MCP bundles, or an SOP file into the `/mnt` tree. |
 | `ADD` | Dockerfile (extended) | Add **remote** resources via `--remote` plus delivery flags. |
 | `HEALTHCHECK` | Dockerfile | Liveness probe; MAY invoke a projected tool. |
-| `LABEL` | Dockerfile | Standard metadata; carries secrets and hand-authored `org.agentrc.*` metadata. |
+| `LABEL` | Dockerfile | Standard OCI metadata; available for hand-authored `org.agentrc.*` metadata. |
 | `ENV` / `ARG` / `WORKDIR` / `USER` / `EXPOSE` / `RUN` | Dockerfile | Standard semantics; available, unchanged. |
 
-> **There is no `TOOL`, `MCP`, `SERVER`, `FUNC`, `CRED`, `MOUNT`, `MEMORY`, or
-> `RATELIMIT` keyword.** Tools / skills / MCP are added with `COPY` / `ADD`;
-> secrets are `LABEL`s; memory / context / model / CPU are `POLICY` requests. Any
-> earlier draft that recognized those keywords is **stale** and MUST NOT be
-> revived by this profile.
+> **There is no `TOOL`, `MCP`, `SERVER`, `FUNC`, `CRED`, `SECRET`, `AUDIT`,
+> `MOUNT`, `MEMORY`, or `RATELIMIT` keyword.** Tools / skills / MCP are added with
+> `COPY` / `ADD`; memory / context / model / CPU are `POLICY` requests; audit
+> rides on `agent.hooks.*`; secrets are **deferred**. Any earlier draft that
+> recognized those keywords is **stale** and MUST NOT be revived by this profile.
 
 ## The `/mnt` projection layout
 
@@ -88,7 +88,7 @@ An implementation claiming this profile MUST:
 1. read a text file named `Agentfile` or an explicitly supplied path
    (`-f Agentfile`);
 2. ignore blank lines and comments (`#`), while honouring the
-   `# syntax=agentrc.io/agentfile:v1` parser directive on the first line;
+   `# syntax=agentrc.agentfile/v0.1` parser directive on the first line;
 3. parse the four agentrc keywords and the standard Dockerfile keywords listed
    above, case-sensitively;
 4. capture an `SOP <<EOF … EOF` **heredoc verbatim**, without interpreting its
@@ -183,7 +183,7 @@ Which form is the **default** for `arc build` is
 ## Identical output from both front doors
 
 agentrc has two build paths — the BuildKit frontend invoked by the
-`# syntax=agentrc.io/agentfile:v1` directive, and the native `agentrc` / `arc` CLI
+`# syntax=agentrc.agentfile/v0.1` directive, and the native `agentrc` / `arc` CLI
 (see the [CLI page](/cli/)). They are two front doors to the same compiler.
 
 > **A conformant implementation MUST produce identical OCI artifacts — same
@@ -197,7 +197,7 @@ agentrc has two build paths — the BuildKit frontend invoked by the
 A minimal Agentfile:
 
 ```dockerfile
-# syntax=agentrc.io/agentfile:v1
+# syntax=agentrc.agentfile/v0.1
 FROM python:3.11-slim
 IDENTITY name=claims-triage version=1.0 author=acme
 CAPABILITY text
@@ -233,13 +233,11 @@ A compiler / linter SHOULD warn when:
 
 1. `IDENTITY name=` is missing in an artifact intended for publication;
 2. `FROM` uses a mutable tag such as `latest`;
-3. a `LABEL org.agentrc.secret.*` appears to carry a literal value rather than a
-   host scope (the value belongs to the platform broker, never the Agentfile);
-4. an `ADD --remote` uses `--runtime` without a clear failure mode, so the
+3. an `ADD --remote` uses `--runtime` without a clear failure mode, so the
    default `--fail-if-unavailable` is recorded explicitly;
-5. a `COPY` / `ADD` targets a path outside `/mnt` for a resource that is meant to
+4. a `COPY` / `ADD` targets a path outside `/mnt` for a resource that is meant to
    be projected (it will not be classified as a tool / skill / mcp);
-6. a removed keyword (`TOOL`, `MCP`, `CRED`, `MOUNT`, `RATELIMIT`, …) is
+5. a removed keyword (`TOOL`, `MCP`, `CRED`, `MOUNT`, `RATELIMIT`, …) is
    encountered — it is stale and MUST be rejected, with a pointer to the
    `COPY` / `ADD` / `LABEL` / `POLICY` replacement.
 

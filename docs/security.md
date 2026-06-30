@@ -13,44 +13,31 @@ emits namespaced `org.agentrc.*` OCI labels; the platform reads **those labels**
 then enforces the result with [Cedar](https://www.cedarpolicy.com/),
 platform-side. The Agentfile expresses *intent*; the platform holds *authority*.
 
-> A `POLICY` line, a presence label, or a secret reference is a **request**, not
-> a permission. Absence of a grant is a denial. The enforcement engine is Cedar,
-> and it lives on the platform, not in the artifact.
+> A `POLICY` line or a presence label is a **request**, not a permission.
+> Absence of a grant is a denial. The enforcement engine is Cedar, and it lives
+> on the platform, not in the artifact.
 
 ## Boundaries: declared as a label, enforced by the platform
 
 Every security-relevant boundary is **declared** as a label the compiler emits
-from authored intent, and **enforced** by the platform's Cedar engine or its
-secret broker. Authors write the short forms; the compiler prepends
-`org.agentrc.`.
+from authored intent, and **enforced** by the platform's Cedar engine. Authors
+write the short forms; the compiler prepends `org.agentrc.`.
 
 | Boundary | Declared as (authored → label) | Enforced by |
 |---|---|---|
 | **Network egress** | `POLICY network dns:api.github.com:443` → `org.agentrc.network.dns.api.github.com=443` | Platform Cedar: `Action::"NetworkEgress"` on `Host::"<host>:<port>"` |
-| **Secrets** | `LABEL org.agentrc.secret.github_token=host:api.github.com` (host-scoped; value never in the artifact) | Platform **secret broker**: resolves and injects at the network layer for the named host; gated by `Action::"secret.resolve"` |
 | **Tools** | `COPY ./tools/x /mnt/tools/x` → `org.agentrc.tool.x=local` (presence label) | Platform Cedar: `Action::"tool.invoke"` on `Tool::"<name>"` |
 | **MCP servers** | `ADD --remote … /mnt/mcp/x` → `org.agentrc.mcp.x=<digest|runtime:url>` (+ `.origin`) | Platform Cedar: `Action::"mcp.request"` on `MCPServer::"<name>"` |
 | **Devices** | `POLICY substrate.device /dev/gpu` → `org.agentrc.substrate.device=/dev/gpu` | Platform Cedar: `Action::"device.access"` on `Device::"<dev>"` |
 | **Sub-agents** | `POLICY agent.sub_agents true` → `org.agentrc.agent.sub_agents=true` (capped by `sub_agents.max`) | Platform Cedar: `Action::"agent.delegate"` on `Agent::*` |
 
 The platform sees a uniform, machine-readable manifest of *everything the agent
-asks for* — tools, network, devices, MCP servers, sub-agents, and
-secrets-as-references — and vets it before the agent runs.
+asks for* — tools, network, devices, MCP servers, and sub-agents — and vets it
+before the agent runs.
 
-## Secrets are references, never values
-
-The Agentfile **names** a secret and its host scope; it never carries the value.
-
-```dockerfile
-LABEL org.agentrc.secret.github_token=host:api.github.com
-LABEL org.agentrc.secret.openai_key=host:api.openai.com
-```
-
-The platform's broker resolves the secret at run time and injects it at the
-network layer for the allowed host — a host-scoped substitution model in the
-spirit of [microsandbox](https://docs.microsandbox.dev/sandboxes/secrets). The
-built artifact stays portable and secret-free: no plaintext value ever appears
-in a layer, a label, the image config, or an audit record.
+> Secrets are **deferred** in this draft — no `SECRET`/`CRED` keyword and no
+> `org.agentrc.secret.*` schema; credential resolution is platform-defined and
+> out of scope for now.
 
 ## Auto-derived egress is explicit, not implicit
 
@@ -69,8 +56,8 @@ platform must still grant the derived egress; an un-granted one is denied.
 
 ## Principles
 
-- **Requests, not enforcement.** A `POLICY` line, a presence label, or a secret
-  reference asks the platform for something. The platform decides.
+- **Requests, not enforcement.** A `POLICY` line or a presence label asks the
+  platform for something. The platform decides.
 - **Deny-by-default.** Absence of a grant is a denial. An unrecognised request,
   an un-granted auto-derived egress, or an action with no matching grant is
   denied.
@@ -81,9 +68,8 @@ platform must still grant the derived egress; an un-granted one is denied.
   its effective authorization is the **intersection** of ceilings — a child
   cannot exceed its parent, and a parent `forbid` is un-loosenable.
 - **Fail closed.** A platform that cannot understand, evaluate, or enforce a
-  required boundary — or resolve a required secret — MUST refuse to run the
-  agent rather than run it under-protected.
-- **Secrets are references.** Values live in the broker, never in the artifact.
+  required boundary MUST refuse to run the agent rather than run it
+  under-protected.
 - **No policy language in the Agentfile.** Authors write only typed `POLICY`
   requests. **Cedar is platform-side only** — there is no `permit` / `forbid`
   in an Agentfile, and no second, author-facing policy language to learn.
@@ -103,7 +89,6 @@ namespace:
 | `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
 | `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
 | `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
-| `org.agentrc.secret.<name>` | `Action::"secret.resolve"` | `Secret::"<name>"` |
 
 The agent's `POLICY` requests are the **floor of intent**; the organization's own
 Cedar policies (authored out-of-band by the security team) are the **ceiling of

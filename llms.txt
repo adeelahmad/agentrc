@@ -18,12 +18,12 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 
 ## Specification
 
-- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full v1 working draft — the four keywords, the `/mnt` projection, Agentfile → OCI label translation, platform runtime behaviour, and the platform-side Cedar enforcement model.
+- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full 0.1.0-draft.5 working draft — the four keywords, the `/mnt` projection, Agentfile → OCI label translation, platform runtime behaviour, and the platform-side Cedar enforcement model.
 
 ## Documentation
 
 - [Agentfile]({{ '/docs/agentfile/' | absolute_url }}): The Dockerfile-shaped, single-agent declaration format and its four new keywords.
-- [Security]({{ '/docs/security/' | absolute_url }}): Label-based boundaries (network, secrets-as-references, tools/MCP, devices, sub-agents) and platform-side Cedar enforcement.
+- [Security]({{ '/docs/security/' | absolute_url }}): Label-based boundaries (network, tools/MCP, devices, sub-agents) and platform-side Cedar enforcement.
 - [Package model]({{ '/docs/package/' | absolute_url }}): The OCI artifact — layers carrying `/mnt` resources, image config carrying `org.agentrc.*` labels, signing, and `.origin` override.
 - [Runners]({{ '/docs/runners/' | absolute_url }}): What a platform reads (labels) versus what a substrate executes (`CMD`), and the grant/narrow/reject contract.
 - [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial, fail-closed test-suite outline.
@@ -37,7 +37,7 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 - [Security]({{ '/profiles/security/' | absolute_url }}): The platform-side Cedar enforcement profile and the normative request → Cedar mapping.
 - [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): The `org.agentrc.*` label namespace, layer layout, media types, and annotations.
 - [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract.
-- [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, resolve secrets, enforce via Cedar, fail closed.
+- [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, fetch runtime resources, enforce via Cedar, fail closed.
 - [Workflow Draft]({{ '/profiles/workflow-draft/' | absolute_url }}): Deferred, non-normative multi-agent orchestration companion.
 
 ## Examples
