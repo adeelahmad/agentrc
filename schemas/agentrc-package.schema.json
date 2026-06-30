@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec.agentio.dev/schemas/agentrc-package.v1.schema.json",
+  "title": "AgentRC Agent Package Config",
+  "type": "object",
+  "required": ["name", "entry_point", "policy_hash"],
+  "properties": {
+    "name": { "type": "string" },
+    "entry_point": { "type": "string" },
+    "agentfile_version": { "type": "string" },
+    "required_tools": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_functions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_skills": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "credential_names": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "policy_hash": { "type": "string" },
+    "required_runner_profiles": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "annotations": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

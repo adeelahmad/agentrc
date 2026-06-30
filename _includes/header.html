@@ -1,0 +1,29 @@
+<header class="site-header">
+  <a class="brand" href="{{ '/' | relative_url }}" aria-label="AgentRC home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg class="brand-glyph" viewBox="0 0 64 64" role="img" focusable="false">
+        <path d="M14 48V16h20.5c8.1 0 13.5 4.8 13.5 12 0 5.1-2.6 9.1-7.1 10.9L51 48H39.7l-8.9-8.1h-6.9V48H14Zm9.9-16.6h9.7c2.8 0 4.7-1.5 4.7-3.9s-1.9-3.9-4.7-3.9h-9.7v7.8Z" fill="currentColor"/>
+        <path d="M18 51.5h28" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <strong>AgentRC</strong>
+      <small>Agent Run Config</small>
+    </span>
+  </a>
+  <div class="header-actions">
+    <nav class="nav" aria-label="Main navigation">
+      {% for item in site.nav %}
+        <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+      {% endfor %}
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme" title="Toggle color theme">
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 4a1 1 0 0 0 1-1v-1.1a1 1 0 1 0-2 0V21a1 1 0 0 0 1 1Zm0-18.9a1 1 0 0 0 1-1V1a1 1 0 1 0-2 0v1.1a1 1 0 0 0 1 1ZM4.22 5.64a1 1 0 0 0 1.42-1.42l-.78-.78a1 1 0 0 0-1.42 1.42l.78.78Zm14.14 14.14a1 1 0 0 0 1.42-1.42l-.78-.78a1 1 0 0 0-1.42 1.42l.78.78ZM3.1 12a1 1 0 0 0-1-1H1a1 1 0 1 0 0 2h1.1a1 1 0 0 0 1-1Zm19.9-1h-1.1a1 1 0 1 0 0 2H23a1 1 0 1 0 0-2Zm-17.36 7.36a1 1 0 0 0-1.42 0l-.78.78a1 1 0 0 0 1.42 1.42l.78-.78a1 1 0 0 0 0-1.42ZM19.78 3.44a1 1 0 0 0-1.42 0l-.78.78A1 1 0 0 0 19 5.64l.78-.78a1 1 0 0 0 0-1.42Z"/>
+      </svg>
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M21 14.6A8.6 8.6 0 0 1 9.4 3a9.5 9.5 0 1 0 11.6 11.6Z"/>
+      </svg>
+    </button>
+  </div>
+</header>

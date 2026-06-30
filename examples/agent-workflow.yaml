@@ -1,0 +1,44 @@
+apiVersion: agentrc.workflow/v0.1
+kind: AgentWorkflow
+metadata:
+  name: claims-review-flow
+spec:
+  startAt: Triage
+  states:
+    Triage:
+      type: Task
+      agent: ghcr.io/bank/claims-triage@sha256:1111111111111111111111111111111111111111111111111111111111111111
+      inputPath: $.claim
+      resultPath: $.triage
+      timeoutSeconds: 120
+      retry:
+        - errorEquals: [Runner.Timeout, Tool.TemporaryFailure]
+          intervalSeconds: 2
+          maxAttempts: 3
+          backoffRate: 2.0
+      catch:
+        - errorEquals: [States.ALL]
+          resultPath: $.error
+          next: HumanReview
+      next: RiskChoice
+
+    RiskChoice:
+      type: Choice
+      choices:
+        - variable: $.triage.risk
+          stringEquals: high
+          next: HumanReview
+        - variable: $.triage.risk
+          stringEquals: low
+          next: AutoApprove
+      default: HumanReview
+
+    HumanReview:
+      type: Task
+      agent: ghcr.io/bank/human-review-assistant@sha256:2222222222222222222222222222222222222222222222222222222222222222
+      end: true
+
+    AutoApprove:
+      type: Task
+      agent: ghcr.io/bank/approval-agent@sha256:3333333333333333333333333333333333333333333333333333333333333333
+      end: true
