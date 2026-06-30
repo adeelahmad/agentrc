@@ -176,7 +176,9 @@ For local development, a runner MAY infer an agent identity from `FROM` or the p
 
 ## 9. Agentfile directives
 
-This section defines the core directive set. Implementations MAY parse additional directives under extension profiles, but they MUST NOT silently reinterpret core directives.
+This section defines the full directive vocabulary. Only a minimal subset is **normative core** for v0.1 — `AGENT`, `FROM`, `CMD`, `TOOL`, `MOUNT`, `CRED`, `URL`, `POLICY`, and `AUDIT`. Every other directive below belongs to an optional profile; see the [Core profile](/profiles/core/) for the full classification table. Implementations MAY parse additional directives under extension profiles, but they MUST NOT silently reinterpret core directives, and an implementation MUST publish which profiles it actually supports rather than implying that every recognized directive is enforced.
+
+The directives in §9.13 and §9.21–§9.25 (`BIND`, `SLICE`, `IMAGE`, `ISOLATION`, `BROKER`, `BACKEND`) plus `PLUGIN` (§9.15) are **placement** concerns, not capability concerns. They describe where and how an agent runs rather than what it is. To preserve content-addressed, signable identity, these SHOULD be carried in a separate **Run Manifest** chosen by the operator or runner and SHOULD NOT contribute to the package digest. See §24 Q1.
 
 ### 9.1 `AGENT`
 
@@ -696,11 +698,11 @@ Recommended media types:
 Recommended annotations:
 
 ```text
-io.agentio.agentfile.version
-io.agentio.agent.name
-io.agentio.policy.hash
-io.agentio.base.digest
-io.agentio.risk.tier
+io.agentrc.agentfile.version
+io.agentrc.agent.name
+io.agentrc.policy.hash
+io.agentrc.base.digest
+io.agentrc.risk.tier
 org.opencontainers.image.title
 org.opencontainers.image.version
 org.opencontainers.image.source

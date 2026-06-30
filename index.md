@@ -10,12 +10,12 @@ permalink: /
     <h1>Portable, governed AI agents.</h1>
     <p class="lead">AgentRC is an open specification for declaring, packaging, securing, and sharing AI agents. It defines the contract an agent declares; compatible runners decide how to execute it.</p>
     <div class="cta-row">
-      <a class="button primary" href="/spec/">Read the specification</a>
-      <a class="button" href="/docs/quickstart/">Start with an Agentfile</a>
+      <a class="button primary" href="{{ '/spec/' | relative_url }}">Read the specification</a>
+      <a class="button" href="{{ '/docs/quickstart/' | relative_url }}">Start with an Agentfile</a>
       <a class="button" href="https://github.com/adeelahmad/agentrc">View on GitHub</a>
     </div>
   </div>
-  <div class="hero-card">
+  <div class="hero-card" markdown="1">
 ```dockerfile
 # syntax=agentrc.agentfile/v0.1
 

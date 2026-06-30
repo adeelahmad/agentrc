@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://spec.agentio.dev/schemas/agentrc-lock.v1.schema.json",
+  "$id": "https://agentrc.ai/schemas/agentrc-lock.v1.schema.json",
   "title": "AgentRC Lockfile",
   "type": "object",
   "required": ["version", "agentfile_hash", "timestamp"],

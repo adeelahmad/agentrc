@@ -63,18 +63,18 @@ A package SHOULD include:
 A package SHOULD carry:
 
 ```text
-io.agentio.agentfile.version
-io.agentio.agent.name
-io.agentio.policy.hash
-io.agentio.base.digest
+io.agentrc.agentfile.version
+io.agentrc.agent.name
+io.agentrc.policy.hash
+io.agentrc.base.digest
 ```
 
 A package MAY also carry:
 
 ```text
-io.agentio.risk.tier
-io.agentio.required.runner.profiles
-io.agentio.required.policy.profile
+io.agentrc.risk.tier
+io.agentrc.required.runner.profiles
+io.agentrc.required.policy.profile
 org.opencontainers.image.title
 org.opencontainers.image.version
 org.opencontainers.image.source

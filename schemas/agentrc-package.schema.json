@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://spec.agentio.dev/schemas/agentrc-package.v1.schema.json",
+  "$id": "https://agentrc.ai/schemas/agentrc-package.v1.schema.json",
   "title": "AgentRC Agent Package Config",
   "type": "object",
   "required": ["name", "entry_point", "policy_hash"],

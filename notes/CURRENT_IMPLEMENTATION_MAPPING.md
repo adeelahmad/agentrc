@@ -86,7 +86,7 @@ These should be turned into GitHub issues:
 3. **CRED grammar mismatch** — current examples use `CRED db_password vault://...`, but one parser path treats two-argument `CRED` as URL/auth rather than name/ref. The spec standardizes named credential references.
 4. **BIND arity mismatch** — one implementation path expects `BIND <host> <target> <mode>`, another accepts two arguments. The spec recommends three arguments and allows two-argument compatibility normalization.
 5. **`ISOLATION` placement** — current work has `ISOLATION` in Agentfile and `--isolation` runtime flags. The draft keeps `ISOLATION` as compatibility but recommends moving placement into runner config later.
-6. **OCI config alignment** — current OCI annotations use `io.agentio.*`; the spec keeps that namespace and clarifies recommended media types.
+6. **OCI config alignment** — current OCI annotations use the legacy `io.agentio.*` namespace; the spec standardizes on `io.agentrc.*` to match the `AgentRC::` policy namespace and `vnd.agentrc.*` media types. Runners should migrate annotations and MAY read the legacy namespace for backward compatibility.
 7. **Agent identity** — some examples infer identity from `CMD` or package context. Published packages should declare `AGENT` explicitly.
 8. **Spec versioning** — current parser does not support a `SPEC` directive. The draft uses a parser-compatible comment: `# syntax=agentrc.agentfile/v0.1`.
 

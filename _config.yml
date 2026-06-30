@@ -1,7 +1,7 @@
 title: AgentRC
 tagline: Agent Run Config
 description: Open specification for declaring, packaging, securing, and sharing portable AI agents.
-url: "https://agentrc.io"
+url: "https://agentrc.ai"
 baseurl: ""
 repository: adeelahmad/agentrc
 author:
@@ -28,6 +28,8 @@ collections:
   spec_pages:
     output: true
 nav:
+  - title: What is AgentRC?
+    url: /docs/what-is-agentrc/
   - title: Spec
     url: /spec/
   - title: Docs
