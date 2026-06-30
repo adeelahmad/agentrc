@@ -8,7 +8,7 @@ permalink: /spec/
 
 **Version:** 0.1.0-draft.2  
 **Status:** Working Draft  
-**Editor:** Adeel Ahmad  
+**Editor:** [Adeel Ahmad](https://www.linkedin.com/in/adeelahmadch)  
 **Date:** 2026-06-30  
 **Audience:** agent developers, platform engineers, security engineers, registry maintainers, runner implementers, compliance reviewers
 
