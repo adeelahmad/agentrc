@@ -7,13 +7,13 @@ permalink: /profiles/oci-package/
 # OCI Package
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
 This profile defines how an Agentfile source tree is packaged for registry distribution.
 
-An AgentRC package is a portable agent recipe. It is not a live VM snapshot and not a runtime-specific checkpoint.
+An agentrc package is a portable agent recipe. It is not a live VM snapshot and not a runtime-specific checkpoint.
 
 ## Source tree
 
@@ -63,18 +63,18 @@ A package SHOULD include:
 A package SHOULD carry:
 
 ```text
-io.agentio.agentfile.version
-io.agentio.agent.name
-io.agentio.policy.hash
-io.agentio.base.digest
+io.agentrc.agentfile.version
+io.agentrc.agent.name
+io.agentrc.policy.hash
+io.agentrc.base.digest
 ```
 
 A package MAY also carry:
 
 ```text
-io.agentio.risk.tier
-io.agentio.required.runner.profiles
-io.agentio.required.policy.profile
+io.agentrc.risk.tier
+io.agentrc.required.runner.profiles
+io.agentrc.required.policy.profile
 org.opencontainers.image.title
 org.opencontainers.image.version
 org.opencontainers.image.source

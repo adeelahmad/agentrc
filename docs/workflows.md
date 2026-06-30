@@ -4,7 +4,7 @@ title: Workflow draft
 description: "Future multi-agent workflow layer."
 permalink: /docs/workflows/
 ---
-# AgentRC Workflow draft
+# agentrc Workflow draft
 
 The Agentfile declares one agent. Multi-agent applications need a separate layer.
 
@@ -40,4 +40,4 @@ states:
 
 Workflows require state, retries, branching, compensation, timeout behavior, failure semantics, and event handling. That is a different problem from single-agent packaging.
 
-AgentRC keeps those layers separate.
+agentrc keeps those layers separate.

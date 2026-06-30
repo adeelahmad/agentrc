@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Package model
-description: "What an AgentRC package contains."
+description: "What an agentrc package contains."
 permalink: /docs/package/
 ---
 # Package model
 
-An AgentRC package is the portable artifact built from an Agentfile.
+An agentrc package is the portable artifact built from an Agentfile.
 
 ## Package contents
 
@@ -24,7 +24,7 @@ An AgentRC package is the portable artifact built from an Agentfile.
 
 ## Registry model
 
-AgentRC packages are intended to be shared through OCI-compatible registries.
+agentrc packages are intended to be shared through OCI-compatible registries.
 
 ```bash
 agentrc build --tag ghcr.io/org/code-reviewer:1.0.0

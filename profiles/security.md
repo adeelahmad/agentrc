@@ -7,13 +7,13 @@ permalink: /profiles/security/
 # Security
 
 **Status:** Working Draft  
-**Version:** 0.1.0-draft.2
+**Version:** 0.1.0-draft.4
 
 ## Purpose
 
-This profile defines how AgentRC packages declare security boundaries and how Cedar is used as the default policy language.
+This profile defines how agentrc packages declare security boundaries and how Cedar is used as the default policy language.
 
-AgentRC does not provide isolation itself. A compatible runner enforces declared boundaries or fails closed.
+agentrc does not provide isolation itself. A compatible runner enforces declared boundaries or fails closed.
 
 ## Boundary classes
 

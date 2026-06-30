@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Examples
-description: "AgentRC example Agentfiles and workflow drafts."
+description: "agentrc example Agentfiles and workflow drafts."
 permalink: /examples/
 ---
 # Examples
 
-These examples demonstrate the intended style of AgentRC declarations.
+These examples demonstrate the intended style of agentrc declarations.
 
 ## Files
 
@@ -23,7 +23,7 @@ These examples demonstrate the intended style of AgentRC declarations.
 
 AGENT hello-local
 CMD python ./agent.py
-TOOL utci:file_read
+TOOL utcp:file_read
 AUDIT basic
 POLICY
   permit(

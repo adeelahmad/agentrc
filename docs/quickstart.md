@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Quickstart
-description: "Create and publish a minimal AgentRC package."
+description: "Create and publish a minimal agentrc package."
 permalink: /docs/quickstart/
 ---
 # Quickstart
@@ -14,8 +14,8 @@ permalink: /docs/quickstart/
 AGENT hello-local
 CMD python ./agent.py
 
-TOOL utci:file_read
-TOOL utci:current_time
+TOOL utcp:file_read
+TOOL utcp:current_time
 MOUNT /workspace ro
 AUDIT basic
 
@@ -49,7 +49,7 @@ agentrc compile Agentfile
 agentrc build --tag ghcr.io/adeelahmad/hello-local:0.1.0
 ```
 
-The build produces an AgentRC package containing:
+The build produces an agentrc package containing:
 
 - `Agentfile`
 - `agentrc.lock`
@@ -69,4 +69,4 @@ agentrc push ghcr.io/adeelahmad/hello-local:0.1.0
 agentrc run ghcr.io/adeelahmad/hello-local:0.1.0
 ```
 
-A compatible runner may use a local process, container, gVisor sandbox, microVM, serverless platform, or managed cloud runtime. The substrate is deliberately outside the core AgentRC specification.
+A compatible runner may use a local process, container, gVisor sandbox, microVM, serverless platform, or managed cloud runtime. The substrate is deliberately outside the core agentrc specification.

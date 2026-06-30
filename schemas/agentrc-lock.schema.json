@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://spec.agentio.dev/schemas/agentrc-lock.v1.schema.json",
-  "title": "AgentRC Lockfile",
+  "$id": "https://agentrc.ai/schemas/agentrc-lock.v1.schema.json",
+  "title": "agentrc Lockfile",
   "type": "object",
   "required": ["version", "agentfile_hash", "timestamp"],
   "properties": {
@@ -57,6 +57,20 @@
       }
     },
     "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "hash": { "type": "string" },
+          "source": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sops": {
       "type": "array",
       "items": {
         "type": "object",
