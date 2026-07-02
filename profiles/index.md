@@ -18,4 +18,4 @@ contract so compilers, platforms, and registries can be tested independently.
 - [OCI Package](/profiles/oci-package/) — OCI labels &amp; package: the `org.agentrc.*` label namespace, layers carrying the `/mnt` resources, media types, and `*.origin` overrides.
 - [Tool Projection](/profiles/tool-projection/) — the `/mnt` projection: how `tools/`, `skills/`, `mcp/`, `proc/`, and `SOP` are presented to the running agent.
 - [Runner Conformance](/profiles/runner-conformance/) — Platform conformance: what a platform MUST do with the labels — read them (never the Agentfile), grant / narrow / reject, and fail closed.
-- [Workflow Draft](/profiles/workflow-draft/) — a deferred, non-normative companion for orchestrating packaged agents by digest; distinct from the deferred A2A protocol and not part of the Agentfile core.
+- Workflow orchestration is parked for a future draft — a deferred, non-normative companion for orchestrating packaged agents by digest; distinct from the deferred A2A protocol and not part of the Agentfile core.

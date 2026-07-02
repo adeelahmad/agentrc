@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Examples
-description: "Example agentrc Agentfiles (0.1.0-draft.5) and the deferred workflow companion draft."
+description: "Example agentrc Agentfiles (0.1.0-draft.5)."
 permalink: /examples/
 ---
 # Examples
@@ -20,7 +20,6 @@ for the full keyword reference.
 - [Secure workspace Agentfile](/examples/Agentfile.secure-workspace) — a locked-down agent with tight `POLICY` requests.
 - [Code reviewer Agentfile](/examples/Agentfile.code-reviewer) — tools, a skill, and an MCP server projected under `/mnt`.
 - [Vault agent Agentfile](/examples/Agentfile.vault-agent) — needs a database credential, but credential resolution is **deferred** (platform-defined).
-- [Workflow draft YAML](/examples/agent-workflow.yaml) — a **deferred, non-normative** companion (see below).
 
 ## Minimal
 
@@ -56,10 +55,8 @@ those labels — not the Agentfile — when it decides what to honour.
 
 ## The workflow companion is deferred
 
-`agent-workflow.yaml` sketches **external** multi-agent orchestration that
-references packaged agents by **digest**. It is a deferred, non-normative
-companion: the agent-to-agent (A2A) *protocol* — discovery, delegation, and the
-cross-agent governance algebra — is out of scope for this version. Capability
-*exposure* via `IDENTITY` / `CAPABILITY` / labels is in scope; the workflow draft
-is not part of the Agentfile core. See the
-[workflow draft profile](/profiles/workflow-draft/).
+Workflow orchestration is parked for a future draft. The agent-to-agent (A2A)
+*protocol* — discovery, delegation, and the cross-agent governance algebra — is
+out of scope for this version. Capability *exposure* via `IDENTITY` /
+`CAPABILITY` / labels is in scope; the workflow companion is not part of the
+Agentfile core.

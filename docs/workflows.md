@@ -3,7 +3,9 @@ layout: doc
 title: Workflow draft (deferred)
 description: "A deferred, non-normative companion: orchestrating packaged agentrc agents externally by digest. Not part of the Agentfile core."
 permalink: /docs/workflows/
+published: false
 ---
+<!-- Parked 2026-07-03 — will return in a future draft -->
 # agentrc Workflow draft (deferred companion)
 
 > **Status: deferred and non-normative.** Nothing on this page is part of the

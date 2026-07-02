@@ -28,7 +28,6 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 - [Runners]({{ '/docs/runners/' | absolute_url }}): What a platform reads (labels) versus what a substrate executes (`CMD`), and the grant/narrow/reject contract.
 - [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial, fail-closed test-suite outline.
 - [CLI]({{ '/cli/' | absolute_url }}): The two build paths — the BuildKit frontend and the native `agentrc`/`arc` CLI.
-- [Workflows]({{ '/docs/workflows/' | absolute_url }}): Deferred, non-normative multi-agent companion that references packaged agents by digest (distinct from the deferred A2A protocol).
 - [Non-goals]({{ '/docs/non-goals/' | absolute_url }}): What agentrc deliberately does not define.
 
 ## Profiles
@@ -38,11 +37,10 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 - [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): The `org.agentrc.*` label namespace, layer layout, media types, and annotations.
 - [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract.
 - [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, fetch runtime resources, enforce via Cedar, fail closed.
-- [Workflow Draft]({{ '/profiles/workflow-draft/' | absolute_url }}): Deferred, non-normative multi-agent orchestration companion.
 
 ## Examples
 
-- [Examples]({{ '/examples/' | absolute_url }}): Sample Agentfiles (minimal, secure workspace, code reviewer, vault agent) and a deferred workflow YAML.
+- [Examples]({{ '/examples/' | absolute_url }}): Sample Agentfiles (minimal, secure workspace, code reviewer, vault agent).
 
 ## Reference
 

@@ -824,7 +824,6 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 - **A2A (agent-to-agent protocol):** Agent Cards, agent discovery, cross-agent
   delegation, and the governance algebra across an agent-to-agent call.
   Capability *exposure* (via `IDENTITY` / `CAPABILITY` / labels) is in this
-  version; the *protocol* for one agent to find and call another is not. The
-  non-normative [workflow draft](/docs/workflows/) sketches external multi-agent
-  orchestration that references packaged agents by digest — distinct from the
-  A2A protocol.
+  version; the *protocol* for one agent to find and call another is not.
+  External multi-agent orchestration that references packaged agents by digest —
+  distinct from the A2A protocol — is parked for a future draft.
