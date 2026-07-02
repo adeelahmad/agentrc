@@ -1,0 +1,4 @@
+2026-07-02T18:43:43Z wave-1 gate sprint-1 start planning-approved; open-q1 resolved: frontend image documented as PUBLISHED (ghcr.io/adeelahmad/agentrc-frontend v0.1.0) per supervisor rec + owner go
+2026-07-02T18:46:05Z wave-0 red sprint-1 note ENV: no local Jekyll (ruby 2.6, bundle install fails); build-dependent checks (canonical/sitemap/served-refs/htmlproofer) delegated to CI build job + T14 live curls; source-grep + arc lint run locally
+2026-07-02T18:46:05Z wave-0 red sprint-1 note SCHEDULE: plugin worktree hooks not loaded; workers serialized on feat/sprint1-fixes, verify checks = manual gate before each commit; master untouched until T13 PR
+2026-07-02T19:00:38Z wave-1 red sprint-1 complete verify-suite committed; RED confirmed 5 pass(guards)/27 fail-by-assertion/10 skip(build-delegated)
