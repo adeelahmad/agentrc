@@ -26,8 +26,9 @@ for the full keyword reference.
 
 ```dockerfile
 # syntax=agentrc.agentfile/v0.1
+FROM python:3.11-slim
 IDENTITY name=hello version=0.1 author=acme
-IDENTITY description="Minimal AgentRC agent"
+IDENTITY description="Minimal agentrc agent"
 CAPABILITY text
 SOP You are a minimal example agent. Read a file when asked; do nothing else.
 CMD python ./agent.py
@@ -42,7 +43,7 @@ POLICY agent.tool_timeout 30s
 # Network egress request
 POLICY network dns:api.example.com:443
 
-HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/ping
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema
 ```
 
 This compiles to labels such as `org.agentrc.identity.name=hello`,

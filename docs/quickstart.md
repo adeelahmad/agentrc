@@ -13,17 +13,17 @@ know `docker build`, you already know most of this. For the full normative
 grammar, see the [specification](/spec/).
 
 <div class="callout">
-<strong>Status: steps 1–4 work today; step 5 doesn't.</strong> A reference
+<strong>Status: steps 1–4 work today; step 5 is planned.</strong> A reference
 implementation of the native <code>agentrc</code> CLI (<code>build</code>,
 <code>inspect</code>, <code>push</code>, <code>pull</code>, <code>lint</code>,
 <code>lock</code>, <code>init</code>) and the BuildKit frontend both exist —
 see <a href="/cli/">the live CLI status table</a> and <code>tooling/</code> in
-the repository. The frontend image isn't published to a public registry yet,
-so a stock <code>docker build -f Agentfile .</code> needs
-<code>--build-arg BUILDKIT_SYNTAX=&lt;your-built-image&gt;</code> until it is
-(see step 2). <strong>Step 5 (<code>arc run</code>) is not implemented</strong> —
-agentrc declares agents, it does not ship a runtime; running an artifact is a
-compatible platform's job.
+the repository. The frontend image is published at
+<code>ghcr.io/adeelahmad/agentrc-frontend</code>, so the <code># syntax=</code>
+line routes <code>docker build -f Agentfile .</code> through it (see step 2).
+<strong>Step 5 (<code>arc run</code>) is planned</strong> — agentrc declares
+agents, it does not ship a runtime; running an artifact is a compatible
+platform's job.
 </div>
 
 ## 1. Create an `Agentfile`
@@ -33,17 +33,17 @@ standard Dockerfile keywords. Save this as `Agentfile`:
 
 ```dockerfile
 # syntax=agentrc.agentfile/v0.1
+FROM python:3.11-slim
 
 # --- Who the agent is -------------------------------------------------------
-IDENTITY name=hello version=1.0 author=you
-IDENTITY description="A concise local assistant"
+IDENTITY name=hello version=0.1 author=acme
+IDENTITY description="Minimal agentrc agent"
 
 # --- What it supports -------------------------------------------------------
 CAPABILITY text
-CAPABILITY streaming
 
 # --- System prompt / objective ----------------------------------------------
-SOP You are a concise local assistant. Answer in one short paragraph.
+SOP You are a minimal example agent. Read a file when asked; do nothing else.
 
 # --- Invocation surface (any framework) -------------------------------------
 CMD python ./agent.py
@@ -52,8 +52,14 @@ CMD python ./agent.py
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
 
 # --- Typed requests to the platform -----------------------------------------
-POLICY model.name claude-opus-4
-POLICY network dns:api.github.com:443
+POLICY model.name         claude-sonnet-4
+POLICY agent.tool_timeout 30s
+
+# --- Network egress request -------------------------------------------------
+POLICY network dns:api.example.com:443
+
+# --- Liveness probe ---------------------------------------------------------
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema
 ```
 
 Each `POLICY` line is a **request**, not a guarantee — you are asking the platform
@@ -66,14 +72,24 @@ tool is just an executable placed under `/mnt/tools/`; its destination path unde
 There are two front doors to the same compiler — they produce **identical** OCI
 artifacts.
 
-**BuildKit frontend (no CLI to install).** The `# syntax=` line is designed to
-route the file through the agentrc frontend image, so that once that image is
-published a stock Docker / BuildKit install will need no extra tooling. Until
-then, build the frontend image locally and route to it explicitly:
+**BuildKit frontend.** The agentrc frontend image is published at
+`ghcr.io/adeelahmad/agentrc-frontend`. Make it the first line of your Agentfile:
+
+```dockerfile
+# syntax=ghcr.io/adeelahmad/agentrc-frontend:latest
+```
+
+then a plain build routes the file through it:
 
 ```bash
-docker build -t local/agentrc-frontend:dev -f Dockerfile.frontend .
-docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=local/agentrc-frontend:dev -t ghcr.io/you/hello:1.0 .
+docker build -f Agentfile -t ghcr.io/you/hello:1.0 .
+```
+
+To pin the frontend explicitly instead of via the `# syntax=` line, pass it as a
+build arg:
+
+```bash
+docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=ghcr.io/adeelahmad/agentrc-frontend:latest -t ghcr.io/you/hello:1.0 .
 ```
 
 **Native `agentrc` CLI** (alias `arc`):
@@ -101,8 +117,8 @@ The Agentfile above emits labels like:
 ```text
 org.agentrc.identity.name=hello
 org.agentrc.capability.text=true
-org.agentrc.model.name=claude-opus-4
-org.agentrc.network.dns.api.github.com=443
+org.agentrc.model.name=claude-sonnet-4
+org.agentrc.network.dns.api.example.com=443
 org.agentrc.tool.file_read=local
 org.agentrc.sop=/mnt/SOP
 org.agentrc.sop.sha256=<digest>
@@ -123,9 +139,9 @@ arc push ghcr.io/you/hello:1.0
 
 ## 5. Run on a substrate
 
-`arc run` is **not implemented** — agentrc declares agents, it does not ship
-a runtime (see [Non-goals](/docs/non-goals/)). This is the interface a
-compatible platform provides:
+Status: `arc run` is planned — agentrc declares agents, it does not ship a
+runtime (see [Non-goals](/docs/non-goals/) and the [CLI status table](/cli/)).
+This is the interface a compatible platform provides:
 
 ```bash
 arc run ghcr.io/you/hello:1.0 --isolation microvm
