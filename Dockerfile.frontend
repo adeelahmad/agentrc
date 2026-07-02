@@ -1,0 +1,21 @@
+# Builds the agentrc BuildKit frontend as a standalone image. Once pushed to a
+# registry, an Agentfile can start with:
+#
+#   # syntax=<registry>/<repo>/agentrc-frontend:<tag>
+#
+# and `docker build -f Agentfile .` will dispatch to it automatically. Until
+# then, invoke it explicitly:
+#
+#   docker build -t local/agentrc-frontend:dev -f Dockerfile.frontend .
+#   docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=local/agentrc-frontend:dev -t my-agent:dev .
+
+FROM golang:1.25-alpine AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /out/agentrc-frontend ./cmd/agentrc-frontend
+
+FROM scratch
+COPY --from=build /out/agentrc-frontend /bin/agentrc-frontend
+ENTRYPOINT ["/bin/agentrc-frontend"]

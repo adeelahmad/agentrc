@@ -13,19 +13,17 @@ know `docker build`, you already know most of this. For the full normative
 grammar, see the [specification](/spec/).
 
 <div class="callout">
-<strong>Status: author today, build soon.</strong> agentrc is spec-first, and
-neither build path below ships yet. The native <code>agentrc</code> /
-<code>arc</code> CLI is still being built — <strong>every</strong> command
-(<code>build</code>, <code>inspect</code>, <code>push</code>, <code>run</code>)
-is status <code>planned</code> (see the <a href="/cli/">live CLI status
-table</a>). The BuildKit frontend image that
-<code># syntax=agentrc.agentfile/v0.1</code> resolves to is <strong>not yet
-published</strong> either, so a stock <code>docker build</code> can't route
-through it today. What you <em>can</em> do right now is <strong>step 1</strong>:
-author an <code>Agentfile</code> against the <a href="/spec/">specification</a>
-and reason about the <code>org.agentrc.*</code> labels it will emit (step 3).
-Read steps 2, 4, and 5 as the planned build → push → run interface, not commands
-you can execute yet.
+<strong>Status: steps 1–4 work today; step 5 doesn't.</strong> A reference
+implementation of the native <code>agentrc</code> CLI (<code>build</code>,
+<code>inspect</code>, <code>push</code>, <code>pull</code>, <code>lint</code>,
+<code>lock</code>, <code>init</code>) and the BuildKit frontend both exist —
+see <a href="/cli/">the live CLI status table</a> and <code>tooling/</code> in
+the repository. The frontend image isn't published to a public registry yet,
+so a stock <code>docker build -f Agentfile .</code> needs
+<code>--build-arg BUILDKIT_SYNTAX=&lt;your-built-image&gt;</code> until it is
+(see step 2). <strong>Step 5 (<code>arc run</code>) is not implemented</strong> —
+agentrc declares agents, it does not ship a runtime; running an artifact is a
+compatible platform's job.
 </div>
 
 ## 1. Create an `Agentfile`
@@ -70,11 +68,12 @@ artifacts.
 
 **BuildKit frontend (no CLI to install).** The `# syntax=` line is designed to
 route the file through the agentrc frontend image, so that once that image is
-published a stock Docker / BuildKit install will need no extra tooling (the
-frontend image is [not yet published](/cli/)):
+published a stock Docker / BuildKit install will need no extra tooling. Until
+then, build the frontend image locally and route to it explicitly:
 
 ```bash
-docker build -f Agentfile -t ghcr.io/you/hello:1.0 .
+docker build -t local/agentrc-frontend:dev -f Dockerfile.frontend .
+docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=local/agentrc-frontend:dev -t ghcr.io/you/hello:1.0 .
 ```
 
 **Native `agentrc` CLI** (alias `arc`):
@@ -123,6 +122,10 @@ arc push ghcr.io/you/hello:1.0
 ```
 
 ## 5. Run on a substrate
+
+`arc run` is **not implemented** — agentrc declares agents, it does not ship
+a runtime (see [Non-goals](/docs/non-goals/)). This is the interface a
+compatible platform provides:
 
 ```bash
 arc run ghcr.io/you/hello:1.0 --isolation microvm

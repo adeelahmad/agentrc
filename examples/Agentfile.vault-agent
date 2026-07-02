@@ -9,6 +9,8 @@
 # identity). The Agentfile only declares the egress it needs and the objective;
 # the credential never appears here, in any layer, or in any label.
 
+FROM python:3.11-slim
+
 IDENTITY name=vault-agent version=1.0 author=acme
 IDENTITY description="Reads from an internal database using a platform-injected credential (resolution deferred)"
 
