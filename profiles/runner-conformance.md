@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Runner Conformance
-description: "Runner Conformance profile."
+title: Platform Conformance
+description: "Platform Conformance profile."
 permalink: /profiles/runner-conformance/
 ---
 # Platform Conformance Profile

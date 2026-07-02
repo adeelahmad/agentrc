@@ -36,7 +36,7 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 - [Security]({{ '/profiles/security/' | absolute_url }}): The platform-side Cedar enforcement profile and the normative request → Cedar mapping.
 - [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): The `org.agentrc.*` label namespace, layer layout, media types, and annotations.
 - [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract.
-- [Runner Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, fetch runtime resources, enforce via Cedar, fail closed.
+- [Platform Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, fetch runtime resources, enforce via Cedar, fail closed.
 
 ## Examples
 

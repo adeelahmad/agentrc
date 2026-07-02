@@ -168,8 +168,8 @@ go build -o bin/agentrc ./cmd/agentrc
 ./bin/agentrc lint examples/Agentfile.code-reviewer
 ```
 
-See `tooling/README.md` in the repository for the full build/test/frontend
-walkthrough.
+See the [reference implementation](/tooling/) (`tooling/README.md` in the
+repository) for the full build/test/frontend walkthrough.
 
 ## In the meantime
 

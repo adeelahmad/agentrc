@@ -4,9 +4,9 @@
 # Return codes per check: 0 = PASS, 1 = FAIL, 2 = SKIP.
 #
 # NOTE ON SELF-MATCH: several checks grep the whole tree for a literal (e.g. the
-# ghost tool path, the "Runner Conformance" label). To avoid this script matching
-# itself, those needles are built from concatenated string fragments so the exact
-# literal never appears verbatim in this file.
+# ghost tool path, the old profiles conformance label). To avoid this script
+# matching itself, those needles are built from concatenated string fragments so
+# the exact literal never appears verbatim in this file — including in messages.
 set -uo pipefail
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)" || exit 1
@@ -226,7 +226,7 @@ t9_no_runner_conformance_label() {
   local n
   n=$(grep -rnE "$RUNNER_A|$RUNNER_B" . 2>/dev/null | _notree | wc -l | tr -d ' ')
   if [ "$n" -eq 0 ]; then PASS t9_no_runner_conformance_label; return 0; fi
-  FAILM t9_no_runner_conformance_label "$n visible 'Runner Conformance' label(s) remain (expected 0)"; return 1
+  FAILM t9_no_runner_conformance_label "$n visible '$RUNNER_A' label(s) remain (expected 0)"; return 1
 }
 
 t9_url_preserved() {

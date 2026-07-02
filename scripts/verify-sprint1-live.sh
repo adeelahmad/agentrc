@@ -60,7 +60,7 @@ t14_live_runner_label() {
   local n
   n=$(_fetch "$BASE_URL/profiles/" | grep -cE "$RUNNER_A|$RUNNER_B")
   if [ "${n:-0}" -eq 0 ]; then PASS t14_live_runner_label; return 0; fi
-  FAILM t14_live_runner_label "$n 'Runner Conformance' label(s) on live /profiles/"; return 1
+  FAILM t14_live_runner_label "$n '$RUNNER_A' label(s) on live /profiles/"; return 1
 }
 
 t14_all_tasks_recorded() {

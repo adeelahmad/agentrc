@@ -5,3 +5,5 @@
 2026-07-02T19:03:36Z wave-1 green S1-04 complete lockfile-report written; finding: arc build does NOT consume agentrc.lock (produced-but-unused); A/B for owner
 2026-07-02T19:13:50Z wave-1 green S1-01 complete T1-T4 content correctness; ghost ping purged, FROM+§2 sentence, T3 published-image honesty+sweep, brand casing; all t1-t4/v1/v3/v4/v5 pass, go test ok, draft.5 frozen
 2026-07-02T19:19:23Z wave-1 green S1-03 complete T12 workflow draft parked; pages published:false, yaml->parked/ + _config exclude, sidebar/llms/examples/prose links swept, changelog line; sources kept; source t12 pass, build-t12 SKIP(CI/T14)
+2026-07-02T19:30:28Z wave-2 green S1-02 complete T5/T6/T7/T9/T10 IA; sidebar reordered+cards, /tooling/ de-orphaned, /notes/ sitemap:false+pointer, Runner->Platform relabel (URL kept), canonical deduped ({% seo %} sole)
+2026-07-02T19:30:28Z wave-2 review S1-02 note fixed check-harness self-match in t9 (verify scripts contained the literal in comment/FAILM); assertion intent unchanged, site content clean; suite 31 pass / 1 fail(t13 pending) / 10 skip(build->CI/T14)
