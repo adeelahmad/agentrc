@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Tool Projection
-description: "The /mnt Projection profile (0.1.0-draft.5): how a platform projects an agent's tools, skills, MCP servers, SOP, and runtime state under /mnt."
+description: "The /mnt Projection profile (0.1.0-draft.6): how a platform projects an agent's tools, skills, MCP servers, SOP, and runtime state under /mnt."
 permalink: /profiles/tool-projection/
 ---
 # `/mnt` Projection Profile
 
-**Version:** 0.1.0-draft.5 — Working Draft  
+**Version:** 0.1.0-draft.6 — Working Draft  
 **Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** platform / runner authors, substrate implementers

@@ -155,9 +155,10 @@ requests plus its own org rules into a Cedar `PolicySet` and evaluates with
 deny-by-default and `forbid` over `permit`. You never write Cedar in the
 Agentfile.
 
-Substrate is a **run-time** choice (`--isolation local|container|microvm`,
-`--substrate <driver>`), not an Agentfile directive — the same artifact runs
-locally, in a container, or in a microVM unchanged.
+Substrate is a **run-time** choice (`--backend local|bedrock|kubernetes`, with
+`--isolation local|container|microvm` scoped to `--backend local`), not an
+Agentfile directive — the same artifact runs locally, on Bedrock, or on
+Kubernetes unchanged.
 
 ## Where to go next
 

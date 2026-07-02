@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Examples
-description: "Example agentrc Agentfiles (0.1.0-draft.5)."
+description: "Example agentrc Agentfiles (0.1.0-draft.6)."
 permalink: /examples/
 ---
 # Examples
@@ -20,6 +20,8 @@ for the full keyword reference.
 - [Secure workspace Agentfile](/examples/Agentfile.secure-workspace) — a locked-down agent with tight `POLICY` requests.
 - [Code reviewer Agentfile](/examples/Agentfile.code-reviewer) — tools, a skill, and an MCP server projected under `/mnt`.
 - [Vault agent Agentfile](/examples/Agentfile.vault-agent) — needs a database credential, but credential resolution is **deferred** (platform-defined).
+- [Hooked Agentfile](/examples/Agentfile.hooked) — lifecycle hooks whose endpoints auto-derive `network` egress, recorded with `.source` attribution.
+- [Delegator Agentfile](/examples/Agentfile.delegator) — spawns sub-agents via `POLICY agent.sub_agents*`; the platform grants, caps, or rejects the fan-out.
 
 ## Minimal
 

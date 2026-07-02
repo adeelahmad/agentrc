@@ -1,0 +1,44 @@
+# syntax=agentrc.agentfile/v0.1
+
+# A "hooked" agent that extends the canonical "hello" example to demonstrate
+# lifecycle hooks and the auto-derived-egress mechanic. It declares three hook
+# endpoints (audit on every tool call, plus pre-/post-step webhooks). Because a
+# hook URL is a host the agent will call out to, the compiler auto-derives a
+# `network` egress grant for each hook host — but records it with `.source`
+# attribution so a webhook can never open a silent network hole. Contrast that
+# with the ONE explicitly requested egress line below. Cedar enforcement is
+# entirely platform-side.
+
+FROM python:3.11-slim
+
+IDENTITY name=hooked version=0.1 author=acme
+IDENTITY description="Agent demonstrating lifecycle hooks and auto-derived egress"
+
+CAPABILITY text
+CAPABILITY streaming
+
+SOP You are a hooked example agent. Read files when asked and let the platform's lifecycle hooks observe each step.
+CMD python ./agent.py
+
+# Tool (local, embedded) — projected under /mnt/tools/
+COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
+
+# Lifecycle hooks — each value is an https endpoint the platform calls.
+POLICY agent.hooks.on_tool_call https://hooks.internal.example/audit
+POLICY agent.hooks.pre          https://hooks.internal.example/pre-step
+POLICY agent.hooks.post         https://hooks.internal.example/post-step
+
+# Auto-derived egress (see /docs/security/ §8.5): for each hook host above, the
+# platform AUTO-DERIVES a matching `network` egress grant and records it with a
+# `.source` label that distinguishes DERIVED grants from explicitly REQUESTED
+# ones — e.g.
+#   org.agentrc.network.dns.hooks.internal.example=443
+#   org.agentrc.network.dns.hooks.internal.example.source=auto:agent.hooks.pre
+# The `.source=auto:...` attribution means the platform still has to grant the
+# derived egress; auto-derivation is ergonomics, not an implicit hole.
+
+# Explicitly requested egress — for contrast with the auto-derived hook egress
+# above, this line is an author REQUEST (no `.source=auto:...` attribution).
+POLICY network dns:api.github.com:443
+
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema

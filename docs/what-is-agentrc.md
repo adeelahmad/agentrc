@@ -64,7 +64,7 @@ To stay useful to *every* runtime instead of competing with them, agentrc delibe
 
 - [Quickstart](/docs/quickstart/) — write, build, and run your first Agentfile.
 - [The Agentfile](/docs/agentfile/) — the four new keywords and the `/mnt` projection.
-- [Specification](/spec/) — the full 0.1.0-draft.5 working draft.
+- [Specification](/spec/) — the full 0.1.0-draft.6 working draft.
 - [Core profile](/profiles/core/) — the minimal normative compiler behaviour.
 - [Enforcement (Cedar) profile](/profiles/security/) — how the platform enforces granted requests.
 

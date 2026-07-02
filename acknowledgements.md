@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Acknowledgements
-description: "Open standards and projects the agentrc Agentfile (0.1.0-draft.5) builds on and credits."
+description: "Open standards and projects the agentrc Agentfile (0.1.0-draft.6) builds on and credits."
 permalink: /acknowledgements/
 ---
 # Acknowledgements

@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Implementation mapping
-description: "How current implementation work maps onto the 0.1.0-draft.5 agentrc model: a frontend/compiler, a platform enforcement engine, OCI labels, substrates, and the /mnt projection."
+description: "How current implementation work maps onto the 0.1.0-draft.6 agentrc model: a frontend/compiler, a platform enforcement engine, OCI labels, substrates, and the /mnt projection."
 permalink: /docs/implementation-mapping/
 ---
 # Implementation mapping
@@ -37,7 +37,7 @@ exactly one role in this pipeline.
 | Cedar policy gate | **Platform enforcement engine** — compilation target for typed requests | Consumes the granted `org.agentrc.*` request labels (never the Agentfile), compiles them plus org rules into one Cedar `PolicySet`, evaluates deny-by-default. See [Enforcement profile](/profiles/security/). |
 | Credential handling | **Deferred — platform-defined** | Secrets are out of scope for this draft: there is no agentrc secret schema. An agent that needs a credential leaves resolution entirely to the platform (Vault / broker / env / workload identity). |
 | OCI image / package work | **OCI labels & package** | Builds the standard OCI artifact: layers carry `/mnt` resources, the image config carries the `org.agentrc.*` labels. See [OCI labels & package profile](/profiles/oci-package/). |
-| microVM / runner drivers | **One substrate among many** — execution driver for `CMD` | A substrate executes `CMD`; it is selected at run time (`arc run --isolation` / `--substrate`), **not** in the Agentfile. microVM is one substrate, not the product identity. |
+| microVM / runner drivers | **One substrate among many** — execution driver for `CMD` | A substrate executes `CMD`; it is selected at run time (`arc run --backend` / `--isolation`), **not** in the Agentfile. microVM is one substrate, not the product identity. |
 | Tool patching / projection | **`/mnt` projection** | Projects `/mnt/tools`, `/mnt/skills`, `/mnt/mcp`, and populates `/mnt/proc`; loads the SOP from `/mnt/SOP`. See [projection profile](/profiles/tool-projection/). |
 
 The implementation may keep its own internal names. None of those names define

@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Non-goals
-description: "What the agentrc Agentfile specification (0.1.0-draft.5) deliberately does not define."
+description: "What the agentrc Agentfile specification (0.1.0-draft.6) deliberately does not define."
 permalink: /docs/non-goals/
 ---
 # Non-goals
@@ -13,7 +13,7 @@ contract small and adoptable, agentrc deliberately does **not** define:
 
 1. **A runtime.** agentrc does not execute the agent. `CMD` names the loop or
    framework; a [platform](/docs/runners/) drives it on a substrate (local,
-   container, microVM, …) chosen with `arc run --substrate / --isolation` at run
+   container, microVM, …) chosen with `arc run --backend / --isolation` at run
    time, never in the Agentfile.
 2. **A sandboxing implementation.** Isolation strength is a platform / substrate
    property. agentrc states *requests* (`POLICY substrate.*`, `POLICY network …`)

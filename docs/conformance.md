@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Conformance
-description: "Profile-based conformance for agentrc 0.1.0-draft.5, with an adversarial, fail-closed test suite that makes every profile claim verifiable."
+description: "Profile-based conformance for agentrc 0.1.0-draft.6, with an adversarial, fail-closed test suite that makes every profile claim verifiable."
 permalink: /docs/conformance/
 ---
 # Conformance
@@ -31,7 +31,7 @@ name.
 | `agentrc/oci-labels/v0.1` | The `org.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
 | `agentrc/projection/v0.1` | The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract. | [`/mnt` Projection](/profiles/tool-projection/) |
 | `agentrc/platform/v0.1` | **Platform conformance** — runtime behaviour: read labels, grant / narrow / reject, project requests, fetch `--runtime` resources, substitute via `.origin`, enforce, boot `CMD`. | [Platform Conformance](/profiles/runner-conformance/) |
-| `agentrc/workflow/v0.1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for 0.1.0-draft.5). | Workflow orchestration is parked for a future draft. |
+| `agentrc/workflow/v0.1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for 0.1.0-draft.6). | Workflow orchestration is parked for a future draft. |
 
 ## Why profiles?
 
@@ -47,7 +47,7 @@ grants / projects / enforces them. Every profile other than build conformance
 consumes **labels**, never the Agentfile source. The suite enforces that
 separation.
 
-## Conformance suite (0.1.0-draft.5)
+## Conformance suite (0.1.0-draft.6)
 
 The suite is intentionally as important as the spec text. The adversarial table
 is the core of it: each case has a single correct outcome, and a missed case

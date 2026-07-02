@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Specification
-description: "The agentrc Agentfile specification (0.1.0-draft.5): a Dockerfile-shaped recipe for portable, governed AI agents."
+description: "The agentrc Agentfile specification (0.1.0-draft.6): a Dockerfile-shaped recipe for portable, governed AI agents."
 permalink: /spec/
 ---
 # agentrc Agentfile Specification
 
-**Version:** 0.1.0-draft.5 — Working Draft  
+**Version:** 0.1.0-draft.6 — Working Draft  
 **Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Editor:** [Adeel Ahmad](https://www.linkedin.com/in/adeelahmadch)  
@@ -419,6 +419,100 @@ conventions and nothing would be standard. `POLICY` gives one canonical, typed
 surface; the compiler maps it to the `org.agentrc.*` label space so the platform
 sees uniform, machine-readable intent.
 
+### 8.7 `substrate.<platform>.*` — platform-scoped substrate requests
+
+Some requests only make sense on a specific execution platform. The
+`substrate.<platform>.*` namespace lets an author pin a request to one platform
+without leaking that detail into the generic, substrate-neutral `substrate.*`
+keys. The platform token is one of `aws | gcp | azure | kubernetes | local`.
+
+Unknown platform tokens MUST parse — an unrecognised token is **never a hard
+error**. A key scoped to a platform other than the one currently translating is
+**foreign** and is simply ignored (a linter MAY warn, but MUST NOT fail). This
+keeps a single Agentfile portable: `substrate.aws.*` and `substrate.gcp.*` can
+coexist, and each platform reads only its own keys.
+
+Platform-scoped keys are emitted as labels the same way as any other request:
+
+```text
+org.agentrc.substrate.<platform>.<key>=<value>
+```
+
+On a given platform, a platform-scoped key **beats** the generic `substrate.*`
+key for the same concept — but only on that platform. As with every namespace,
+requests are **tightening-only across `FROM`**: a child Agentfile may narrow an
+inherited value, never loosen it.
+
+`substrate.<platform>.*` is a **key namespace under the existing `substrate.*`**
+request surface — it is not a rename of `substrate.*` and it does not introduce a
+new keyword. `substrate.kubernetes.serviceAccount`, for example, is a *key*, not
+a separate namespace.
+
+**AWS key registry.** For `substrate.aws.*` the following keys are defined:
+
+| Key | Meaning |
+|---|---|
+| `roleArn` | Execution role ARN the runtime assumes. |
+| `networkMode` | Networking mode for the runtime. |
+| `securityGroup` | Security group to attach (repeatable). |
+| `subnet` | Subnet to place the runtime in (repeatable). |
+| `protocol` | Server protocol the runtime speaks. |
+| `maxLifetime` | Maximum lifetime before the runtime is reaped. |
+| `deployment.mode` | `container` (default) or `code`. |
+| `code.s3.uri` | S3 URI of the code bundle when `deployment.mode` is `code`. |
+
+```dockerfile
+POLICY substrate.aws.roleArn arn:aws:iam::123456789012:role/agent-exec
+POLICY substrate.aws.networkMode PUBLIC
+POLICY substrate.aws.securityGroup sg-0abc123
+POLICY substrate.aws.subnet subnet-0def456
+POLICY substrate.aws.protocol HTTP
+POLICY substrate.aws.maxLifetime 1h
+POLICY substrate.aws.deployment.mode code
+POLICY substrate.aws.code.s3.uri s3://acme-agents/code-reviewer.zip
+```
+
+### 8.8 `agent.auth.*` — invocation authorization
+
+`agent.auth.*` declares how the platform should authorize **calls into** the
+running agent's invocation endpoint. It is generic authorization configuration —
+**not a secret** (secrets remain deferred; there is no secret keyword) and not
+inline policy code.
+
+| Key | Meaning |
+|---|---|
+| `agent.auth.mode` | Authorizer to enforce: `platform` (default) | `jwt` | `none`. |
+| `agent.auth.jwt.discovery_url` | OIDC discovery URL for the JWT authorizer. |
+| `agent.auth.jwt.allowed_audience` | Permitted token audience (repeatable). |
+| `agent.auth.jwt.allowed_client` | Permitted client identifier (repeatable). |
+
+This namespace is **fail-closed**: a platform that cannot enforce a requested
+`jwt` authorizer **MUST NOT expose the invocation endpoint**. It is safer to
+refuse invocation than to expose an agent behind an authorizer the platform
+cannot honour.
+
+```dockerfile
+POLICY agent.auth.mode jwt
+POLICY agent.auth.jwt.discovery_url https://auth.acme/.well-known/openid-configuration
+POLICY agent.auth.jwt.allowed_audience agentrc://code-reviewer
+POLICY agent.auth.jwt.allowed_client acme-ci
+```
+
+### 8.9 `substrate.runtime.language` — runtime language / version
+
+`substrate.runtime.language` requests the language runtime the agent's code
+expects, written as `<language>:<version>` (for example `python:3.11`). It is
+**optional**.
+
+In **container mode** the base image is authoritative, so the platform MAY ignore
+this key. In **code mode** the platform requires it — either stated explicitly or
+resolvable by inference — otherwise it MUST **fail closed** rather than guess a
+runtime.
+
+```dockerfile
+POLICY substrate.runtime.language python:3.11
+```
+
 ## 9. Build-time translation: Agentfile → OCI labels
 
 `agentrc build` MUST translate authored intent into namespaced OCI image labels.
@@ -482,6 +576,33 @@ Which is the **default** for `arc build` is
 [open decision #1](#142-open-decisions-surface-these-do-not-silently-resolve);
 the `--policy-mode inline|digest` flag is the seam.
 
+### 9.5 Reproducible builds / `agentrc.lock`
+
+**Status:** informative in this draft; format TODO.
+
+This subsection documents only what the tooling does today; the on-disk shape is
+not yet normative.
+
+`arc lock` writes a lockfile (default `agentrc.lock`, `--out` to override) — a
+pretty-printed JSON **Resolved Manifest** derived from an Agentfile. It records:
+
+- `agentfile_sha256` — SHA-256 of the Agentfile source.
+- `base` — the resolved `FROM` ref and (best-effort) registry digest.
+- `resources[]` — each `COPY` / `ADD --remote` resource with its delivery
+  (`local` / `cached` / `runtime`), content digest where applicable, origin, and
+  fail mode.
+- `sop` — a digest of the embedded SOP (never the full text).
+
+Additional bookkeeping fields (`version`, `timestamp`, `policy_mode`,
+`labels_digest`) round out the manifest. Digest resolution is best-effort:
+unreachable bases or resources emit a warning and omit the digest rather than
+failing.
+
+**`arc build` does not consume `agentrc.lock` today** — the lockfile is a
+produced audit artifact, not a build input. A build is not currently pinned to,
+gated by, or reproduced from the lock. Wiring the consumer, and freezing the
+manifest format, is deferred (**format TODO**).
+
 ## 10. CLI surface
 
 agentrc ships **two** build paths. The four agentrc keywords (`IDENTITY`,
@@ -517,7 +638,7 @@ Primary command `agentrc`, short alias `arc`.
 agentrc build  [-f Agentfile] [-t <ref>] [--policy-mode inline|digest] .
 agentrc push   <ref>
 agentrc pull   <ref>
-agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>]
+agentrc run    <ref> --backend local|bedrock|kubernetes [per-backend flags]
 ```
 
 | Command | Purpose |
@@ -525,7 +646,7 @@ agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>
 | `agentrc build` (`arc build`) | Compile an Agentfile to a signed OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources. |
 | `agentrc push` | Push the artifact to any OCI registry. |
 | `agentrc pull` | Pull an artifact. |
-| `agentrc run` | Run an artifact on a chosen substrate driver. Substrate is a **run-time** choice (`--isolation` / `--substrate`); it is **not** an Agentfile directive. |
+| `agentrc run` | Run an artifact on a chosen backend. Substrate is a **run-time** choice (`--backend` / `--isolation`); it is **not** an Agentfile directive. |
 
 The build output of 10.1 and 10.2 MUST be **identical** OCI artifacts — the
 frontend and the CLI are two front doors to the same compiler.
@@ -814,6 +935,12 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 6. **`TOOL` sugar.** `TOOL` was removed in favour of `COPY` / `ADD`. A thin
    `TOOL name@source` sugar that desugars to `ADD --remote …/mnt/tools/name` MAY
    be reconsidered later, but is **not** in this spec.
+7. **Substrate key promotion candidates.** `protocol` and `maxLifetime` live
+   under `substrate.<platform>.*` today (see [§8.7](#87-substrateplatform--platform-scoped-substrate-requests)).
+   Both look substrate-generic and are **candidates for promotion** to the generic
+   `substrate.*` namespace in a later draft. Whether to promote them — and how to
+   handle a platform-scoped value that conflicts with a promoted generic one — is
+   **open**; not resolved here.
 
 ### 14.3 Deferred to a later version
 

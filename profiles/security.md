@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Enforcement (Cedar)
-description: "The agentrc Enforcement (Cedar) Profile (0.1.0-draft.5): how a platform compiles typed POLICY requests into Cedar and enforces them deny-by-default."
+description: "The agentrc Enforcement (Cedar) Profile (0.1.0-draft.6): how a platform compiles typed POLICY requests into Cedar and enforces them deny-by-default."
 permalink: /profiles/security/
 ---
 # Enforcement (Cedar) Profile
 
-**Version:** 0.1.0-draft.5 — Working Draft  
+**Version:** 0.1.0-draft.6 — Working Draft  
 **Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** security & compliance reviewers, platform / runner authors

@@ -15,7 +15,8 @@ grants / narrows / rejects each request and enforces the
 result via Cedar. The substrate is the *execution driver* — local process,
 container, microVM, or otherwise — that the platform drives to run `CMD` once
 the grant is decided. The substrate is chosen **at run time**
-(`arc run --isolation … --substrate …`), not in the Agentfile.
+(`arc run --backend local|bedrock|kubernetes`, with `--isolation …` scoped to
+`--backend local`), not in the Agentfile.
 
 ## Substrate examples
 
@@ -32,8 +33,8 @@ of these can be a substrate, behind one platform contract:
 - framework-native adapter for Strands, LangChain, CrewAI, Langflow, or similar
 
 ```bash
-arc run ghcr.io/acme/claims-triage:1.0 --isolation microvm
-arc run ghcr.io/acme/claims-triage:1.0 --isolation container --substrate gvisor
+arc run ghcr.io/acme/claims-triage:1.0 --backend local --isolation microvm
+arc run ghcr.io/acme/claims-triage:1.0 --backend kubernetes --namespace agents
 ```
 
 The same artifact runs on any of them. The platform reads the same labels and
