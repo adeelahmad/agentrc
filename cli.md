@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: CLI
-description: "Building agentrc agents: the BuildKit frontend (no CLI to install) and the native agentrc / arc CLI — both in progress."
+description: "Building agentrc agents: the BuildKit frontend (no CLI to install) and the native agentrc / arc CLI."
 permalink: /cli/
 ---
 # agentrc CLI
@@ -13,23 +13,26 @@ native `agentrc` CLI (alias `arc`). This page is the practical companion to
 [§10 of the specification](/spec/).
 
 <div class="callout">
-<strong>In progress — neither path ships yet.</strong> The native
-<code>agentrc</code> / <code>arc</code> CLI is being built (every command is
-status <code>planned</code>, see the table below), and the BuildKit frontend
-image that <code># syntax=agentrc.agentfile/v0.1</code> resolves to is
-<strong>not yet published</strong> — so a stock <code>docker build</code> cannot
-route through it today either. The <a href="/spec/">specification</a>, schemas,
-and examples on this site are the source of truth today; both build paths are
-being implemented against them and MUST emit the same labels and layers.
+<strong>Reference implementation available.</strong> A Go implementation of
+both build paths lives in <a href="https://github.com/adeelahmad/agentrc/tree/master/tooling">this
+repository's <code>tooling/</code> directory</a> — see the table below for
+per-command status. The frontend image itself is not yet published to a
+public registry, so <code>docker build -f Agentfile .</code> alone won't
+auto-route through it yet; build it locally first (see
+<code>tooling/README.md</code>) or use <code>--build-arg
+BUILDKIT_SYNTAX=&lt;your-built-image&gt;</code>. The <a href="/spec/">specification</a>
+remains the source of truth, not this implementation — see
+<a href="/docs/conformance/">Conformance</a> for exactly what it covers.
 </div>
 
 ## BuildKit frontend (no CLI to install)
 
-This is the design: once the agentrc frontend image is published, anyone with
-Docker / BuildKit will need to install nothing extra — the `# syntax=` directive
-on the **first line** of an `Agentfile` pulls the frontend automatically. The
-frontend image is **not yet published** (see the note above), so the build below
-does not run today; it shows the intended flow:
+This is the design: once the agentrc frontend image is published to a public
+registry, anyone with Docker / BuildKit will need to install nothing extra —
+the `# syntax=` directive on the **first line** of an `Agentfile` pulls the
+frontend automatically. Until then, build the frontend image locally (see
+`tooling/README.md`) and route to it explicitly with `--build-arg
+BUILDKIT_SYNTAX=<image>`:
 
 ```dockerfile
 # syntax=agentrc.agentfile/v0.1
@@ -44,7 +47,8 @@ POLICY network dns:api.github.com:443
 ```
 
 ```bash
-docker build -f Agentfile -t ghcr.io/you/hello:1.0 .
+docker build -t local/agentrc-frontend:dev -f Dockerfile.frontend .
+docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=local/agentrc-frontend:dev -t ghcr.io/you/hello:1.0 .
 ```
 
 The `# syntax=` line routes the Agentfile through the agentrc frontend image,
@@ -68,20 +72,20 @@ agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>
 ```
 
 The four **core** commands are `build`, `push`, `pull`, and `run` (spec §10);
-the rest are tooling around them. All commands are currently `planned`.
+the rest are tooling around them.
 
 | Command | Purpose | Status |
 |---|---|---|
-| `agentrc init` (`arc init`) | Scaffold a starter Agentfile. | `planned` |
-| `agentrc lint` (`arc lint`) | Check an Agentfile for keyword and request errors before building. | `planned` |
-| `agentrc lock` (`arc lock`) | Pin `ADD --remote` resources to digests for reproducible builds. | `planned` |
-| `agentrc build` (`arc build`) | **Core (§10).** Compile an Agentfile to an OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources as layers. `--policy-mode inline\|digest` selects how the request set is encoded (see below). | `planned` |
-| `agentrc inspect` (`arc inspect`) | Read an artifact's `org.agentrc.*` labels to review what an agent requests before it runs. | `planned` |
+| `agentrc init` (`arc init`) | Scaffold a starter Agentfile. | `implemented` |
+| `agentrc lint` (`arc lint`) | Check an Agentfile for keyword and request errors before building. | `implemented` |
+| `agentrc lock` (`arc lock`) | Pin `ADD --remote` resources to digests for reproducible builds. | `implemented` |
+| `agentrc build` (`arc build`) | **Core (§10).** Compile an Agentfile to an OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources as layers. `--policy-mode inline\|digest` selects how the request set is encoded (see below). | `implemented` |
+| `agentrc inspect` (`arc inspect`) | Read an artifact's `org.agentrc.*` labels to review what an agent requests before it runs. | `implemented` |
 | `agentrc sign` (`arc sign`) | Sign an artifact (Sigstore). | `planned` |
 | `agentrc verify` (`arc verify`) | Verify an artifact's signature and provenance. | `planned` |
-| `agentrc push` (`arc push`) | **Core (§10).** Push the artifact to any OCI registry. | `planned` |
-| `agentrc pull` (`arc pull`) | **Core (§10).** Pull an artifact from any OCI registry. | `planned` |
-| `agentrc run` (`arc run`) | **Core (§10).** Run an artifact on a chosen substrate. `--isolation` / `--substrate` are **run-time** choices, never Agentfile directives. | `planned` |
+| `agentrc push` (`arc push`) | **Core (§10).** Push the artifact to any OCI registry. | `implemented` |
+| `agentrc pull` (`arc pull`) | **Core (§10).** Pull an artifact from any OCI registry. | `implemented` |
+| `agentrc run` (`arc run`) | **Core (§10).** Run an artifact on a chosen substrate. `--isolation` / `--substrate` are **run-time** choices, never Agentfile directives. | `planned` — agentrc declares agents, it does not ship a runtime |
 
 ### `--policy-mode inline | digest`
 
@@ -126,8 +130,8 @@ org.agentrc.model.name=claude-opus-4
 org.agentrc.network.dns.api.github.com=443
 ```
 
-Inspect them with standard OCI tooling — `docker inspect`, `arc inspect` (in
-progress), or any registry client — to review exactly what an agent requests
+Inspect them with standard OCI tooling — `docker inspect`, `arc inspect`, or
+any registry client — to review exactly what an agent requests
 (identity, capabilities, requested model, requested egress, tools / skills / MCP
 with digests, sub-agent limits) **before** it runs.
 
@@ -139,6 +143,18 @@ same digest given the same inputs. The frontend and the CLI are two front doors
 to one compiler. At run time, the platform reads those labels, grants / narrows /
 rejects each request, and enforces the grant with [Cedar, platform-side](/profiles/security/)
 (deny-by-default, `forbid` over `permit`, tightening-only across `FROM`).
+
+## Try it now
+
+```bash
+git clone https://github.com/adeelahmad/agentrc.git
+cd agentrc
+go build -o bin/agentrc ./cmd/agentrc
+./bin/agentrc lint examples/Agentfile.code-reviewer
+```
+
+See `tooling/README.md` in the repository for the full build/test/frontend
+walkthrough.
 
 ## In the meantime
 

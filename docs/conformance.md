@@ -101,10 +101,12 @@ implementation and test harness, **not** the definition. The project is
 spec-first, so the implementation is expected to **lag** the spec — and that gap
 is labeled honestly rather than implied away.
 
-As of this Working Draft, the **BuildKit frontend** and the native **`agentrc` /
-`arc` CLI** are in progress: Agentfile parsing and the `org.agentrc.*` label
-emission (`agentrc/agentfile/v0.1`) and basic OCI packaging (`agentrc/oci-labels/v0.1`)
-are the furthest along. A complete Cedar evaluator and the full adversarial
+As of this Working Draft, a reference implementation of both build paths (the
+BuildKit frontend and the native `agentrc` / `arc` CLI — see
+[`tooling/`](https://github.com/adeelahmad/agentrc/tree/master/tooling))
+covers Agentfile parsing and `org.agentrc.*` label emission
+(`agentrc/agentfile/v0.1`) and produces a standard OCI artifact
+(`agentrc/oci-labels/v0.1`). A complete Cedar evaluator and the full adversarial
 fail-closed suite for `agentrc/enforcement-cedar/v0.1` and `agentrc/platform/v0.1`
 are **not** yet in place, and those profiles are not claimed until they pass.
 
