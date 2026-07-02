@@ -67,23 +67,29 @@ exposes its schema via `--agentrc-schema` (JSON to stdout) **or** ships a siblin
 # syntax=agentrc.agentfile/v0.1
 FROM python:3.11-slim
 
-IDENTITY name=hello version=1.0 author=you
+IDENTITY name=hello version=0.1 author=acme
+IDENTITY description="Minimal agentrc agent"
 CAPABILITY text
-SOP You are a concise local assistant. Answer in one paragraph.
+SOP You are a minimal example agent. Read a file when asked; do nothing else.
 CMD python ./agent.py
 
-# A local tool, projected at /mnt/tools/file_read
+# Tool (local, embedded) — projected under /mnt/tools/
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
 
-# Typed requests the platform grants, narrows, or rejects
-POLICY model.name claude-opus-4
-POLICY network dns:api.github.com:443
+# Model + operational requests (platform grants, narrows, or rejects)
+POLICY model.name         claude-sonnet-4
+POLICY agent.tool_timeout 30s
+
+# Network egress request
+POLICY network dns:api.example.com:443
+
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema
 ```
 
 At build time the compiler translates this into namespaced OCI labels under
 `org.agentrc.*` — for example `org.agentrc.identity.name=hello`,
-`org.agentrc.model.name=claude-opus-4`, and
-`org.agentrc.network.dns.api.github.com=443`. The platform reads **labels**, not
+`org.agentrc.model.name=claude-sonnet-4`, and
+`org.agentrc.network.dns.api.example.com=443`. The platform reads **labels**, not
 the Agentfile.
 
 ## Why only four keywords?

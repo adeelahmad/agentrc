@@ -16,39 +16,54 @@ native `agentrc` CLI (alias `arc`). This page is the practical companion to
 <strong>Reference implementation available.</strong> A Go implementation of
 both build paths lives in <a href="https://github.com/adeelahmad/agentrc/tree/master/tooling">this
 repository's <code>tooling/</code> directory</a> — see the table below for
-per-command status. The frontend image itself is not yet published to a
-public registry, so <code>docker build -f Agentfile .</code> alone won't
-auto-route through it yet; build it locally first (see
-<code>tooling/README.md</code>) or use <code>--build-arg
-BUILDKIT_SYNTAX=&lt;your-built-image&gt;</code>. The <a href="/spec/">specification</a>
+per-command status. The frontend image is published at
+<code>ghcr.io/adeelahmad/agentrc-frontend</code>, so a
+<code># syntax=ghcr.io/adeelahmad/agentrc-frontend</code> directive makes
+<code>docker build -f Agentfile .</code> auto-route through it; you can also pin
+it with <code>--build-arg BUILDKIT_SYNTAX=ghcr.io/adeelahmad/agentrc-frontend:latest</code>.
+The native <code>arc run</code>/<code>sign</code>/<code>verify</code> commands
+remain planned. The <a href="/spec/">specification</a>
 remains the source of truth, not this implementation — see
 <a href="/docs/conformance/">Conformance</a> for exactly what it covers.
 </div>
 
-## BuildKit frontend (no CLI to install)
+## BuildKit frontend
 
-This is the design: once the agentrc frontend image is published to a public
-registry, anyone with Docker / BuildKit will need to install nothing extra —
-the `# syntax=` directive on the **first line** of an `Agentfile` pulls the
-frontend automatically. Until then, build the frontend image locally (see
-`tooling/README.md`) and route to it explicitly with `--build-arg
-BUILDKIT_SYNTAX=<image>`:
+The agentrc frontend image is published at
+`ghcr.io/adeelahmad/agentrc-frontend`. A `# syntax=ghcr.io/adeelahmad/agentrc-frontend`
+directive on the **first line** of an `Agentfile` makes Docker / BuildKit pull
+the frontend automatically, so a plain `docker build` routes through it. You can
+also pin it explicitly with `--build-arg BUILDKIT_SYNTAX=<image>`:
 
 ```dockerfile
 # syntax=agentrc.agentfile/v0.1
 FROM python:3.11-slim
-IDENTITY name=hello version=1.0 author=you
+
+IDENTITY name=hello version=0.1 author=acme
+IDENTITY description="Minimal agentrc agent"
 CAPABILITY text
-SOP You are a concise local assistant. Answer in one paragraph.
+SOP You are a minimal example agent. Read a file when asked; do nothing else.
 CMD python ./agent.py
+
+# Tool (local, embedded) — projected under /mnt/tools/
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
-POLICY model.name claude-opus-4
-POLICY network dns:api.github.com:443
+
+# Model + operational requests (platform grants, narrows, or rejects)
+POLICY model.name         claude-sonnet-4
+POLICY agent.tool_timeout 30s
+
+# Network egress request
+POLICY network dns:api.example.com:443
+
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema
 ```
 
 ```bash
-docker build -t local/agentrc-frontend:dev -f Dockerfile.frontend .
-docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=local/agentrc-frontend:dev -t ghcr.io/you/hello:1.0 .
+# Routed via the `# syntax=ghcr.io/adeelahmad/agentrc-frontend:latest` line:
+docker build -f Agentfile -t ghcr.io/you/hello:1.0 .
+
+# Or pin the frontend explicitly:
+docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=ghcr.io/adeelahmad/agentrc-frontend:latest -t ghcr.io/you/hello:1.0 .
 ```
 
 The `# syntax=` line routes the Agentfile through the agentrc frontend image,
@@ -153,8 +168,8 @@ go build -o bin/agentrc ./cmd/agentrc
 ./bin/agentrc lint examples/Agentfile.code-reviewer
 ```
 
-See `tooling/README.md` in the repository for the full build/test/frontend
-walkthrough.
+See the [reference implementation](/tooling/) (`tooling/README.md` in the
+repository) for the full build/test/frontend walkthrough.
 
 ## In the meantime
 

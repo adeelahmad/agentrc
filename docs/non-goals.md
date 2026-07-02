@@ -44,8 +44,8 @@ contract small and adoptable, agentrc deliberately does **not** define:
    **deferred to a later version**.
 10. **A multi-agent workflow language inside the Agentfile.** An Agentfile
     describes exactly one agent. External orchestration that references packaged
-    agents by digest is a separate, non-normative
-    [workflow draft](/docs/workflows/), not part of the Agentfile core.
+    agents by digest is a separate, non-normative concern — parked for a future
+    draft — not part of the Agentfile core.
 11. **A secrets manager — credential resolution is deferred and platform-defined.**
     This draft defines no `SECRET`/`CRED` keyword and no secret schema. An agent
     that needs a credential leaves resolution entirely to the platform (Vault /

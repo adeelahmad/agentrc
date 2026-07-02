@@ -3,7 +3,9 @@ layout: doc
 title: Workflow Draft
 description: "A deferred, non-normative sketch for orchestrating multiple packaged agentrc agents by digest — distinct from the (also deferred) A2A protocol."
 permalink: /profiles/workflow-draft/
+published: false
 ---
+<!-- Parked 2026-07-03 — will return in a future draft -->
 # Workflow Draft
 
 **Status:** Deferred, non-normative companion sketch  

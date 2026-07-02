@@ -59,6 +59,7 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   delegation, and the governance algebra of an agent-to-agent call — is out of
   scope for this version. Capability *exposure* via `IDENTITY` / `CAPABILITY` /
   labels is in scope; the *protocol* is not.
+- Workflow draft parked (unpublished); returns in a future revision.
 
 ## Earlier history (superseded by 0.1.0-draft.5)
 
