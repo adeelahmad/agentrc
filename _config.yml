@@ -22,6 +22,7 @@ exclude:
   - vendor
   - README_DEV.md
   - parked
+  - docs/agents
 defaults:
   - scope:
       path: ""
