@@ -322,8 +322,10 @@ v3_version_draft6() {
 # namespace intact. Shared guard across S2-03 / S2-05 / S2-07.
 v8_terminology_split() {
   local n intact=1
+  # Exclude *_test.go: tests legitimately reference the removed flag string to
+  # assert its ABSENCE from --help; that is not a surviving flag usage.
   n=$( { grep -rl -- '--substrate' cmd/ docs/ "$CLI" 2>/dev/null || true; } \
-        | grep -Ev '(^|/)docs/agents/' | grep -c . )
+        | grep -Ev '(^|/)docs/agents/' | grep -Ev '_test\.go$' | grep -c . )
   grep -qE 'POLICY substrate\.' "$SPEC" 2>/dev/null || intact=0
   if [ "${n:-0}" -eq 0 ] && [ "$intact" -eq 1 ]; then
     PASS v8_terminology_split; return 0

@@ -611,7 +611,7 @@ Primary command `agentrc`, short alias `arc`.
 agentrc build  [-f Agentfile] [-t <ref>] [--policy-mode inline|digest] .
 agentrc push   <ref>
 agentrc pull   <ref>
-agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>]
+agentrc run    <ref> --backend local|bedrock|kubernetes [per-backend flags]
 ```
 
 | Command | Purpose |
@@ -619,7 +619,7 @@ agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>
 | `agentrc build` (`arc build`) | Compile an Agentfile to a signed OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources. |
 | `agentrc push` | Push the artifact to any OCI registry. |
 | `agentrc pull` | Pull an artifact. |
-| `agentrc run` | Run an artifact on a chosen substrate driver. Substrate is a **run-time** choice (`--isolation` / `--substrate`); it is **not** an Agentfile directive. |
+| `agentrc run` | Run an artifact on a chosen backend. Substrate is a **run-time** choice (`--backend` / `--isolation`); it is **not** an Agentfile directive. |
 
 The build output of 10.1 and 10.2 MUST be **identical** OCI artifacts — the
 frontend and the CLI are two front doors to the same compiler.

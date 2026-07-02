@@ -51,7 +51,7 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   (`# syntax=agentrc.agentfile/v0.1` then `docker build -f Agentfile`) and the
   native **`agentrc` / `arc` CLI** (`build` / `push` / `pull` / `run`) produce
   identical OCI artifacts. Substrate / isolation is a run-time choice
-  (`--isolation`, `--substrate`), never an Agentfile directive.
+  (`--isolation`, `--backend`), never an Agentfile directive.
 
 ### Deferred
 

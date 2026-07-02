@@ -3,3 +3,4 @@
 2026-07-02T21:47:02Z wave-1 red sprint-2 complete verify-sprint2 suite committed (bc41836); RED 7 pass(guards)/34 fail-by-assertion/0 skip
 2026-07-02T21:49:14Z wave-1 green S2-01 complete T15 Agentfile.hooked + T16 Agentfile.delegator + index cards; lint clean; draft.5 held
 2026-07-02T21:52:19Z wave-1 green S2-02(T17-19) complete spec §8.7 substrate.<platform>.* + §8.8 agent.auth.* + §8.9 substrate.runtime.language at draft.5; §8.5/8.6 untouched; v8 fails pre-existing (T21 --substrate, later wave)
+2026-07-02T22:01:25Z wave-2 green S2-03 complete T21 --substrate->--backend (local|bedrock|kubernetes) + per-backend flags + --dry-run + translate() seam; docs swept (namespace/substrate-neutral intact); GCP/Compose dropped noted; 6 tests pass, vet ok, no regress; v8 check sharpened to exclude *_test.go

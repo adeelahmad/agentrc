@@ -83,7 +83,7 @@ covering build, registry transport, and run.
 agentrc build  [-f Agentfile] [-t <ref>] [--policy-mode inline|digest] .
 agentrc push   <ref>
 agentrc pull   <ref>
-agentrc run    <ref> [--isolation local|container|microvm] [--substrate <driver>]
+agentrc run    <ref> --backend local|bedrock|kubernetes [per-backend flags]
 ```
 
 The four **core** commands are `build`, `push`, `pull`, and `run` (spec §10);
@@ -100,7 +100,7 @@ the rest are tooling around them.
 | `agentrc verify` (`arc verify`) | Verify an artifact's signature and provenance. | `planned` |
 | `agentrc push` (`arc push`) | **Core (§10).** Push the artifact to any OCI registry. | `implemented` |
 | `agentrc pull` (`arc pull`) | **Core (§10).** Pull an artifact from any OCI registry. | `implemented` |
-| `agentrc run` (`arc run`) | **Core (§10).** Run an artifact on a chosen substrate. `--isolation` / `--substrate` are **run-time** choices, never Agentfile directives. | `planned` — agentrc declares agents, it does not ship a runtime |
+| `agentrc run` (`arc run`) | **Core (§10).** Run an artifact on a chosen backend (`--backend local\|bedrock\|kubernetes`). `--backend` (and `--isolation`, scoped to `--backend local`) are **run-time** choices, never Agentfile directives. | `planned` — agentrc declares agents, it does not ship a runtime |
 
 ### `--policy-mode inline | digest`
 
@@ -117,17 +117,23 @@ the seam, so you can pin it explicitly today.
 
 ### Substrate is a run-time choice
 
-`--isolation` (`local`, `container`, `microvm`) and `--substrate <driver>` are
-selected when you run, not when you build. The Agentfile never names a substrate.
-A `POLICY substrate.*` line *requests* resources (memory, CPU, a device, a
-pseudo-terminal); the platform grants, narrows, or rejects those requests and
-realizes them on whatever substrate you point `arc run` at.
+`--backend` (`local`, `bedrock`, `kubernetes`) and `--isolation` (`local`,
+`container`, `microvm`, scoped to `--backend local`) are selected when you run,
+not when you build. The Agentfile never names a substrate. A `POLICY substrate.*`
+line *requests* resources (memory, CPU, a device, a pseudo-terminal); the
+platform grants, narrows, or rejects those requests and realizes them on
+whatever backend you point `arc run` at.
 
 ```bash
 arc build -t ghcr.io/you/hello:1.0 .
 arc push  ghcr.io/you/hello:1.0
-arc run   ghcr.io/you/hello:1.0 --isolation microvm
+arc run   ghcr.io/you/hello:1.0 --backend local --isolation microvm
 ```
+
+**Dropped backends.** GCP is dropped as a first-class `--backend`: its managed
+Agent Runtime is Python-only, and GKE is reached through the `kubernetes` backend
+anyway. Docker Compose is dropped: it offers no `network.*` egress enforcement
+without a bespoke sidecar, so it cannot honor the granted request set.
 
 ## Reading the labels
 
