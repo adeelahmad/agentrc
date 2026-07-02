@@ -65,7 +65,7 @@ HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-sche
 | Resource, model, network, lifecycle requests | `POLICY` (typed namespaces) | platform (grant / narrow / reject) |
 | Enforcement | typed requests compiled to Cedar | platform (deny-by-default, `forbid` > `permit`) |
 | Packaging and sharing | OCI artifact + `org.agentrc.*` labels | any OCI registry |
-| Execution substrate | run-time choice (`arc run --substrate`) | local, container, microVM, cloud runners |
+| Execution substrate | run-time choice (`arc run --backend`) | local, container, microVM, cloud runners |
 
 <div class="callout">
 <strong>Core slogan:</strong> The Agentfile declares one agent. The lockfile pins dependencies. The package makes it portable. The policy makes boundaries reviewable. The registry makes it shareable. Compatible runners execute it.
@@ -74,7 +74,7 @@ HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-sche
 ## Current draft
 
 <div class="pill-row">
-  <span class="pill">Working Draft 0.1.0-draft.5</span>
+  <span class="pill">Working Draft 0.1.0-draft.6</span>
   <span class="pill">Four keywords</span>
   <span class="pill">/mnt projection</span>
   <span class="pill">OCI labels</span>

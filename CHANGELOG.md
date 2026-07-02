@@ -6,6 +6,40 @@ permalink: /changelog/
 ---
 # Changelog
 
+## 0.1.0-draft.6 — 2026-07-03
+
+Sprint 2. Extends the Dockerfile-shaped model with platform-scoped substrate
+requests, generic agent authorization, and a runtime-language hint — plus a
+`--backend` translation path for the CLI. No new keyword: the four keywords
+(`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) are unchanged, and `substrate.*`
+is not renamed.
+
+### Added
+
+- **§8.7 `substrate.<platform>.*`** — platform-scoped substrate requests
+  (`aws | gcp | azure | kubernetes | local`, plus any unknown token). Unknown
+  platform tokens MUST parse and foreign-platform keys are ignored, never an
+  error. AWS key registry: `roleArn`, `networkMode`, `securityGroup`, `subnet`,
+  `protocol`, `maxLifetime`, `deployment.mode`, `code.s3.uri`. Platform-scoped
+  requests beat generic `substrate.*` on that platform only; tightening-only
+  across `FROM`. This is a KEY namespace under the existing `substrate.*`, not a
+  rename of it.
+- **§8.8 `agent.auth.*`** — generic, fail-closed authorization config:
+  `agent.auth.mode` (`platform` default | `jwt` | `none`),
+  `agent.auth.jwt.discovery_url`, `agent.auth.jwt.allowed_audience` (repeatable),
+  `agent.auth.jwt.allowed_client` (repeatable). A platform that cannot enforce a
+  requested `jwt` authorizer MUST NOT expose the invocation endpoint. This is
+  generic authZ config, explicitly not a secret.
+- **§8.9 `substrate.runtime.language`** — optional `<language>:<version>` hint.
+  Container-mode MAY ignore it (base image authoritative); code-mode requires it
+  or a resolvable inference, else fail-closed.
+- **`--backend` translators** on the CLI, producing platform-specific
+  deployment artifacts from the compiled labels (AWS Bedrock, Kubernetes, local).
+- **New examples** exercising the platform-scoped substrate and `agent.auth.*`
+  requests.
+- **§9 informative subsection — Reproducible builds / `agentrc.lock`** —
+  documents what `arc lock` emits today (marked informative; format TODO).
+
 ## 0.1.0-draft.5 — 2026-06-30
 
 The Dockerfile-shaped redesign. The Agentfile is now **Dockerfile-shaped**, the build emits
@@ -51,7 +85,7 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   (`# syntax=agentrc.agentfile/v0.1` then `docker build -f Agentfile`) and the
   native **`agentrc` / `arc` CLI** (`build` / `push` / `pull` / `run`) produce
   identical OCI artifacts. Substrate / isolation is a run-time choice
-  (`--isolation`, `--substrate`), never an Agentfile directive.
+  (`--isolation`, `--backend`), never an Agentfile directive.
 
 ### Deferred
 

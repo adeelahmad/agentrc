@@ -8,7 +8,7 @@
   "properties": {
     "version": {
       "type": "string",
-      "description": "Manifest schema version (e.g. \"0.1.0-draft.5\")."
+      "description": "Manifest schema version (e.g. \"0.1.0-draft.6\")."
     },
     "build_id": {
       "type": "string",

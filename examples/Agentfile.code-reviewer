@@ -50,3 +50,22 @@ POLICY agent.max_retries  3
 POLICY network dns:api.github.com:443
 
 HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/file_read --agentrc-schema
+
+# ---------------------------------------------------------------------------
+# Platform-scoped substrate + invocation auth (COMMENTED — illustrative only).
+# Uncomment on a platform that enforces these. Commented lines never affect the
+# build; a platform ignores substrate keys scoped to a different platform.
+#
+# AWS-scoped substrate requests (spec §8.7). Foreign platforms ignore these:
+# POLICY substrate.aws.roleArn          arn:aws:iam::123456789012:role/code-reviewer
+# POLICY substrate.aws.networkMode      awsvpc
+# POLICY substrate.aws.securityGroup    sg-0a1b2c3d
+# POLICY substrate.aws.subnet           subnet-0e1f2a3b
+# POLICY substrate.aws.deployment.mode  container
+#
+# Generic, fail-closed invocation authorization (spec §8.8). Not a secret:
+# POLICY agent.auth.mode                  jwt
+# POLICY agent.auth.jwt.discovery_url     https://issuer.acme.example/.well-known/openid-configuration
+# POLICY agent.auth.jwt.allowed_audience  code-reviewer-api
+# POLICY agent.auth.jwt.allowed_client    acme-ci
+# ---------------------------------------------------------------------------

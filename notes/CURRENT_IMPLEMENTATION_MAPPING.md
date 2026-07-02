@@ -6,7 +6,7 @@ This note is superseded by [Implementation mapping](/docs/implementation-mapping
 # Current Implementation Mapping
 
 > **Internal implementation note (not a published spec page).** This maps the
-> existing reference-implementation code onto the **0.1.0-draft.5** Agentfile model. It is
+> existing reference-implementation code onto the **0.1.0-draft.6** Agentfile model. It is
 > spec-first: the specification leads, and the implementation lags it. Where the
 > code still reflects the legacy directive family, that gap is called out
 > honestly below rather than papered over. The normative source of truth is the
@@ -49,7 +49,7 @@ the standard — they are a reference implementation of it.
 
 ## Authoring surface: four keywords, no legacy directives
 
-The implementation historically recognized a broad directive family. In 0.1.0-draft.5 that
+The implementation historically recognized a broad directive family. In 0.1.0-draft.6 that
 family is **removed**. The authoring surface is now:
 
 ```text
@@ -112,10 +112,10 @@ capabilities:
    credential resolution is platform-defined and out of scope for v0.1.
 8. **OCI namespace.** Standardize on the `org.agentrc.*` label namespace and
    `application/vnd.agentrc.*` media types. The legacy `io.agentio.*` /
-   `io.agentrc.*` namespaces are **not** used in 0.1.0-draft.5.
+   `io.agentrc.*` namespaces are **not** used in 0.1.0-draft.6.
 9. **Spec-version comment.** Use the parser-compatible syntax line
    `# syntax=agentrc.agentfile/v0.1` (replacing the old v0.1 syntax line);
-   spec-version mentions read "0.1.0-draft.5 (Working Draft)", dated 2026-06-30.
+   spec-version mentions read "0.1.0-draft.6 (Working Draft)", dated 2026-06-30.
 10. **Substrate placement.** Substrate / isolation is a **run-time** choice
     (`arc run --isolation local|container|microvm` / `--substrate <driver>`),
     never an Agentfile directive. Remove any `ISOLATION` parsing.

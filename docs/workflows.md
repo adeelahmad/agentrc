@@ -9,7 +9,7 @@ published: false
 # agentrc Workflow draft (deferred companion)
 
 > **Status: deferred and non-normative.** Nothing on this page is part of the
-> [0.1.0-draft.5 Agentfile specification](/spec/). It sketches a *future* companion layer
+> [0.1.0-draft.6 Agentfile specification](/spec/). It sketches a *future* companion layer
 > and is published only so the boundary is explicit.
 
 An **Agentfile declares one agent.** Multi-agent applications need a separate

@@ -1,7 +1,7 @@
 # agentrc tooling
 
 A Go implementation of the `agentrc` CLI and a BuildKit frontend for the
-Dockerfile-shaped Agentfile (0.1.0-draft.5): four new keywords —
+Dockerfile-shaped Agentfile (0.1.0-draft.6): four new keywords —
 `IDENTITY`, `CAPABILITY`, `SOP`, `POLICY` — plus an `ADD --remote`
 extension, layered on real Dockerfile instructions.
 

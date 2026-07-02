@@ -6,7 +6,7 @@
 
 [**agentrc.ai**](https://agentrc.ai) · [Docs](https://agentrc.ai/docs/) · [Specification](https://agentrc.ai/spec/) · [Discord](https://discord.gg/jWx6Qak5D) · [GitHub](https://github.com/adeelahmad/agentrc)
 
-> ⚠️ **Working Draft (0.1.0-draft.5).** agentrc is an evolving specification draft, not a finished standard. Expect breaking changes.
+> ⚠️ **Working Draft (0.1.0-draft.6).** agentrc is an evolving specification draft, not a finished standard. Expect breaking changes.
 
 </div>
 

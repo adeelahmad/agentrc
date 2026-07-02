@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: OCI Package
-description: "OCI Labels & Package profile (0.1.0-draft.5): the org.agentrc.* label namespace, layers, media types, policy encoding, override, and provenance for an agentrc OCI artifact."
+description: "OCI Labels & Package profile (0.1.0-draft.6): the org.agentrc.* label namespace, layers, media types, policy encoding, override, and provenance for an agentrc OCI artifact."
 permalink: /profiles/oci-package/
 ---
 # OCI Labels &amp; Package Profile
 
-**Version:** 0.1.0-draft.5 — Working Draft  
+**Version:** 0.1.0-draft.6 — Working Draft  
 **Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** registry maintainers, platform / runner authors, security &amp; compliance reviewers
@@ -33,7 +33,7 @@ image. No proprietary registry, no special storage.
 
 > **Namespace.** The label namespace is **`org.agentrc.*`**. The legacy
 > `io.agentrc.*` / `io.agentio.*` namespaces from earlier drafts are **not used
-> in 0.1.0-draft.5**; treat any occurrence as stale.
+> in 0.1.0-draft.6**; treat any occurrence as stale.
 
 ## 2. What a package contains
 

@@ -74,7 +74,7 @@ func newLockCmd() *cobra.Command {
 			defer cancel()
 
 			manifest := &resolvedManifest{
-				Version:         "0.1.0-draft.5",
+				Version:         "0.1.0-draft.6",
 				AgentfileSHA256: hashHex([]byte(f.Source)),
 				Timestamp:       time.Now().UTC().Format(time.RFC3339),
 				PolicyMode:      policyMode,
