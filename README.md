@@ -38,7 +38,7 @@ Everything lives on **[agentrc.ai](https://agentrc.ai)**:
 | [Core profile](https://agentrc.ai/profiles/core/) | Parsing the four keywords + Dockerfile keywords into labels |
 | [Security](https://agentrc.ai/docs/security/) | Label-based boundaries and platform-side Cedar enforcement |
 | [Conformance](https://agentrc.ai/docs/conformance/) | Profiles and the adversarial test-suite outline |
-| [CLI](https://agentrc.ai/cli/) | The BuildKit frontend and the `agentrc` / `arc` CLI (in progress) |
+| [CLI](https://agentrc.ai/cli/) | The BuildKit frontend and the `agentrc` / `arc` CLI |
 | [Acknowledgements](https://agentrc.ai/acknowledgements/) | The open standards agentrc builds on |
 
 For LLMs: a machine-readable index is published at [`agentrc.ai/llms.txt`](https://agentrc.ai/llms.txt), and every page is available as raw Markdown via its "View Markdown" link.
@@ -74,7 +74,7 @@ Build it with the BuildKit frontend (`docker build -f Agentfile -t ghcr.io/acme/
 
 ## This repository
 
-This repo is the agentrc specification **and** the source for the [agentrc.ai](https://agentrc.ai) website (a Jekyll site published via GitHub Pages). It contains the spec, profiles, JSON schemas, grammar, examples, and docs. The reference implementation (the `aio-*` packages) is a separate test harness — agentrc the standard is independent of any one implementation.
+This repo is the agentrc specification **and** the source for the [agentrc.ai](https://agentrc.ai) website (a Jekyll site published via GitHub Pages). It contains the spec, profiles, JSON schemas, grammar, examples, and docs, plus a Go reference implementation under [`tooling/`](tooling/README.md): the `agentrc` CLI and a BuildKit frontend for Agentfiles. The reference implementation is a test harness, not the definition — agentrc the standard is independent of any one implementation. See [Conformance](https://agentrc.ai/docs/conformance/) for exactly which profiles it passes today.
 
 Local preview and publishing notes are in [`README_DEV.md`](README_DEV.md).
 

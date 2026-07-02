@@ -5,3 +5,7 @@ _site/
 vendor/
 Gemfile.lock
 .DS_Store
+
+# Go build artifacts
+/bin/
+/dist/

@@ -2,6 +2,8 @@
 # Canonical "hello" agent — the smallest useful Agentfile. Every other example
 # extends this one. Build with `docker build -f Agentfile .` or `arc build .`.
 
+FROM python:3.11-slim
+
 IDENTITY name=hello version=0.1 author=acme
 IDENTITY description="Minimal AgentRC agent"
 CAPABILITY text
