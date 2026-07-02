@@ -9,3 +9,4 @@
 2026-07-02T22:24:55Z wave-4 green S2-05 complete T25 CLI docs: run->implemented(local/bedrock/kubernetes reference translators), §0.8 line verbatim, sign/verify stay planned
 2026-07-02T22:28:24Z wave-5 green S2-06 complete T26 three-backend demo (docs/demo.md + index card); verbatim commands + narrative; no dropped backends
 2026-07-02T22:29:47Z wave-6 release T27 local §V clean: 0 fail; v8 terminology-split + v9 backend-dryruns + v3 draft.6 + no-fourth-namespace all pass; go vet+test green; obsolete draft.5 guard neutralized
+2026-07-02T22:53:09Z wave-6 gate T27 FINAL-GATE PASS: local §V 41 pass/0 fail; go vet+test green; live 2/2 (all T15-T27 live green); harness defect fixed (pipefail+grep -q SIGPIPE on 97KB /spec/ -> here-strings, M-007); sprint 2 complete pending owner sign-off
