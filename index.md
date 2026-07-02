@@ -56,6 +56,75 @@ HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-sche
   </div>
 </section>
 
+<section class="get-started">
+  <div class="eyebrow">Get started</div>
+  <h2 id="install" class="flush">Install the CLI</h2>
+  <p class="lead">One binary — <code>agentrc</code> (alias <code>arc</code>). It scaffolds and builds Agentfiles, inspects what an agent requests, and translates an artifact into a backend's deploy config.</p>
+
+  <div class="install-oneliner">
+    <span class="install-label">macOS &amp; Linux</span>
+    <pre><code>curl -fsSL https://agentrc.ai/install.sh | sh</code></pre>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Homebrew</h3>
+<pre><code>brew install \
+  adeelahmad/tap/agentrc</code></pre>
+    </div>
+    <div class="card">
+      <h3>Go 1.25+</h3>
+<pre><code>go install \
+  github.com/adeelahmad/agentrc/cmd/agentrc@latest</code></pre>
+    </div>
+    <div class="card">
+      <h3>From source</h3>
+<pre><code>git clone https://github.com/adeelahmad/agentrc
+cd agentrc &amp;&amp; go build -o arc ./cmd/agentrc</code></pre>
+    </div>
+  </div>
+  <p class="muted">Prebuilt binaries for macOS and Linux (amd64 / arm64), checksum-verified. Confirm with <code>arc version</code>. Prefer to read first? <code>curl -fsSL https://agentrc.ai/install.sh</code> and inspect it.</p>
+</section>
+
+<section class="get-started">
+  <h2 id="build">Build and run — locally</h2>
+  <p class="lead">Scaffold, validate, and compile an agent into a portable OCI artifact, then preview exactly what a local runner would execute.</p>
+  <ol class="steps">
+    <li><div><span class="step-k">Scaffold</span><pre><code>arc init            # writes ./Agentfile</code></pre></div></li>
+    <li><div><span class="step-k">Validate</span><pre><code>arc lint Agentfile</code></pre></div></li>
+    <li><div><span class="step-k">Build</span><pre><code>arc build -t ghcr.io/you/hello:0.1 .</code></pre></div></li>
+    <li><div><span class="step-k">Preview the run</span><pre><code>arc run ghcr.io/you/hello:0.1 --backend local --dry-run</code></pre></div></li>
+  </ol>
+  <p class="muted"><code>arc build</code> produces a real OCI image (via <code>docker build</code> and the agentrc BuildKit frontend). <code>--dry-run</code> prints the config a runner would apply — agentrc declares and translates; it ships no runtime of its own.</p>
+</section>
+
+<section class="get-started">
+  <h2 id="cloud">Ship the same artifact to the cloud</h2>
+  <p class="lead">The build writes <code>org.agentrc.*</code> labels once. Point <code>arc run</code> at any backend to translate those labels into that platform's deploy form.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Push once</h3>
+<pre><code>arc push \
+  ghcr.io/you/hello:0.1</code></pre>
+    </div>
+    <div class="card">
+      <h3>AWS Bedrock</h3>
+<pre><code>arc run ghcr.io/you/hello:0.1 \
+  --backend bedrock --dry-run</code></pre>
+      <p class="muted">→ CreateAgentRuntime JSON</p>
+    </div>
+    <div class="card">
+      <h3>Kubernetes</h3>
+<pre><code>arc run ghcr.io/you/hello:0.1 \
+  --backend kubernetes --dry-run</code></pre>
+      <p class="muted">→ deploy manifests</p>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>Same artifact, same labels, three substrates.</strong> Reference translators — a proof of concept until platforms read <code>org.agentrc.*</code> labels natively. Not production runners.
+  </div>
+</section>
+
 ## The separation agentrc creates
 
 | Concern | Defined by | Read / enforced by |

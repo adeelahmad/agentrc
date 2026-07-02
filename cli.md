@@ -28,6 +28,31 @@ remains the source of truth, not this implementation — see
 <a href="/docs/conformance/">Conformance</a> for exactly what it covers.
 </div>
 
+## Install
+
+The native `agentrc` CLI (alias `arc`) installs four ways; all land the same
+binary. The BuildKit frontend below needs no install at all. See
+[Quickstart → Installation](/docs/quickstart/#installation) for the full detail.
+
+```bash
+# Quick install (curl) — agentrc + arc alias, checksum-verified, macOS/Linux amd64/arm64
+curl -fsSL https://agentrc.ai/install.sh | sh
+
+# Homebrew
+brew install adeelahmad/tap/agentrc
+
+# Go toolchain
+go install github.com/adeelahmad/agentrc/cmd/agentrc@latest
+
+# From source
+git clone https://github.com/adeelahmad/agentrc && cd agentrc && go build -o arc ./cmd/agentrc
+```
+
+```bash
+arc version
+# agentrc <ver> (spec 0.1.0-draft.6, <os>/<arch>)
+```
+
 ## BuildKit frontend
 
 The agentrc frontend image is published at

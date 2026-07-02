@@ -40,13 +40,75 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           mkdir -p dist
-          go build -o dist/agentrc ./cmd/agentrc
+          go build -ldflags "-s -w -X main.version=${{ github.ref_name }}" -o dist/agentrc ./cmd/agentrc
           tar -C dist -czf agentrc_${{ github.ref_name }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz agentrc
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
           files: agentrc_${{ github.ref_name }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
+
+  checksums:
+    name: Publish checksums.txt
+    needs: cli
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release tarballs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern 'agentrc_*.tar.gz' --dir .
+          sha256sum agentrc_*.tar.gz > checksums.txt
+          cat checksums.txt
+
+      - name: Upload checksums
+        uses: softprops/action-gh-release@v2
+        with:
+          files: checksums.txt
+
+  homebrew:
+    name: Update Homebrew tap
+    needs: checksums
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update formula in adeelahmad/homebrew-tap
+        env:
+          # A PAT with `contents:write` on adeelahmad/homebrew-tap. Until this
+          # secret is set the job no-ops so it never fails a release.
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "HOMEBREW_TAP_TOKEN not set — skipping tap update."
+            exit 0
+          fi
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern 'checksums.txt' --dir .
+          sha_da=$(awk '/darwin_amd64/ {print $1}' checksums.txt)
+          sha_dr=$(awk '/darwin_arm64/ {print $1}' checksums.txt)
+          sha_la=$(awk '/linux_amd64/  {print $1}' checksums.txt)
+          sha_lr=$(awk '/linux_arm64/  {print $1}' checksums.txt)
+          if [ -z "$sha_da" ] || [ -z "$sha_dr" ] || [ -z "$sha_la" ] || [ -z "$sha_lr" ]; then
+            echo "::error::missing sha256 for one or more platforms in checksums.txt"; exit 1
+          fi
+          ver="${TAG#v}"
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/adeelahmad/homebrew-tap.git" tap
+          mkdir -p tap/Formula
+          sed -e "s/@VERSION@/${ver}/g" -e "s/@TAG@/${TAG}/g" \
+              -e "s/@SHA_DARWIN_AMD64@/${sha_da}/g" -e "s/@SHA_DARWIN_ARM64@/${sha_dr}/g" \
+              -e "s/@SHA_LINUX_AMD64@/${sha_la}/g"  -e "s/@SHA_LINUX_ARM64@/${sha_lr}/g" \
+              .github/formula/agentrc.rb.tmpl > tap/Formula/agentrc.rb
+          cd tap
+          git config user.name "agentrc-release[bot]"
+          git config user.email "release@agentrc.ai"
+          git add Formula/agentrc.rb
+          git commit -m "agentrc ${TAG}" || { echo "no formula change"; exit 0; }
+          git push
 
   frontend-image:
     name: Build & push BuildKit frontend image
