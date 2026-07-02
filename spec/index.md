@@ -419,6 +419,100 @@ conventions and nothing would be standard. `POLICY` gives one canonical, typed
 surface; the compiler maps it to the `org.agentrc.*` label space so the platform
 sees uniform, machine-readable intent.
 
+### 8.7 `substrate.<platform>.*` — platform-scoped substrate requests
+
+Some requests only make sense on a specific execution platform. The
+`substrate.<platform>.*` namespace lets an author pin a request to one platform
+without leaking that detail into the generic, substrate-neutral `substrate.*`
+keys. The platform token is one of `aws | gcp | azure | kubernetes | local`.
+
+Unknown platform tokens MUST parse — an unrecognised token is **never a hard
+error**. A key scoped to a platform other than the one currently translating is
+**foreign** and is simply ignored (a linter MAY warn, but MUST NOT fail). This
+keeps a single Agentfile portable: `substrate.aws.*` and `substrate.gcp.*` can
+coexist, and each platform reads only its own keys.
+
+Platform-scoped keys are emitted as labels the same way as any other request:
+
+```text
+org.agentrc.substrate.<platform>.<key>=<value>
+```
+
+On a given platform, a platform-scoped key **beats** the generic `substrate.*`
+key for the same concept — but only on that platform. As with every namespace,
+requests are **tightening-only across `FROM`**: a child Agentfile may narrow an
+inherited value, never loosen it.
+
+`substrate.<platform>.*` is a **key namespace under the existing `substrate.*`**
+request surface — it is not a rename of `substrate.*` and it does not introduce a
+new keyword. `substrate.kubernetes.serviceAccount`, for example, is a *key*, not
+a separate namespace.
+
+**AWS key registry.** For `substrate.aws.*` the following keys are defined:
+
+| Key | Meaning |
+|---|---|
+| `roleArn` | Execution role ARN the runtime assumes. |
+| `networkMode` | Networking mode for the runtime. |
+| `securityGroup` | Security group to attach (repeatable). |
+| `subnet` | Subnet to place the runtime in (repeatable). |
+| `protocol` | Server protocol the runtime speaks. |
+| `maxLifetime` | Maximum lifetime before the runtime is reaped. |
+| `deployment.mode` | `container` (default) or `code`. |
+| `code.s3.uri` | S3 URI of the code bundle when `deployment.mode` is `code`. |
+
+```dockerfile
+POLICY substrate.aws.roleArn arn:aws:iam::123456789012:role/agent-exec
+POLICY substrate.aws.networkMode PUBLIC
+POLICY substrate.aws.securityGroup sg-0abc123
+POLICY substrate.aws.subnet subnet-0def456
+POLICY substrate.aws.protocol HTTP
+POLICY substrate.aws.maxLifetime 1h
+POLICY substrate.aws.deployment.mode code
+POLICY substrate.aws.code.s3.uri s3://acme-agents/code-reviewer.zip
+```
+
+### 8.8 `agent.auth.*` — invocation authorization
+
+`agent.auth.*` declares how the platform should authorize **calls into** the
+running agent's invocation endpoint. It is generic authorization configuration —
+**not a secret** (secrets remain deferred; there is no secret keyword) and not
+inline policy code.
+
+| Key | Meaning |
+|---|---|
+| `agent.auth.mode` | Authorizer to enforce: `platform` (default) | `jwt` | `none`. |
+| `agent.auth.jwt.discovery_url` | OIDC discovery URL for the JWT authorizer. |
+| `agent.auth.jwt.allowed_audience` | Permitted token audience (repeatable). |
+| `agent.auth.jwt.allowed_client` | Permitted client identifier (repeatable). |
+
+This namespace is **fail-closed**: a platform that cannot enforce a requested
+`jwt` authorizer **MUST NOT expose the invocation endpoint**. It is safer to
+refuse invocation than to expose an agent behind an authorizer the platform
+cannot honour.
+
+```dockerfile
+POLICY agent.auth.mode jwt
+POLICY agent.auth.jwt.discovery_url https://auth.acme/.well-known/openid-configuration
+POLICY agent.auth.jwt.allowed_audience agentrc://code-reviewer
+POLICY agent.auth.jwt.allowed_client acme-ci
+```
+
+### 8.9 `substrate.runtime.language` — runtime language / version
+
+`substrate.runtime.language` requests the language runtime the agent's code
+expects, written as `<language>:<version>` (for example `python:3.11`). It is
+**optional**.
+
+In **container mode** the base image is authoritative, so the platform MAY ignore
+this key. In **code mode** the platform requires it — either stated explicitly or
+resolvable by inference — otherwise it MUST **fail closed** rather than guess a
+runtime.
+
+```dockerfile
+POLICY substrate.runtime.language python:3.11
+```
+
 ## 9. Build-time translation: Agentfile → OCI labels
 
 `agentrc build` MUST translate authored intent into namespaced OCI image labels.
