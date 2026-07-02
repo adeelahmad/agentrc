@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Specification
-description: "The agentrc Agentfile specification (0.1.0-draft.5): a Dockerfile-shaped recipe for portable, governed AI agents."
+description: "The agentrc Agentfile specification (0.1.0-draft.6): a Dockerfile-shaped recipe for portable, governed AI agents."
 permalink: /spec/
 ---
 # agentrc Agentfile Specification
 
-**Version:** 0.1.0-draft.5 — Working Draft  
+**Version:** 0.1.0-draft.6 — Working Draft  
 **Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Editor:** [Adeel Ahmad](https://www.linkedin.com/in/adeelahmadch)  
@@ -576,6 +576,33 @@ Which is the **default** for `arc build` is
 [open decision #1](#142-open-decisions-surface-these-do-not-silently-resolve);
 the `--policy-mode inline|digest` flag is the seam.
 
+### 9.5 Reproducible builds / `agentrc.lock`
+
+**Status:** informative in this draft; format TODO.
+
+This subsection documents only what the tooling does today; the on-disk shape is
+not yet normative.
+
+`arc lock` writes a lockfile (default `agentrc.lock`, `--out` to override) — a
+pretty-printed JSON **Resolved Manifest** derived from an Agentfile. It records:
+
+- `agentfile_sha256` — SHA-256 of the Agentfile source.
+- `base` — the resolved `FROM` ref and (best-effort) registry digest.
+- `resources[]` — each `COPY` / `ADD --remote` resource with its delivery
+  (`local` / `cached` / `runtime`), content digest where applicable, origin, and
+  fail mode.
+- `sop` — a digest of the embedded SOP (never the full text).
+
+Additional bookkeeping fields (`version`, `timestamp`, `policy_mode`,
+`labels_digest`) round out the manifest. Digest resolution is best-effort:
+unreachable bases or resources emit a warning and omit the digest rather than
+failing.
+
+**`arc build` does not consume `agentrc.lock` today** — the lockfile is a
+produced audit artifact, not a build input. A build is not currently pinned to,
+gated by, or reproduced from the lock. Wiring the consumer, and freezing the
+manifest format, is deferred (**format TODO**).
+
 ## 10. CLI surface
 
 agentrc ships **two** build paths. The four agentrc keywords (`IDENTITY`,
@@ -908,6 +935,12 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 6. **`TOOL` sugar.** `TOOL` was removed in favour of `COPY` / `ADD`. A thin
    `TOOL name@source` sugar that desugars to `ADD --remote …/mnt/tools/name` MAY
    be reconsidered later, but is **not** in this spec.
+7. **Substrate key promotion candidates.** `protocol` and `maxLifetime` live
+   under `substrate.<platform>.*` today (see [§8.7](#87-substrateplatform--platform-scoped-substrate-requests)).
+   Both look substrate-generic and are **candidates for promotion** to the generic
+   `substrate.*` namespace in a later draft. Whether to promote them — and how to
+   handle a platform-scoped value that conflicts with a promoted generic one — is
+   **open**; not resolved here.
 
 ### 14.3 Deferred to a later version
 

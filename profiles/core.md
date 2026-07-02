@@ -1,12 +1,12 @@
 ---
 layout: doc
 title: Core
-description: "Agentfile Core Profile (0.1.0-draft.5): parse the Dockerfile-shaped Agentfile and compile it to org.agentrc.* labels and layers."
+description: "Agentfile Core Profile (0.1.0-draft.6): parse the Dockerfile-shaped Agentfile and compile it to org.agentrc.* labels and layers."
 permalink: /profiles/core/
 ---
 # Agentfile Core Profile
 
-**Version:** 0.1.0-draft.5 — Working Draft  
+**Version:** 0.1.0-draft.6 — Working Draft  
 **Status:** Working Draft (`# syntax=agentrc.agentfile/v0.1`)  
 **Date:** 2026-06-30  
 **Audience:** compiler / frontend authors (the `agentrc` BuildKit frontend and the `agentrc` / `arc` CLI)
@@ -113,6 +113,16 @@ A `POLICY` line is authored in **short form** (no `org.agentrc.` prefix); the
 compiler prepends the namespace when it emits the label. The compiler never
 evaluates a `POLICY` — it only records the request. Whether a request is granted,
 narrowed, or rejected is a platform decision.
+
+**Unknown `substrate.<token>.*` keys parse; foreign platform keys are ignored.**
+A platform-scoped request `substrate.<token>.*` (spec §8.7) is a KEY under the
+existing `substrate.*` namespace, not a new namespace. The compiler MUST accept
+**any** platform token — including tokens it does not recognize — and emit the
+corresponding `org.agentrc.substrate.<token>.*` label verbatim; an unknown token
+is NEVER a parse error (a linter MAY warn). At enforcement time a platform simply
+ignores keys scoped to a different platform. The compiler does not judge which
+tokens are "real"; it records the request and lets the platform pick the keys
+scoped to itself.
 
 ## Build translation (compile targets)
 

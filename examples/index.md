@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Examples
-description: "Example agentrc Agentfiles (0.1.0-draft.5)."
+description: "Example agentrc Agentfiles (0.1.0-draft.6)."
 permalink: /examples/
 ---
 # Examples

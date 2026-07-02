@@ -74,7 +74,7 @@ HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-sche
 ## Current draft
 
 <div class="pill-row">
-  <span class="pill">Working Draft 0.1.0-draft.5</span>
+  <span class="pill">Working Draft 0.1.0-draft.6</span>
   <span class="pill">Four keywords</span>
   <span class="pill">/mnt projection</span>
   <span class="pill">OCI labels</span>

@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Implementation mapping
-description: "How current implementation work maps onto the 0.1.0-draft.5 agentrc model: a frontend/compiler, a platform enforcement engine, OCI labels, substrates, and the /mnt projection."
+description: "How current implementation work maps onto the 0.1.0-draft.6 agentrc model: a frontend/compiler, a platform enforcement engine, OCI labels, substrates, and the /mnt projection."
 permalink: /docs/implementation-mapping/
 ---
 # Implementation mapping

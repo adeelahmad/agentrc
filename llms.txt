@@ -18,7 +18,7 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 
 ## Specification
 
-- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full 0.1.0-draft.5 working draft — the four keywords, the `/mnt` projection, Agentfile → OCI label translation, platform runtime behaviour, and the platform-side Cedar enforcement model.
+- [agentrc Specification]({{ '/spec/' | absolute_url }}): The full 0.1.0-draft.6 working draft — the four keywords, the `/mnt` projection, Agentfile → OCI label translation, platform runtime behaviour, and the platform-side Cedar enforcement model.
 
 ## Documentation
 

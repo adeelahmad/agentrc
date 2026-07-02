@@ -9,7 +9,7 @@ published: false
 # Workflow Draft
 
 **Status:** Deferred, non-normative companion sketch  
-**Version:** 0.1.0-draft.5 (Working Draft) — not part of the Agentfile core  
+**Version:** 0.1.0-draft.6 (Working Draft) — not part of the Agentfile core  
 **Date:** 2026-06-30
 
 > This page is **not** part of the [Agentfile specification](/spec/). It is a
@@ -28,7 +28,7 @@ Two related but distinct things are deferred to a later version:
 1. **The A2A (agent-to-agent) protocol** — how one running agent *discovers* and
    *calls* another (Agent Cards, discovery, live cross-agent delegation, and the
    governance algebra across an agent-to-agent call). This is **out of scope for
-   0.1.0-draft.5**. Note that capability *exposure* is already in scope: an agent advertises
+   0.1.0-draft.6**. Note that capability *exposure* is already in scope: an agent advertises
    what it is and what it does through `IDENTITY`, `CAPABILITY`, and the resulting
    `org.agentrc.*` labels. What is deferred is the *protocol* for one agent to
    find and invoke another.

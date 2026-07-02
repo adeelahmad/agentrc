@@ -1,5 +1,5 @@
 // Command agentrc-frontend is a BuildKit gateway frontend for
-// Dockerfile-shaped Agentfiles (0.1.0-draft.5): it compiles the standard
+// Dockerfile-shaped Agentfiles (0.1.0-draft.6): it compiles the standard
 // Dockerfile surface with BuildKit's own dockerfile2llb compiler and layers
 // on the four agentrc keywords (IDENTITY, CAPABILITY, SOP, POLICY) plus the
 // ADD --remote extension, emitting org.agentrc.* labels. It is invoked

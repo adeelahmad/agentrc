@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Non-goals
-description: "What the agentrc Agentfile specification (0.1.0-draft.5) deliberately does not define."
+description: "What the agentrc Agentfile specification (0.1.0-draft.6) deliberately does not define."
 permalink: /docs/non-goals/
 ---
 # Non-goals

@@ -1,6 +1,6 @@
 // Package agentfile extracts the agentrc-specific surface (IDENTITY,
 // CAPABILITY, SOP, POLICY, and the ADD --remote extension) from a
-// Dockerfile-shaped Agentfile, per grammar/Agentfile.ebnf (0.1.0-draft.5).
+// Dockerfile-shaped Agentfile, per grammar/Agentfile.ebnf (0.1.0-draft.6).
 // Everything else is a standard Dockerfile instruction, left untouched for
 // BuildKit's own dockerfile2llb compiler (see internal/llb).
 package agentfile

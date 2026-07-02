@@ -92,6 +92,35 @@ At build time the compiler translates this into namespaced OCI labels under
 `org.agentrc.network.dns.api.example.com=443`. The platform reads **labels**, not
 the Agentfile.
 
+## Platform-scoped requests and invocation auth
+
+Most `POLICY` requests are substrate-neutral. When you need to say something to
+**one** platform, use a platform-scoped `substrate.<platform>.*` request (see
+[spec §8.7](/spec/#87-substrateplatform--platform-scoped-substrate-requests)).
+The platform token — `aws`, `gcp`, `azure`, `kubernetes`, `local`, or any other —
+namespaces the key; a platform ignores keys scoped to a **different** platform,
+and an unknown token never fails the build (a linter MAY warn). A platform-scoped
+request beats a generic `substrate.*` one on that platform only. For example:
+
+```dockerfile
+POLICY substrate.aws.roleArn      arn:aws:iam::123456789012:role/agent
+POLICY substrate.aws.networkMode  awsvpc
+```
+
+Invocation authorization is a generic, substrate-neutral request under
+`agent.auth.*` (see [spec §8.8](/spec/#88-agentauth--invocation-authorization)).
+It is authorization config, not a secret. To require a JWT authorizer:
+
+```dockerfile
+POLICY agent.auth.mode                  jwt
+POLICY agent.auth.jwt.discovery_url     https://issuer.example.com/.well-known/openid-configuration
+POLICY agent.auth.jwt.allowed_audience  agent-api
+POLICY agent.auth.jwt.allowed_client    my-frontend
+```
+
+Fail-closed: a platform that cannot enforce the requested `jwt` authorizer must
+**not** expose the invocation endpoint.
+
 ## Why only four keywords?
 
 - **Dockerfile-shaped.** Authors already know `FROM`, `CMD`, `COPY`, `ADD`,

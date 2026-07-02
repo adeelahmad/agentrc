@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentrc.ai/schemas/agentrc-package.v1.schema.json",
   "title": "agentrc Agent Package",
-  "description": "The agentrc (0.1.0-draft.5) agent package manifest, derived from the org.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
+  "description": "The agentrc (0.1.0-draft.6) agent package manifest, derived from the org.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
   "type": "object",
   "required": ["identity"],
   "additionalProperties": true,
