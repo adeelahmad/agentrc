@@ -156,11 +156,12 @@ _draft_vals() {
 }
 
 v3_version_draft5_guard() {
-  local vals count; vals=$(_draft_vals); count=$(echo "$vals" | grep -c .)
-  if [ "$count" -eq 1 ] && echo "$vals" | grep -q '^draft\.5$'; then
-    PASS v3_version_draft5_guard; return 0
-  fi
-  FAILM v3_version_draft5_guard "expected exactly draft.5; found: $(echo "$vals" | tr '\n' ' ')"; return 1
+  # OBSOLETE after T20's intentional draft.5 -> draft.6 bump. This guarded the
+  # pre-bump waves against an accidental bump; the live invariant is now
+  # v3_version_draft6. Kept as an informational no-op so historical plan.md
+  # references still resolve without failing the post-bump suite.
+  SKIPM v3_version_draft5_guard "obsolete post-T20; superseded by v3_version_draft6"
+  return 0
 }
 
 # =============================================================================
