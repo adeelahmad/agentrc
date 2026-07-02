@@ -1,3 +1,4 @@
 2026-07-02T21:37:15Z wave-1 gate sprint-2 start planning-approved (owner go); decisions: (1) translators=dry-run config emitters no-SDK; (2) author T17-19 from inline detail no addendum file; (3) T8=Option A; (4) k8s=manifests; (5) local backend=plumbing+dry-run only
 2026-07-02T21:37:15Z wave-1 red sprint-2 note ENV: CLI pkg (./cmd/agentrc) builds ok (~2.3G free); frontend build ENOSPC-prone; site build/link/canonical delegated to CI+live; workers serialized on feat/sprint2-features
 2026-07-02T21:47:02Z wave-1 red sprint-2 complete verify-sprint2 suite committed (bc41836); RED 7 pass(guards)/34 fail-by-assertion/0 skip
+2026-07-02T21:49:14Z wave-1 green S2-01 complete T15 Agentfile.hooked + T16 Agentfile.delegator + index cards; lint clean; draft.5 held

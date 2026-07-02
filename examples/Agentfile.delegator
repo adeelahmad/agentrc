@@ -1,0 +1,30 @@
+# syntax=agentrc.agentfile/v0.1
+
+# A "delegator" agent that extends the canonical "hello" example to demonstrate
+# sub-agent delegation. It asks the platform to allow spawning sub-agents, caps
+# the fan-out, and bounds each delegated call with a timeout. As with every
+# POLICY line, these are REQUESTS: whether — and how many — sub-agents may run
+# is the platform's call, not a guarantee. Cedar enforcement is platform-side.
+
+FROM python:3.11-slim
+
+IDENTITY name=delegator version=0.1 author=acme
+IDENTITY description="Agent demonstrating sub-agent delegation requests"
+
+CAPABILITY text
+CAPABILITY streaming
+
+SOP You are a delegator example agent. Break work into sub-tasks and delegate them to sub-agents when the platform permits.
+CMD python ./agent.py
+
+# Tool (local, embedded) — projected under /mnt/tools/
+COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
+
+# Sub-agent requests — the platform GRANTS, narrows (e.g. lowers the cap), or
+# rejects these. Sub-agent authorization is the platform's call, not the
+# author's guarantee.
+POLICY agent.sub_agents         true
+POLICY agent.sub_agents.max     5
+POLICY agent.sub_agent_timeout  60s
+
+HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema
