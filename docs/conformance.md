@@ -31,7 +31,7 @@ name.
 | `agentrc/oci-labels/v0.1` | The `org.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
 | `agentrc/projection/v0.1` | The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract. | [`/mnt` Projection](/profiles/tool-projection/) |
 | `agentrc/platform/v0.1` | **Platform conformance** — runtime behaviour: read labels, grant / narrow / reject, project requests, fetch `--runtime` resources, substitute via `.origin`, enforce, boot `CMD`. | [Platform Conformance](/profiles/runner-conformance/) |
-| `agentrc/workflow/v0.1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for 0.1.0-draft.5). | [Workflow Draft](/profiles/workflow-draft/) |
+| `agentrc/workflow/v0.1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for 0.1.0-draft.5). | Workflow orchestration is parked for a future draft. |
 
 ## Why profiles?
 

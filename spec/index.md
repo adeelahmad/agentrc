@@ -90,6 +90,10 @@ documented extension.
 FROM <image-or-agent>[:<tag>] [AS <name>]
 ```
 
+Exactly as in Dockerfile, every Agentfile MUST contain a `FROM` instruction, and
+`FROM` must be the first instruction after the `# syntax=` line, comments, and any
+`ARG` that `FROM` consumes.
+
 `FROM` behaves like Dockerfile `FROM` for plain base images, and additionally
 supports **agent inheritance**: when the source is another agentrc agent, the
 child inherits the parent's capabilities and policy under these rules:
@@ -499,10 +503,11 @@ docker build -f Agentfile -t ghcr.io/acme/my-agent:1.0 .
 
 The `# syntax=` directive routes the Agentfile through the agentrc frontend
 image, which parses the agentrc keywords, compiles to LLB, and produces the OCI
-artifact with all `org.agentrc.*` labels. By design, users who already have
-Docker / BuildKit then need install nothing. The frontend image is **not yet
-published** — like the CLI, this build path is `planned`; see the
-[CLI page](/cli/) for current status.
+artifact with all `org.agentrc.*` labels. The frontend image is **published** at
+`ghcr.io/adeelahmad/agentrc-frontend`, so a `# syntax=ghcr.io/adeelahmad/agentrc-frontend`
+directive routes `docker build` through it directly; see the
+[CLI page](/cli/) for current status. The native `arc run`/`sign`/`verify`
+commands remain `planned`.
 
 ### 10.2 Native `agentrc` CLI
 
@@ -633,7 +638,7 @@ For now, an agent that needs a credential MAY reference it by name and leave
 Standard Dockerfile `HEALTHCHECK`; the probe MAY invoke a projected tool.
 
 ```dockerfile
-HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/ping
+HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/file_read --agentrc-schema
 ```
 
 ## 13. Complete worked example
@@ -713,7 +718,7 @@ POLICY network dns:api.github.com:443
 POLICY network dns:internal.acme:*
 
 # --- Liveness ---------------------------------------------------------------
-HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/ping
+HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/file_read --agentrc-schema
 ```
 
 Build and run:
@@ -819,7 +824,6 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 - **A2A (agent-to-agent protocol):** Agent Cards, agent discovery, cross-agent
   delegation, and the governance algebra across an agent-to-agent call.
   Capability *exposure* (via `IDENTITY` / `CAPABILITY` / labels) is in this
-  version; the *protocol* for one agent to find and call another is not. The
-  non-normative [workflow draft](/docs/workflows/) sketches external multi-agent
-  orchestration that references packaged agents by digest — distinct from the
-  A2A protocol.
+  version; the *protocol* for one agent to find and call another is not.
+  External multi-agent orchestration that references packaged agents by digest —
+  distinct from the A2A protocol — is parked for a future draft.

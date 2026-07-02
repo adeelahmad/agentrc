@@ -1,3 +1,8 @@
+---
+sitemap: false
+---
+This note is superseded by [Implementation mapping](/docs/implementation-mapping/).
+
 # Current Implementation Mapping
 
 > **Internal implementation note (not a published spec page).** This maps the

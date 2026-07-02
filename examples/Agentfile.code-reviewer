@@ -49,4 +49,4 @@ POLICY agent.max_retries  3
 # Network egress requests
 POLICY network dns:api.github.com:443
 
-HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/ping
+HEALTHCHECK --interval=60s --timeout=15s --retries=3 CMD /mnt/tools/file_read --agentrc-schema

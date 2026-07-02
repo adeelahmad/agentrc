@@ -44,7 +44,7 @@ func TestExtractMinimal(t *testing.T) {
 	if f.Identity["name"] != "hello" || f.Identity["version"] != "0.1" || f.Identity["author"] != "acme" {
 		t.Errorf("Identity = %+v", f.Identity)
 	}
-	if f.Identity["description"] != "Minimal AgentRC agent" {
+	if f.Identity["description"] != "Minimal agentrc agent" {
 		t.Errorf("Identity[description] = %q", f.Identity["description"])
 	}
 	if len(f.Capabilities) != 1 || f.Capabilities[0] != "text" {
