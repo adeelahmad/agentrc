@@ -2,3 +2,4 @@
 2026-07-02T18:46:05Z wave-0 red sprint-1 note ENV: no local Jekyll (ruby 2.6, bundle install fails); build-dependent checks (canonical/sitemap/served-refs/htmlproofer) delegated to CI build job + T14 live curls; source-grep + arc lint run locally
 2026-07-02T18:46:05Z wave-0 red sprint-1 note SCHEDULE: plugin worktree hooks not loaded; workers serialized on feat/sprint1-fixes, verify checks = manual gate before each commit; master untouched until T13 PR
 2026-07-02T19:00:38Z wave-1 red sprint-1 complete verify-suite committed; RED confirmed 5 pass(guards)/27 fail-by-assertion/10 skip(build-delegated)
+2026-07-02T19:03:36Z wave-1 green S1-04 complete lockfile-report written; finding: arc build does NOT consume agentrc.lock (produced-but-unused); A/B for owner
