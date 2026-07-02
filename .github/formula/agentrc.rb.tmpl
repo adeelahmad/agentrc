@@ -1,0 +1,39 @@
+# Template rendered by .github/workflows/release.yml into adeelahmad/homebrew-tap.
+# Placeholders (@VERSION@, @TAG@, @SHA_*@) are substituted at release time.
+class Agentrc < Formula
+  desc "Package one AI agent as a portable, governed OCI artifact (Agentfile CLI)"
+  homepage "https://agentrc.ai"
+  version "@VERSION@"
+  license "Apache-2.0"
+
+  on_macos do
+    on_arm do
+      url "https://github.com/adeelahmad/agentrc/releases/download/@TAG@/agentrc_@TAG@_darwin_arm64.tar.gz"
+      sha256 "@SHA_DARWIN_ARM64@"
+    end
+    on_intel do
+      url "https://github.com/adeelahmad/agentrc/releases/download/@TAG@/agentrc_@TAG@_darwin_amd64.tar.gz"
+      sha256 "@SHA_DARWIN_AMD64@"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/adeelahmad/agentrc/releases/download/@TAG@/agentrc_@TAG@_linux_arm64.tar.gz"
+      sha256 "@SHA_LINUX_ARM64@"
+    end
+    on_intel do
+      url "https://github.com/adeelahmad/agentrc/releases/download/@TAG@/agentrc_@TAG@_linux_amd64.tar.gz"
+      sha256 "@SHA_LINUX_AMD64@"
+    end
+  end
+
+  def install
+    bin.install "agentrc"
+    bin.install_symlink "agentrc" => "arc"
+  end
+
+  test do
+    assert_match version.to_s, shell_output("#{bin}/agentrc version")
+  end
+end
