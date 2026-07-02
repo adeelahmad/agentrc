@@ -31,6 +31,7 @@ func main() {
 		newSignCmd(),
 		newVerifyCmd(),
 		newRunCmd(),
+		newVersionCmd(),
 	)
 
 	if err := root.Execute(); err != nil {

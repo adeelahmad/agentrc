@@ -26,6 +26,54 @@ agents, it does not ship a runtime; running an artifact is a compatible
 platform's job.
 </div>
 
+## Installation
+
+You need the native `agentrc` CLI (alias `arc`) for `build`, `inspect`, `push`,
+`pull`, and the reference `run` translators. Pick whichever install method suits
+you — they all land the same binary. Step 2 also offers a CLI-free path via the
+BuildKit frontend, so if you only ever `docker build` you can skip this.
+
+**Quick install (curl).** Installs both the `agentrc` binary and its `arc` alias
+to `/usr/local/bin` (or `~/.local/bin` when that is not writable), verified
+against the release `checksums.txt`. Covers macOS and Linux on amd64 and arm64:
+
+```bash
+curl -fsSL https://agentrc.ai/install.sh | sh
+```
+
+As with any piped installer, read the script first if you'd rather vet it:
+
+```bash
+curl -fsSL https://agentrc.ai/install.sh | less
+```
+
+**Homebrew.** On macOS or Linux with Homebrew:
+
+```bash
+brew install adeelahmad/tap/agentrc
+```
+
+**Go.** If you have a Go toolchain:
+
+```bash
+go install github.com/adeelahmad/agentrc/cmd/agentrc@latest
+```
+
+**From source.** Clone and build the binary yourself:
+
+```bash
+git clone https://github.com/adeelahmad/agentrc
+cd agentrc
+go build -o arc ./cmd/agentrc
+```
+
+Verify the install:
+
+```bash
+arc version
+# agentrc <ver> (spec 0.1.0-draft.6, <os>/<arch>)
+```
+
 ## 1. Create an `Agentfile`
 
 Four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) sit on top of

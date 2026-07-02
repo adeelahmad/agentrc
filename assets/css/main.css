@@ -248,6 +248,35 @@ h3 { font-size: 1.22rem; letter-spacing: -.02em; }
 .pill-row { display:flex; gap:.5rem; flex-wrap:wrap; }
 .pill { border: 1px solid var(--line); border-radius:999px; padding:.25rem .65rem; color: var(--muted); font-size:.86rem; background: var(--panel); }
 
+.get-started { margin-top: 2.4rem; }
+.get-started h2.flush { border-top: none; padding-top: 0; }
+.install-oneliner { margin: 1.3rem 0 .4rem; }
+.install-oneliner .install-label {
+  display:inline-block; font-size:.72rem; font-weight:800;
+  text-transform:uppercase; letter-spacing:.14em; color: var(--muted); margin-bottom:.45rem;
+}
+.install-oneliner pre {
+  font-size: 1.06rem; padding: 1.15rem 1.25rem;
+  background: linear-gradient(135deg, var(--code), #0d1b2a);
+  border-color: var(--line-strong); box-shadow: var(--shadow-holo);
+}
+.get-started .grid .card pre { margin: .2rem 0 0; font-size:.9rem; }
+.get-started .grid .card p.muted { margin:.55rem 0 0; font-size:.85rem; }
+.steps { list-style:none; counter-reset: step; padding:0; margin:1.5rem 0 .5rem; display:grid; gap:.7rem; }
+.steps li {
+  counter-increment: step; display:grid; grid-template-columns: 2rem 1fr; align-items:center; gap:1rem;
+  border:1px solid var(--line); border-radius: var(--radius-md); background: var(--panel);
+  padding:.9rem 1.05rem; box-shadow: 0 8px 26px rgba(15,23,42,.05);
+}
+.steps li::before {
+  content: counter(step); display:grid; place-items:center; width:2rem; height:2rem;
+  border-radius:50%; background: linear-gradient(135deg, var(--holo-a), var(--holo-b));
+  border:1px solid var(--line-strong); font-weight:800; color: var(--text-strong);
+}
+.steps li > div { min-width:0; }
+.steps .step-k { display:block; font-size:.71rem; text-transform:uppercase; letter-spacing:.12em; font-weight:800; color: var(--accent); margin-bottom:.3rem; }
+.steps li pre { margin:0; font-size:.9rem; }
+
 .doc-shell {
   max-width: var(--max);
   margin: 0 auto;
