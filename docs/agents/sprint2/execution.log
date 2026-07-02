@@ -7,3 +7,4 @@
 2026-07-02T22:15:17Z wave-3 green S2-04 complete T22 local + T23 bedrock (13-field CreateAgentRuntime JSON, fail-closed roleArn/jwt/code-lang) + T24 kubernetes (Deployment/Service/deny-default NetworkPolicy/ServiceAccount/MCP sidecars, manifests); stdlib only, no new deps; 14 tests pass, vet ok, dry-runs parse
 2026-07-02T22:22:21Z wave-4 green S2-02(T20) complete sitewide draft.5->draft.6 (26 files, syntax line frozen); T8 Option A §9.5 agentrc.lock informative subsection (slogan kept); §14.2 open-decision #7; docs/agentfile platform+jwt; profiles/core unknown substrate.<token>; code-reviewer commented aws/auth block; go tests green
 2026-07-02T22:24:55Z wave-4 green S2-05 complete T25 CLI docs: run->implemented(local/bedrock/kubernetes reference translators), §0.8 line verbatim, sign/verify stay planned
+2026-07-02T22:28:24Z wave-5 green S2-06 complete T26 three-backend demo (docs/demo.md + index card); verbatim commands + narrative; no dropped backends
