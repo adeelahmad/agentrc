@@ -30,20 +30,24 @@ t27_live() {
 
   home=$(_get "$BASE_URL/") || { FAILM t27_live "$BASE_URL unreachable"; return 1; }
 
-  # version = draft.6 sitewide (homepage + spec)
-  echo "$home" | grep -q 'draft.6' || fails="$fails home-not-draft6"
+  # version = draft.6 sitewide (homepage + spec).
+  # NOTE: use here-strings, NOT `echo "$x" | grep -q`. Under `set -o pipefail`,
+  # grep -q exits on first match and SIGPIPEs the echo of a >64KB page, which
+  # pipefail reports as a non-zero pipeline — a FALSE "not found". Here-strings
+  # have no pipe, so no SIGPIPE. (grep -c is immune; it reads to EOF.)
+  grep -q 'draft.6' <<<"$home" || fails="$fails home-not-draft6"
   local spec; spec=$(_get "$BASE_URL/spec/") || spec=""
-  echo "$spec" | grep -q 'draft.6' || fails="$fails spec-not-draft6"
+  grep -q 'draft.6' <<<"$spec" || fails="$fails spec-not-draft6"
 
   # §8.7 / §8.8 / §8.9 rendered in the spec
-  echo "$spec" | grep -q '8.7' || fails="$fails no-8.7"
-  echo "$spec" | grep -q '8.8' || fails="$fails no-8.8"
-  echo "$spec" | grep -q '8.9' || fails="$fails no-8.9"
+  grep -q '8.7' <<<"$spec" || fails="$fails no-8.7"
+  grep -q '8.8' <<<"$spec" || fails="$fails no-8.8"
+  grep -q '8.9' <<<"$spec" || fails="$fails no-8.9"
 
   # /cli/ shows --backend and no --substrate (token-split aware, M-006)
   cli=$(_get "$BASE_URL/cli/") || cli=""
-  echo "$cli" | grep -q -- '--backend'  || fails="$fails cli-no-backend"
-  echo "$cli" | grep -q -- '--substrate' && fails="$fails cli-has-substrate"
+  grep -q -- '--backend'  <<<"$cli" || fails="$fails cli-no-backend"
+  grep -q -- '--substrate' <<<"$cli" && fails="$fails cli-has-substrate"
 
   # the two new examples reachable + rendered
   _get "$BASE_URL/examples/Agentfile.hooked"    >/dev/null || fails="$fails hooked-unreachable"
@@ -88,5 +92,9 @@ main() {
 }
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
-  if [ "$#" -eq 0 ]; then main; else for fn in "$@"; do "$fn"; done; fi
+  case "${1:-}" in
+    http://*|https://*) BASE_URL="$1"; main ;;   # URL positional arg overrides BASE_URL
+    "") main ;;
+    *) for fn in "$@"; do "$fn"; done ;;         # otherwise treat args as function names
+  esac
 fi
