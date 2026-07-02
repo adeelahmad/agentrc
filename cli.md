@@ -21,8 +21,9 @@ per-command status. The frontend image is published at
 <code># syntax=ghcr.io/adeelahmad/agentrc-frontend</code> directive makes
 <code>docker build -f Agentfile .</code> auto-route through it; you can also pin
 it with <code>--build-arg BUILDKIT_SYNTAX=ghcr.io/adeelahmad/agentrc-frontend:latest</code>.
-The native <code>arc run</code>/<code>sign</code>/<code>verify</code> commands
-remain planned. The <a href="/spec/">specification</a>
+<code>arc run</code> ships as a reference translator (it renders backend
+deploy artifacts as a dry run; it does not apply them to a live cloud), while
+<code>sign</code> and <code>verify</code> remain planned. The <a href="/spec/">specification</a>
 remains the source of truth, not this implementation — see
 <a href="/docs/conformance/">Conformance</a> for exactly what it covers.
 </div>
@@ -89,6 +90,8 @@ agentrc run    <ref> --backend local|bedrock|kubernetes [per-backend flags]
 The four **core** commands are `build`, `push`, `pull`, and `run` (spec §10);
 the rest are tooling around them.
 
+Reference translators — a proof of concept until platforms read `org.agentrc.*` labels natively. Not production runners.
+
 | Command | Purpose | Status |
 |---|---|---|
 | `agentrc init` (`arc init`) | Scaffold a starter Agentfile. | `implemented` |
@@ -100,7 +103,7 @@ the rest are tooling around them.
 | `agentrc verify` (`arc verify`) | Verify an artifact's signature and provenance. | `planned` |
 | `agentrc push` (`arc push`) | **Core (§10).** Push the artifact to any OCI registry. | `implemented` |
 | `agentrc pull` (`arc pull`) | **Core (§10).** Pull an artifact from any OCI registry. | `implemented` |
-| `agentrc run` (`arc run`) | **Core (§10).** Run an artifact on a chosen backend (`--backend local\|bedrock\|kubernetes`). `--backend` (and `--isolation`, scoped to `--backend local`) are **run-time** choices, never Agentfile directives. | `planned` — agentrc declares agents, it does not ship a runtime |
+| `agentrc run` (`arc run`) | **Core (§10).** Translate an artifact into a chosen backend's deploy form (`--backend local\|bedrock\|kubernetes`). `--backend` (and `--isolation`, scoped to `--backend local`) are **run-time** choices, never Agentfile directives. | `implemented (local, bedrock, kubernetes — reference translators)` |
 
 ### `--policy-mode inline | digest`
 
