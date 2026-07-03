@@ -87,7 +87,7 @@ heredoc-line     = { any-char } - line-equal-to-delimiter ;
 (*
   POLICY: exactly one typed request per line. No block, no END.
   The key is a dotted, namespaced token; namespaces: agent.* | substrate.* |
-  model.* | network. The compiler prepends org.agentrc. when emitting labels.
+  model.* | network. The compiler prepends ai.agentrc. when emitting labels.
 *)
 policy           = "POLICY" , ws , policy-key , ws , policy-value ;
 policy-key       = namespaced-key | "network" ;
@@ -123,6 +123,6 @@ newline          = "\n" | "\r\n" ;
     LIMIT, SLICE, IMAGE, ISOLATION, BROKER, BACKEND, TRACE, MEMORY, OPTIMIZER, and
     SHELL are NOT part of v0.1. Tools/skills/MCP are COPY/ADD; resource/model/
     network/lifecycle are POLICY requests; audit rides on agent.hooks.*; secrets
-    are deferred (no SECRET/CRED keyword, no org.agentrc.secret.* schema).
+    are deferred (no SECRET/CRED keyword, no ai.agentrc.secret.* schema).
   - Cedar never appears in an Agentfile; it is the platform-side enforcement engine.
 *)

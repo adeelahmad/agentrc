@@ -18,7 +18,7 @@ Create `examples/Agentfile.hooked` demonstrating hook policy + auto-derived egre
   and one `POLICY agent.hooks.post <https>` (spec-defined `agent.hooks.*` keys only).
 - Comment block explaining the platform AUTO-DERIVES the hook endpoint's `network` egress
   grant and records it with `.source` attribution (requested vs derived), per §8.5 /
-  `/docs/security/` (e.g. `org.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre`).
+  `/docs/security/` (e.g. `ai.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre`).
 - One EXPLICIT `POLICY network dns:<host>:<port>` line for contrast (a requested, not
   derived, egress).
 - `HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema`

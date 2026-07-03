@@ -19,22 +19,22 @@ func TestBuildLabelsMinimalExample(t *testing.T) {
 	}
 
 	want := map[string]string{
-		"org.agentrc.identity.name":               "hello",
-		"org.agentrc.identity.version":            "0.1",
-		"org.agentrc.capability.text":             "true",
-		"org.agentrc.sop":                         "/mnt/SOP",
-		"org.agentrc.tool.file_read":              "local",
-		"org.agentrc.model.name":                  "claude-sonnet-4",
-		"org.agentrc.agent.tool_timeout":          "30s",
-		"org.agentrc.network.dns.api.example.com": "443",
+		"ai.agentrc.identity.name":               "hello",
+		"ai.agentrc.identity.version":            "0.1",
+		"ai.agentrc.capability.text":             "true",
+		"ai.agentrc.sop":                         "/mnt/SOP",
+		"ai.agentrc.tool.file_read":              "local",
+		"ai.agentrc.model.name":                  "claude-sonnet-4",
+		"ai.agentrc.agent.tool_timeout":          "30s",
+		"ai.agentrc.network.dns.api.example.com": "443",
 	}
 	for k, v := range want {
 		if labels[k] != v {
 			t.Errorf("labels[%q] = %q, want %q", k, labels[k], v)
 		}
 	}
-	if labels["org.agentrc.sop.sha256"] == "" {
-		t.Error("org.agentrc.sop.sha256 is empty")
+	if labels["ai.agentrc.sop.sha256"] == "" {
+		t.Error("ai.agentrc.sop.sha256 is empty")
 	}
 }
 
@@ -59,16 +59,16 @@ func TestBuildLabelsRemoteResources(t *testing.T) {
 		t.Fatalf("BuildLabels() error = %v", err)
 	}
 
-	if labels["org.agentrc.skill.code-review"] != "sha256:deadbeef" {
-		t.Errorf("skill label = %q", labels["org.agentrc.skill.code-review"])
+	if labels["ai.agentrc.skill.code-review"] != "sha256:deadbeef" {
+		t.Errorf("skill label = %q", labels["ai.agentrc.skill.code-review"])
 	}
-	if labels["org.agentrc.skill.code-review.origin"] != "https://registry.agentrc.io/skills/code-review:1.2.3" {
-		t.Errorf("skill origin label = %q", labels["org.agentrc.skill.code-review.origin"])
+	if labels["ai.agentrc.skill.code-review.origin"] != "https://registry.agentrc.io/skills/code-review:1.2.3" {
+		t.Errorf("skill origin label = %q", labels["ai.agentrc.skill.code-review.origin"])
 	}
-	if labels["org.agentrc.mcp.github"] != "runtime:mcp://registry.internal.acme/servers/github:latest" {
-		t.Errorf("mcp label = %q", labels["org.agentrc.mcp.github"])
+	if labels["ai.agentrc.mcp.github"] != "runtime:mcp://registry.internal.acme/servers/github:latest" {
+		t.Errorf("mcp label = %q", labels["ai.agentrc.mcp.github"])
 	}
-	if _, ok := labels["org.agentrc.mcp.github.origin"]; ok {
+	if _, ok := labels["ai.agentrc.mcp.github.origin"]; ok {
 		t.Error("runtime resources must not get a resolved digest+origin pair")
 	}
 }
@@ -84,14 +84,14 @@ func TestBuildLabelsAutoDerivedEgress(t *testing.T) {
 	if err != nil {
 		t.Fatalf("BuildLabels() error = %v", err)
 	}
-	if labels["org.agentrc.agent.hooks.pre"] != "https://hooks.internal.example/pre-step" {
-		t.Errorf("hooks.pre label = %q", labels["org.agentrc.agent.hooks.pre"])
+	if labels["ai.agentrc.agent.hooks.pre"] != "https://hooks.internal.example/pre-step" {
+		t.Errorf("hooks.pre label = %q", labels["ai.agentrc.agent.hooks.pre"])
 	}
-	if labels["org.agentrc.network.dns.hooks.internal.example"] != "443" {
-		t.Errorf("auto-derived egress label = %q, labels=%v", labels["org.agentrc.network.dns.hooks.internal.example"], labels)
+	if labels["ai.agentrc.network.dns.hooks.internal.example"] != "443" {
+		t.Errorf("auto-derived egress label = %q, labels=%v", labels["ai.agentrc.network.dns.hooks.internal.example"], labels)
 	}
-	if labels["org.agentrc.network.dns.hooks.internal.example.source"] != "auto:agent.hooks.pre" {
-		t.Errorf("auto-derived egress source label = %q", labels["org.agentrc.network.dns.hooks.internal.example.source"])
+	if labels["ai.agentrc.network.dns.hooks.internal.example.source"] != "auto:agent.hooks.pre" {
+		t.Errorf("auto-derived egress source label = %q", labels["ai.agentrc.network.dns.hooks.internal.example.source"])
 	}
 }
 
@@ -107,8 +107,8 @@ func TestBuildLabelsSOPFileBackedRequiresDigest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("BuildLabels() error = %v", err)
 	}
-	if labels["org.agentrc.sop.sha256"] != "sha256:abc" {
-		t.Errorf("sop.sha256 = %q", labels["org.agentrc.sop.sha256"])
+	if labels["ai.agentrc.sop.sha256"] != "sha256:abc" {
+		t.Errorf("sop.sha256 = %q", labels["ai.agentrc.sop.sha256"])
 	}
 }
 

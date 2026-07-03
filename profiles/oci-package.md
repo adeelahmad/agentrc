@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: OCI Package
-description: "OCI Labels & Package profile (0.1.0-draft.6): the org.agentrc.* label namespace, layers, media types, policy encoding, override, and provenance for an agentrc OCI artifact."
+description: "OCI Labels & Package profile (0.1.0-draft.6): the ai.agentrc.* label namespace, layers, media types, policy encoding, override, and provenance for an agentrc OCI artifact."
 permalink: /profiles/oci-package/
 ---
 # OCI Labels &amp; Package Profile
@@ -12,7 +12,7 @@ permalink: /profiles/oci-package/
 **Audience:** registry maintainers, platform / runner authors, security &amp; compliance reviewers
 
 > This profile defines the **on-the-wire shape** of a built agentrc agent: the
-> `org.agentrc.*` label namespace carried in the OCI image config, the layers
+> `ai.agentrc.*` label namespace carried in the OCI image config, the layers
 > that carry the `/mnt` resources, the recommended media types and annotations,
 > the two policy-encoding modes, and the override / signing / provenance
 > contract. It is the registry-side companion to the
@@ -24,14 +24,14 @@ permalink: /profiles/oci-package/
 `agentrc build` (or the BuildKit frontend) compiles an Agentfile into an
 **ordinary OCI artifact**. There is no bespoke package format: the embedded
 resources live in standard layers, and the machine-readable manifest is the set
-of `org.agentrc.*` **labels** in the image config. That is the entire contract —
+of `ai.agentrc.*` **labels** in the image config. That is the entire contract —
 a platform reads the labels, **never the Agentfile source**.
 
 Because the result is a normal OCI artifact, an agent pushes, pulls, signs,
 mirrors, and attests through any OCI-compatible registry exactly like a container
 image. No proprietary registry, no special storage.
 
-> **Namespace.** The label namespace is **`org.agentrc.*`**. The legacy
+> **Namespace.** The label namespace is **`ai.agentrc.*`**. The legacy
 > `io.agentrc.*` / `io.agentio.*` namespaces from earlier drafts are **not used
 > in 0.1.0-draft.6**; treat any occurrence as stale.
 
@@ -40,14 +40,14 @@ image. No proprietary registry, no special storage.
 | Part | Where it lives | Carries |
 |---|---|---|
 | **Embedded resources** | Standard image **layers** | The `/mnt` tree: `/mnt/tools/*`, `/mnt/skills/*`, `/mnt/mcp/*`, and `/mnt/SOP` for `COPY`'d / `--cached` resources. |
-| **Manifest** | Image **config labels** | The full `org.agentrc.*` label set — identity, capabilities, SOP pointer + digest, resource references, and `POLICY`-derived requests. |
+| **Manifest** | Image **config labels** | The full `ai.agentrc.*` label set — identity, capabilities, SOP pointer + digest, resource references, and `POLICY`-derived requests. |
 | **Resolved policy manifest** *(optional)* | An extra **layer** | Present only under `--policy-mode digest`: a structured request manifest the labels point to by digest (see [§6](#6-policy-encoding-inline-vs-digest)). |
 
 Resources marked `--runtime` are **not** embedded as layers; only their
 reference is recorded in labels and they are fetched when the agent bootstraps
 ([spec §4.3](/spec/)).
 
-## 3. The `org.agentrc.*` label catalog
+## 3. The `ai.agentrc.*` label catalog
 
 These are the labels the compiler emits. They are the only thing a platform
 reads. All translations follow the spec's build tables ([spec §9](/spec/)).
@@ -56,10 +56,10 @@ reads. All translations follow the spec's build tables ([spec §9](/spec/)).
 
 | Source | Label(s) |
 |---|---|
-| `IDENTITY name=claims-triage version=1.0 author=acme` | `org.agentrc.identity.name=claims-triage`, `org.agentrc.identity.version=1.0`, `org.agentrc.identity.author=acme` |
-| `IDENTITY description="…"` | `org.agentrc.identity.description=…` |
-| `CAPABILITY streaming` | `org.agentrc.capability.streaming=true` |
-| `SOP …` / `COPY ./sop.md /mnt/SOP` | `org.agentrc.sop=/mnt/SOP`, `org.agentrc.sop.sha256=<digest>` |
+| `IDENTITY name=claims-triage version=1.0 author=acme` | `ai.agentrc.identity.name=claims-triage`, `ai.agentrc.identity.version=1.0`, `ai.agentrc.identity.author=acme` |
+| `IDENTITY description="…"` | `ai.agentrc.identity.description=…` |
+| `CAPABILITY streaming` | `ai.agentrc.capability.streaming=true` |
+| `SOP …` / `COPY ./sop.md /mnt/SOP` | `ai.agentrc.sop=/mnt/SOP`, `ai.agentrc.sop.sha256=<digest>` |
 
 The SOP label is always a **pointer plus digest**, never the full prompt text —
 the prompt is a readable file at `/mnt/SOP` in a layer. (Whether `capability.*`
@@ -74,9 +74,9 @@ resource was delivered.
 
 | Source | Build behaviour | Label(s) |
 |---|---|---|
-| `COPY ./tools/x /mnt/tools/x` | Embed as a layer. | `org.agentrc.tool.x=local` |
-| `ADD --remote --cached <url> /mnt/tools/x` | Fetch at build, embed as a layer. | `org.agentrc.tool.x=<digest>` + `org.agentrc.tool.x.origin=<url>` |
-| `ADD --remote --runtime <url> /mnt/mcp/x` | Reference only; fetch at bootstrap. | `org.agentrc.mcp.x=runtime:<url>` |
+| `COPY ./tools/x /mnt/tools/x` | Embed as a layer. | `ai.agentrc.tool.x=local` |
+| `ADD --remote --cached <url> /mnt/tools/x` | Fetch at build, embed as a layer. | `ai.agentrc.tool.x=<digest>` + `ai.agentrc.tool.x.origin=<url>` |
+| `ADD --remote --runtime <url> /mnt/mcp/x` | Reference only; fetch at bootstrap. | `ai.agentrc.mcp.x=runtime:<url>` |
 
 The value of a resource label is therefore one of:
 
@@ -89,39 +89,39 @@ Every **embedded** MCP server or skill MUST emit **both** the resolved digest
 and an `.origin` reference, so a platform can re-point it without a rebuild:
 
 ```text
-org.agentrc.mcp.github=sha256:abc123...
-org.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
+ai.agentrc.mcp.github=sha256:abc123...
+ai.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
 ```
 
 Secrets are **deferred** in this draft — there is no `SECRET`/`CRED` keyword and
-no `org.agentrc.secret.*` schema; credential resolution is left entirely to the
+no `ai.agentrc.secret.*` schema; credential resolution is left entirely to the
 platform and is out of scope for now.
 
 ### 3.3 `POLICY`-derived requests
 
-Each authored `POLICY <key> <value>` becomes `org.agentrc.<key>=<value>`. These
+Each authored `POLICY <key> <value>` becomes `ai.agentrc.<key>=<value>`. These
 are **requests**, not grants; the platform grants, narrows, or rejects each one
 ([Enforcement profile](/profiles/security/)).
 
 | Authored | Emitted label |
 |---|---|
-| `POLICY agent.idle_timeout 5m` | `org.agentrc.agent.idle_timeout=5m` |
-| `POLICY agent.context.type autocompressed` | `org.agentrc.agent.context.type=autocompressed` |
-| `POLICY agent.sub_agents.max 5` | `org.agentrc.agent.sub_agents.max=5` |
-| `POLICY agent.hooks.pre https://hooks.internal/pre-step` | `org.agentrc.agent.hooks.pre=https://hooks.internal/pre-step` (+ auto-derived egress, below) |
-| `POLICY substrate.runtime.memory 8gb` | `org.agentrc.substrate.runtime.memory=8gb` |
-| `POLICY substrate.ptty true` | `org.agentrc.substrate.ptty=true` |
-| `POLICY model.name claude-opus-4` | `org.agentrc.model.name=claude-opus-4` |
-| `POLICY model.capability vision` | `org.agentrc.model.capability.vision=true` |
-| `POLICY network dns:api.github.com:443` | `org.agentrc.network.dns.api.github.com=443` |
+| `POLICY agent.idle_timeout 5m` | `ai.agentrc.agent.idle_timeout=5m` |
+| `POLICY agent.context.type autocompressed` | `ai.agentrc.agent.context.type=autocompressed` |
+| `POLICY agent.sub_agents.max 5` | `ai.agentrc.agent.sub_agents.max=5` |
+| `POLICY agent.hooks.pre https://hooks.internal/pre-step` | `ai.agentrc.agent.hooks.pre=https://hooks.internal/pre-step` (+ auto-derived egress, below) |
+| `POLICY substrate.runtime.memory 8gb` | `ai.agentrc.substrate.runtime.memory=8gb` |
+| `POLICY substrate.ptty true` | `ai.agentrc.substrate.ptty=true` |
+| `POLICY model.name claude-opus-4` | `ai.agentrc.model.name=claude-opus-4` |
+| `POLICY model.capability vision` | `ai.agentrc.model.capability.vision=true` |
+| `POLICY network dns:api.github.com:443` | `ai.agentrc.network.dns.api.github.com=443` |
 
 **Auto-derived egress.** A `POLICY` value that is a URL the agent calls out to
 (`agent.hooks.*`, `agent.interrupt_endpoint`) auto-derives an explicit,
 **attributed** `network` egress label, so it is never a silent network hole:
 
 ```text
-org.agentrc.network.dns.hooks.internal=443
-org.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
+ai.agentrc.network.dns.hooks.internal=443
+ai.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
 ```
 
 The `.source` annotation records which request produced the derived egress.
@@ -132,15 +132,15 @@ grant it.
 
 | Prefix | Meaning | Value form |
 |---|---|---|
-| `org.agentrc.identity.*` | Who the agent is. | string (`name`, `version`, `author`, `description`, …) |
-| `org.agentrc.capability.*` | Supported modalities / patterns. | `true` |
-| `org.agentrc.sop`, `org.agentrc.sop.sha256` | SOP pointer + digest. | `/mnt/SOP`, `<digest>` |
-| `org.agentrc.tool.*`, `.skill.*`, `.mcp.*` | Embedded or referenced resources. | `local` \| `<digest>` \| `runtime:<url>` |
-| `org.agentrc.tool.*.origin` (etc.) | Origin reference for an embedded resource. | `<url>` |
-| `org.agentrc.agent.*` | Agent-side operational requests. | per spec §8.1 |
-| `org.agentrc.substrate.*` | Substrate / resource requests. | per spec §8.2 |
-| `org.agentrc.model.*` | Model / capability requests. | per spec §8.3 |
-| `org.agentrc.network.dns.*` | Egress requests (+ `.source` for auto-derived). | `<port>` |
+| `ai.agentrc.identity.*` | Who the agent is. | string (`name`, `version`, `author`, `description`, …) |
+| `ai.agentrc.capability.*` | Supported modalities / patterns. | `true` |
+| `ai.agentrc.sop`, `ai.agentrc.sop.sha256` | SOP pointer + digest. | `/mnt/SOP`, `<digest>` |
+| `ai.agentrc.tool.*`, `.skill.*`, `.mcp.*` | Embedded or referenced resources. | `local` \| `<digest>` \| `runtime:<url>` |
+| `ai.agentrc.tool.*.origin` (etc.) | Origin reference for an embedded resource. | `<url>` |
+| `ai.agentrc.agent.*` | Agent-side operational requests. | per spec §8.1 |
+| `ai.agentrc.substrate.*` | Substrate / resource requests. | per spec §8.2 |
+| `ai.agentrc.model.*` | Model / capability requests. | per spec §8.3 |
+| `ai.agentrc.network.dns.*` | Egress requests (+ `.source` for auto-derived). | `<port>` |
 
 The namespace is **extensible**: new `agent.*` / `substrate.*` / `model.*` keys
 add new labels without changing the grammar.
@@ -156,7 +156,7 @@ layer(s)
     ├── tools/     # executables for tool.*=local | <digest>
     ├── skills/    # skill bundles (SKILL.md) for skill.*=local | <digest>
     ├── mcp/       # MCP server bundles for mcp.*=local | <digest>
-    └── SOP        # the readable system-prompt file (org.agentrc.sop)
+    └── SOP        # the readable system-prompt file (ai.agentrc.sop)
 ```
 
 `runtime:<url>` resources contribute **no** layer; they are fetched at bootstrap.
@@ -180,15 +180,15 @@ alongside the agentrc identity labels, so generic OCI tooling shows useful
 metadata:
 
 ```text
-org.opencontainers.image.title          # = org.agentrc.identity.name
-org.opencontainers.image.version        # = org.agentrc.identity.version
-org.opencontainers.image.authors        # = org.agentrc.identity.author
+org.opencontainers.image.title          # = ai.agentrc.identity.name
+org.opencontainers.image.version        # = ai.agentrc.identity.version
+org.opencontainers.image.authors        # = ai.agentrc.identity.author
 org.opencontainers.image.source
 org.opencontainers.image.revision
 org.opencontainers.image.created
 ```
 
-The authoritative agentrc manifest remains the `org.agentrc.*` label set; the
+The authoritative agentrc manifest remains the `ai.agentrc.*` label set; the
 `org.opencontainers.image.*` annotations are conventional metadata, not a
 substitute.
 
@@ -197,7 +197,7 @@ substitute.
 The compiled request set MUST be retrievable by a platform in **either** form:
 
 - **Inline** (`--policy-mode inline`): request values live directly in
-  `org.agentrc.*` labels, as in the tables above. Best for small request sets;
+  `ai.agentrc.*` labels, as in the tables above. Best for small request sets;
   fully self-describing from the config alone.
 - **By digest** (`--policy-mode digest`): the labels carry a **digest** of a
   structured request manifest embedded as a layer
@@ -218,11 +218,11 @@ a public MCP server to an internal mirror — **without rebuilding the artifact*
 
 ```text
 # As built
-org.agentrc.mcp.github=sha256:abc123...
-org.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
+ai.agentrc.mcp.github=sha256:abc123...
+ai.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
 
 # Platform override at deploy (mirror)
-org.agentrc.mcp.github.origin=https://mirror.internal.acme/mcp/github:latest
+ai.agentrc.mcp.github.origin=https://mirror.internal.acme/mcp/github:latest
 ```
 
 The platform then fetches the mirror in place of the embedded copy. Whether such
@@ -235,11 +235,11 @@ Because the manifest is labels, a registry maintainer or compliance reviewer can
 vet an agent **before it ever runs**, with nothing more than `docker inspect` /
 `arc inspect`. The labels reveal:
 
-- **Identity &amp; capabilities** — `org.agentrc.identity.*`, `org.agentrc.capability.*`.
-- **Requested model** — `org.agentrc.model.*` (name, min context, capabilities, fallback).
-- **Requested network** — `org.agentrc.network.dns.*`, including `.source` for any auto-derived egress.
-- **Tools / skills / MCP** — `org.agentrc.tool.*` / `.skill.*` / `.mcp.*`, with digests and `.origin`.
-- **Sub-agent &amp; lifecycle limits** — `org.agentrc.agent.sub_agents*`, timeouts, retries.
+- **Identity &amp; capabilities** — `ai.agentrc.identity.*`, `ai.agentrc.capability.*`.
+- **Requested model** — `ai.agentrc.model.*` (name, min context, capabilities, fallback).
+- **Requested network** — `ai.agentrc.network.dns.*`, including `.source` for any auto-derived egress.
+- **Tools / skills / MCP** — `ai.agentrc.tool.*` / `.skill.*` / `.mcp.*`, with digests and `.origin`.
+- **Sub-agent &amp; lifecycle limits** — `ai.agentrc.agent.sub_agents*`, timeouts, retries.
 
 Everything an agent *requests* is visible in the artifact. The platform remains
 the authority that grants, narrows, or rejects each request and enforces via
@@ -272,7 +272,7 @@ As a standard OCI artifact, an agent supports the usual supply-chain controls:
 - **Provenance** — attach build provenance via [SLSA](https://slsa.dev/)
   attestations, so consumers can verify how the artifact was produced.
 - **Reproducibility** — given the Agentfile, the pinned base (`FROM`) digest, and
-  the resolved resource digests (in `org.agentrc.tool.*` / `.skill.*` / `.mcp.*`
+  the resolved resource digests (in `ai.agentrc.tool.*` / `.skill.*` / `.mcp.*`
   and the optional policy manifest), a rebuild SHOULD yield byte-identical layers
   and labels.
 
@@ -285,7 +285,7 @@ A package conforms to this profile (`agentrc/oci-labels/v0.1`) when:
 
 1. It is a valid OCI artifact whose embedded `/mnt` resources are carried as
    standard layers.
-2. Its image config carries the `org.agentrc.*` labels per [§3](#3-the-orgagentrc-label-catalog),
+2. Its image config carries the `ai.agentrc.*` labels per [§3](#3-the-aiagentrc-label-catalog),
    matching the spec build tables ([spec §9](/spec/)).
 3. SOP appears only as a `/mnt/SOP` pointer + `sop.sha256` digest, never as inline
    label text.

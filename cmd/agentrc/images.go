@@ -26,7 +26,7 @@ func localImageConfig(ref string) (labels map[string]string, env []string, ok bo
 }
 
 // agentLabelSet assembles the label map the backend translators consume: the
-// image's org.agentrc.* labels, the image reference (image.ref), and env.<NAME>
+// image's ai.agentrc.* labels, the image reference (image.ref), and env.<NAME>
 // entries derived from the image's Env.
 func agentLabelSet(ref string, labels map[string]string, env []string) map[string]string {
 	out := make(map[string]string, len(labels)+len(env)+1)

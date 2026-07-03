@@ -9,21 +9,21 @@ import (
 // runtime resources, env, a deny-by-default NetworkPolicy from a network POLICY,
 // a ServiceAccount key, and an MCP sidecar mount. Keys follow the emitted-label
 // contract:
-//   - org.agentrc.substrate.runtime.*        → Deployment resources
+//   - ai.agentrc.substrate.runtime.*        → Deployment resources
 //   - env.<NAME> (CLI-injected)              → Deployment env
-//   - org.agentrc.network.dns.<host>=<port>  → NetworkPolicy egress allow
-//   - org.agentrc.substrate.kubernetes.serviceAccount → ServiceAccount (a KEY)
-//   - org.agentrc.mcp.<name>=runtime:<url>   → /mnt/mcp/<name> sidecar
+//   - ai.agentrc.network.dns.<host>=<port>  → NetworkPolicy egress allow
+//   - ai.agentrc.substrate.kubernetes.serviceAccount → ServiceAccount (a KEY)
+//   - ai.agentrc.mcp.<name>=runtime:<url>   → /mnt/mcp/<name> sidecar
 func fullK8sLabels() map[string]string {
 	return map[string]string{
-		"org.agentrc.identity.name":                       "code-reviewer",
+		"ai.agentrc.identity.name":                       "code-reviewer",
 		"image.ref":                                       "ghcr.io/acme/code-reviewer:1.0",
-		"org.agentrc.substrate.runtime.memory":            "8gb",
-		"org.agentrc.substrate.runtime.cpu":               "2",
+		"ai.agentrc.substrate.runtime.memory":            "8gb",
+		"ai.agentrc.substrate.runtime.cpu":               "2",
 		"env.LOG_LEVEL":                                   "info",
-		"org.agentrc.network.dns.api.github.com":          "443",
-		"org.agentrc.substrate.kubernetes.serviceAccount": "agent-sa",
-		"org.agentrc.mcp.github":                          "runtime:https://registry.agentrc.io/mcp/github:latest",
+		"ai.agentrc.network.dns.api.github.com":          "443",
+		"ai.agentrc.substrate.kubernetes.serviceAccount": "agent-sa",
+		"ai.agentrc.mcp.github":                          "runtime:https://registry.agentrc.io/mcp/github:latest",
 	}
 }
 
@@ -108,7 +108,7 @@ func TestK8sServiceAccountFromSubstrateKey(t *testing.T) {
 	}
 }
 
-// TestK8sMCPSidecarsFromMntMcp asserts org.agentrc.mcp.* entries become sidecar
+// TestK8sMCPSidecarsFromMntMcp asserts ai.agentrc.mcp.* entries become sidecar
 // containers in the Deployment. FAILS now: absent.
 func TestK8sMCPSidecarsFromMntMcp(t *testing.T) {
 	out, err := translate("kubernetes", fullK8sLabels())

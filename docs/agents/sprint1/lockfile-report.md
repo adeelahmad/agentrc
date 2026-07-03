@@ -51,7 +51,7 @@ fields:
 | AgentfileSHA256 | `agentfile_sha256` | `hashHex([]byte(f.Source))` (L78) | SHA-256 of the Agentfile source |
 | Timestamp | `timestamp` | `time.Now().UTC()` RFC 3339 (L79) | when resolved |
 | PolicyMode | `policy_mode` | from `--policy-mode` flag (L80) | how POLICY requests are encoded |
-| LabelsDigest | `labels_digest` | `sha256:` + hash of marshaled labels (L149-153) | integrity digest over `org.agentrc.*` labels |
+| LabelsDigest | `labels_digest` | `sha256:` + hash of marshaled labels (L149-153) | integrity digest over `ai.agentrc.*` labels |
 | Base | `base` | `{ref, digest}` (L83-91) | resolved `FROM` ref and (best-effort) registry digest |
 | Resources | `resources` | array (see below) | resolved COPY/ADD resources |
 | SOP | `sop` | `{sha256}` (L140-147) | digest of the embedded SOP, never the full text |

@@ -7,7 +7,7 @@ permalink: /docs/quickstart/
 # Quickstart
 
 This walks you from a blank file to a running agent in five steps: author an
-**Agentfile**, build it (two ways), read the `org.agentrc.*` **labels** the build
+**Agentfile**, build it (two ways), read the `ai.agentrc.*` **labels** the build
 emits, push the artifact, and run it. The Agentfile is Dockerfile-shaped — if you
 know `docker build`, you already know most of this. For the full normative
 grammar, see the [specification](/spec/).
@@ -147,13 +147,13 @@ arc build -t ghcr.io/you/hello:1.0 .
 ```
 
 Either path parses the four agentrc keywords plus the `ADD --remote` extension,
-embeds any `--cached` resources as layers, and writes the `org.agentrc.*` labels.
+embeds any `--cached` resources as layers, and writes the `ai.agentrc.*` labels.
 The output is the same content-addressed OCI artifact regardless of which you use.
 
 ## 3. Read the labels
 
 The build translates your authored intent into namespaced OCI image labels under
-`org.agentrc.*`. **The platform reads these labels — it never parses the
+`ai.agentrc.*`. **The platform reads these labels — it never parses the
 Agentfile.** Inspect them with `docker inspect` or `arc inspect`:
 
 ```bash
@@ -163,13 +163,13 @@ arc inspect ghcr.io/you/hello:1.0
 The Agentfile above emits labels like:
 
 ```text
-org.agentrc.identity.name=hello
-org.agentrc.capability.text=true
-org.agentrc.model.name=claude-sonnet-4
-org.agentrc.network.dns.api.example.com=443
-org.agentrc.tool.file_read=local
-org.agentrc.sop=/mnt/SOP
-org.agentrc.sop.sha256=<digest>
+ai.agentrc.identity.name=hello
+ai.agentrc.capability.text=true
+ai.agentrc.model.name=claude-sonnet-4
+ai.agentrc.network.dns.api.example.com=443
+ai.agentrc.tool.file_read=local
+ai.agentrc.sop=/mnt/SOP
+ai.agentrc.sop.sha256=<digest>
 ```
 
 The SOP is embedded as a readable file at `/mnt/SOP`; its label is a
@@ -195,7 +195,7 @@ This is the interface a compatible platform provides:
 arc run ghcr.io/you/hello:1.0 --isolation microvm
 ```
 
-At run time the platform pulls the artifact, reads every `org.agentrc.*` label,
+At run time the platform pulls the artifact, reads every `ai.agentrc.*` label,
 and evaluates each request — model, egress, tools — against its own organization
 policy and available resources, then **grants, narrows, or rejects** it.
 Enforcement is **Cedar, platform-side**: the platform compiles the granted

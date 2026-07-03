@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentrc.ai/schemas/agentrc-package.v1.schema.json",
   "title": "agentrc Agent Package",
-  "description": "The agentrc (0.1.0-draft.6) agent package manifest, derived from the org.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
+  "description": "The agentrc (0.1.0-draft.6) agent package manifest, derived from the ai.agentrc.* OCI labels emitted when an Agentfile is compiled. A platform reads this view (the labels), never the Agentfile source.",
   "type": "object",
   "required": ["identity"],
   "additionalProperties": true,
@@ -14,7 +14,7 @@
     },
     "identity": {
       "type": "object",
-      "description": "Who/what the agent is. Derived from org.agentrc.identity.* labels (IDENTITY keyword).",
+      "description": "Who/what the agent is. Derived from ai.agentrc.identity.* labels (IDENTITY keyword).",
       "required": ["name"],
       "additionalProperties": true,
       "properties": {
@@ -34,13 +34,13 @@
     },
     "capabilities": {
       "type": "array",
-      "description": "Supported modalities/patterns. Derived from org.agentrc.capability.* labels (CAPABILITY keyword).",
+      "description": "Supported modalities/patterns. Derived from ai.agentrc.capability.* labels (CAPABILITY keyword).",
       "items": { "type": "string" },
       "examples": [["text", "streaming", "function-calling"]]
     },
     "sop": {
       "type": "object",
-      "description": "Pointer and digest for the agent's system prompt / objective, embedded at /mnt/SOP. Derived from org.agentrc.sop and org.agentrc.sop.sha256 (the label is a pointer plus digest, never the full text).",
+      "description": "Pointer and digest for the agent's system prompt / objective, embedded at /mnt/SOP. Derived from ai.agentrc.sop and ai.agentrc.sop.sha256 (the label is a pointer plus digest, never the full text).",
       "additionalProperties": true,
       "properties": {
         "path": {
@@ -56,7 +56,7 @@
     },
     "resources": {
       "type": "array",
-      "description": "Tools, skills, and MCP servers added with COPY (local) or ADD --remote. The destination path under /mnt determines the kind. Derived from org.agentrc.tool.* / skill.* / mcp.* labels and their .origin pairs.",
+      "description": "Tools, skills, and MCP servers added with COPY (local) or ADD --remote. The destination path under /mnt determines the kind. Derived from ai.agentrc.tool.* / skill.* / mcp.* labels and their .origin pairs.",
       "items": {
         "type": "object",
         "required": ["name"],
@@ -85,7 +85,7 @@
           },
           "origin": {
             "type": "string",
-            "description": "Origin reference, emitted alongside the digest for embedded MCP servers and skills so a platform may re-point to an internal mirror without rebuilding (org.agentrc.<kind>.<name>.origin).",
+            "description": "Origin reference, emitted alongside the digest for embedded MCP servers and skills so a platform may re-point to an internal mirror without rebuilding (ai.agentrc.<kind>.<name>.origin).",
             "examples": ["https://registry.agentrc.io/mcp/github:latest"]
           },
           "fail_mode": {
@@ -104,27 +104,27 @@
     },
     "policy": {
       "type": "object",
-      "description": "Typed requests the platform grants, narrows, or rejects. Derived from POLICY-line labels org.agentrc.agent.* / substrate.* / model.* / network.dns.*.",
+      "description": "Typed requests the platform grants, narrows, or rejects. Derived from POLICY-line labels ai.agentrc.agent.* / substrate.* / model.* / network.dns.*.",
       "additionalProperties": true,
       "properties": {
         "agent": {
           "type": "object",
-          "description": "Agent-side operational constraints, state, and lifecycle (org.agentrc.agent.*).",
+          "description": "Agent-side operational constraints, state, and lifecycle (ai.agentrc.agent.*).",
           "additionalProperties": true
         },
         "substrate": {
           "type": "object",
-          "description": "Substrate / runtime resource requests (org.agentrc.substrate.*).",
+          "description": "Substrate / runtime resource requests (ai.agentrc.substrate.*).",
           "additionalProperties": true
         },
         "model": {
           "type": "object",
-          "description": "Model and model-capability requests (org.agentrc.model.*).",
+          "description": "Model and model-capability requests (ai.agentrc.model.*).",
           "additionalProperties": true
         },
         "network": {
           "type": "array",
-          "description": "Egress requests as host:port entries (org.agentrc.network.dns.*).",
+          "description": "Egress requests as host:port entries (ai.agentrc.network.dns.*).",
           "items": { "type": "string" },
           "examples": [["api.github.com:443", "internal.acme:*"]]
         }
@@ -140,13 +140,13 @@
     },
     "labels": {
       "type": "object",
-      "description": "The raw org.agentrc.* label set as read from the OCI image config, for platforms that prefer the flat view.",
+      "description": "The raw ai.agentrc.* label set as read from the OCI image config, for platforms that prefer the flat view.",
       "additionalProperties": { "type": "string" },
       "examples": [
         {
-          "org.agentrc.identity.name": "claims-triage",
-          "org.agentrc.model.name": "claude-opus-4",
-          "org.agentrc.network.dns.api.github.com": "443"
+          "ai.agentrc.identity.name": "claims-triage",
+          "ai.agentrc.model.name": "claude-opus-4",
+          "ai.agentrc.network.dns.api.github.com": "443"
         }
       ]
     }

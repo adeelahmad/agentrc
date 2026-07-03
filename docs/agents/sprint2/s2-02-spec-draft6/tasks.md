@@ -17,7 +17,7 @@ Grep-locate every target first (§0.9, M-003).
 Insert a new `### 8.7 \`substrate.<platform>.*\`` subsection after §8.6 in `spec/index.md`:
 - Platform tokens `aws | gcp | azure | kubernetes | local`; UNKNOWN tokens MUST parse;
   foreign-platform keys are ignored, NEVER an error (linter MAY warn).
-- Labels: `org.agentrc.substrate.<platform>.<key>=<value>`.
+- Labels: `ai.agentrc.substrate.<platform>.<key>=<value>`.
 - Platform-scoped beats generic (`substrate.*`) ON THAT PLATFORM ONLY.
 - Tightening-only across `FROM` per namespace.
 - AWS key registry: `roleArn`, `networkMode`, `securityGroup` (repeatable), `subnet`

@@ -10,15 +10,15 @@ import (
 // positioningLine is the §0.8 line that MUST appear verbatim on the backend
 // surface (docs and/or the local backend command), stating the translators are a
 // proof of concept, not production runners.
-const positioningLine = "Reference translators — a proof of concept until platforms read `org.agentrc.*` labels natively. Not production runners."
+const positioningLine = "Reference translators — a proof of concept until platforms read `ai.agentrc.*` labels natively. Not production runners."
 
 // TestLocalBackendDispatches asserts that translate("local", …) dispatches to the
 // real local translator seam (microsandbox exec plan) rather than the S2-03
 // placeholder stub. FAILS now: translate is a stub whose output contains "stub".
 func TestLocalBackendDispatches(t *testing.T) {
 	labels := map[string]string{
-		"org.agentrc.identity.name":    "code-reviewer",
-		"org.agentrc.identity.version": "1.0",
+		"ai.agentrc.identity.name":    "code-reviewer",
+		"ai.agentrc.identity.version": "1.0",
 		"image.ref":                    "ghcr.io/acme/code-reviewer:1.0",
 	}
 	out, err := translate("local", labels)

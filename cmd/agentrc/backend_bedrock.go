@@ -46,27 +46,27 @@ type bedrockRuntime struct {
 	CodeConfiguration         *bedrockCodeConfig    `json:"codeConfiguration,omitempty"`
 }
 
-// translateBedrock maps org.agentrc.* labels + image config to a Bedrock
+// translateBedrock maps ai.agentrc.* labels + image config to a Bedrock
 // AgentCore CreateAgentRuntime request (§8.7/§8.8/§8.9). It is fail-closed: on
 // any unenforceable request it returns an error and EMPTY output rather than a
 // partial config or an exposed invocation endpoint.
 func translateBedrock(labels map[string]string) (string, error) {
-	roleArn := labels["org.agentrc.substrate.aws.roleArn"]
+	roleArn := labels["ai.agentrc.substrate.aws.roleArn"]
 	if roleArn == "" {
 		return "", fmt.Errorf("bedrock: substrate.aws.roleArn is required; refusing to emit CreateAgentRuntime config (fail-closed)")
 	}
 
 	rt := bedrockRuntime{
-		AgentRuntimeName:          labels["org.agentrc.identity.name"],
-		Description:               labels["org.agentrc.identity.description"],
+		AgentRuntimeName:          labels["ai.agentrc.identity.name"],
+		Description:               labels["ai.agentrc.identity.description"],
 		ContainerUri:              labels["image.ref"],
 		RoleArn:                   roleArn,
-		NetworkMode:               labels["org.agentrc.substrate.aws.networkMode"],
-		SecurityGroups:            splitCSV(labels["org.agentrc.substrate.aws.securityGroup"]),
-		Subnets:                   splitCSV(labels["org.agentrc.substrate.aws.subnet"]),
-		ServerProtocol:            labels["org.agentrc.substrate.aws.protocol"],
-		IdleRuntimeSessionTimeout: labels["org.agentrc.agent.idle_timeout"],
-		MaxLifetime:               labels["org.agentrc.substrate.aws.maxLifetime"],
+		NetworkMode:               labels["ai.agentrc.substrate.aws.networkMode"],
+		SecurityGroups:            splitCSV(labels["ai.agentrc.substrate.aws.securityGroup"]),
+		Subnets:                   splitCSV(labels["ai.agentrc.substrate.aws.subnet"]),
+		ServerProtocol:            labels["ai.agentrc.substrate.aws.protocol"],
+		IdleRuntimeSessionTimeout: labels["ai.agentrc.agent.idle_timeout"],
+		MaxLifetime:               labels["ai.agentrc.substrate.aws.maxLifetime"],
 	}
 
 	if env := envVars(labels); len(env) > 0 {
@@ -75,23 +75,23 @@ func translateBedrock(labels map[string]string) (string, error) {
 
 	// §8.8 fail-closed: a jwt authorizer that cannot be enforced (no discovery
 	// URL) MUST NOT expose the invocation endpoint.
-	if labels["org.agentrc.agent.auth.mode"] == "jwt" {
-		disc := labels["org.agentrc.agent.auth.jwt.discovery_url"]
+	if labels["ai.agentrc.agent.auth.mode"] == "jwt" {
+		disc := labels["ai.agentrc.agent.auth.jwt.discovery_url"]
 		if disc == "" {
 			return "", fmt.Errorf("bedrock: agent.auth.mode=jwt requires agent.auth.jwt.discovery_url; refusing to expose an invocation endpoint (fail-closed)")
 		}
 		rt.CustomJWTAuthorizer = &bedrockJWTAuthorizer{
 			DiscoveryUrl:    disc,
-			AllowedAudience: splitCSV(labels["org.agentrc.agent.auth.jwt.allowed_audience"]),
-			AllowedClients:  splitCSV(labels["org.agentrc.agent.auth.jwt.allowed_client"]),
+			AllowedAudience: splitCSV(labels["ai.agentrc.agent.auth.jwt.allowed_audience"]),
+			AllowedClients:  splitCSV(labels["ai.agentrc.agent.auth.jwt.allowed_client"]),
 		}
 	}
 
 	// §8.9 fail-closed: code mode requires a resolvable runtime language;
 	// refuse to guess rather than emit a config that cannot run.
-	if labels["org.agentrc.substrate.aws.deployment.mode"] == "code" {
-		s3uri := labels["org.agentrc.substrate.aws.code.s3.uri"]
-		lang := labels["org.agentrc.substrate.runtime.language"]
+	if labels["ai.agentrc.substrate.aws.deployment.mode"] == "code" {
+		s3uri := labels["ai.agentrc.substrate.aws.code.s3.uri"]
+		lang := labels["ai.agentrc.substrate.runtime.language"]
 		if s3uri != "" && lang == "" {
 			return "", fmt.Errorf("bedrock: deployment.mode=code with code.s3.uri requires a resolvable substrate.runtime.language; refusing to guess a runtime (fail-closed)")
 		}

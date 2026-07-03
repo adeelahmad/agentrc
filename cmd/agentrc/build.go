@@ -32,7 +32,7 @@ func newBuildCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "build [context]",
-		Short: "Compile an Agentfile to an OCI artifact, emitting org.agentrc.* labels",
+		Short: "Compile an Agentfile to an OCI artifact, emitting ai.agentrc.* labels",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			buildContext := "."

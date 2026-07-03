@@ -6,7 +6,7 @@ permalink: /acknowledgements/
 ---
 # Acknowledgements
 
-agentrc is deliberately a thin declaration, packaging, and governance layer over proven open standards rather than a reinvention of them. The Agentfile is Dockerfile-shaped — four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) over standard Dockerfile keywords — and it compiles to an OCI artifact carrying `org.agentrc.*` labels. It owes a direct debt to the projects below — listed, where possible, by their source repositories. agentrc declares and governs these; it does not replace any of them.
+agentrc is deliberately a thin declaration, packaging, and governance layer over proven open standards rather than a reinvention of them. The Agentfile is Dockerfile-shaped — four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) over standard Dockerfile keywords — and it compiles to an OCI artifact carrying `ai.agentrc.*` labels. It owes a direct debt to the projects below — listed, where possible, by their source repositories. agentrc declares and governs these; it does not replace any of them.
 
 ## Standards agentrc builds on
 
@@ -24,7 +24,7 @@ agentrc references these standards for packaging, signing, provenance, observabi
 
 | Project | Role in agentrc | Source |
 |---|---|---|
-| **Open Container Initiative (OCI)** | The artifact format: standard layers carry the `/mnt` resources and the image config carries the `org.agentrc.*` labels; `application/vnd.agentrc.*` media types. | [github.com/opencontainers](https://github.com/opencontainers) · [opencontainers.org](https://opencontainers.org/) |
+| **Open Container Initiative (OCI)** | The artifact format: standard layers carry the `/mnt` resources and the image config carries the `ai.agentrc.*` labels; `application/vnd.agentrc.*` media types. | [github.com/opencontainers](https://github.com/opencontainers) · [opencontainers.org](https://opencontainers.org/) |
 | **Sigstore** | Package signing and verification. | [github.com/sigstore](https://github.com/sigstore) · [sigstore.dev](https://www.sigstore.dev/) |
 | **SLSA** | Supply-chain provenance for packages. | [github.com/slsa-framework](https://github.com/slsa-framework) · [slsa.dev](https://slsa.dev/) |
 | **OpenTelemetry** | Audit and telemetry sinks reached via `POLICY agent.hooks.*` and `agent.telemetry_sink` requests. | [github.com/open-telemetry](https://github.com/open-telemetry) · [opentelemetry.io](https://opentelemetry.io/) |

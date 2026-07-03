@@ -2,7 +2,7 @@
 
 # A locked-down agent: minimal capability, no sub-agents, a single
 # allowed egress host, and tightly scoped tools. Everything below is a
-# REQUEST. The platform reads the org.agentrc.* labels (not this file) and
+# REQUEST. The platform reads the ai.agentrc.* labels (not this file) and
 # grants, narrows, or rejects each request, then enforces via Cedar.
 
 # --- Base / inheritance -----------------------------------------------------

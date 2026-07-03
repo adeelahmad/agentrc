@@ -40,7 +40,7 @@ Every rule below derives from four principles:
    Agentfile author surface** ([§11.2](#112-cedar--the-platform-enforcement-engine-normative)).
 3. **Build emits OCI labels; the platform reads labels.** At build time the
    compiler translates authored intent into namespaced OCI image labels under
-   `org.agentrc.*`. The platform reads those labels at deploy / run time and
+   `ai.agentrc.*`. The platform reads those labels at deploy / run time and
    decides what to honour, **without parsing the Agentfile source.** Labels are
    the machine-readable manifest; the Agentfile is the human-authored recipe.
 4. **Resources can be embedded (cached) or fetched at runtime.** Tools, skills,
@@ -66,7 +66,7 @@ documented extension.
 | `COPY` | Dockerfile | Add **local** tools, skills, MCP bundles, or an SOP file into the `/mnt` tree. |
 | `ADD` | Dockerfile (extended) | Add **remote** tools, skills, MCP servers, or SOP via `--remote` plus delivery flags. |
 | `HEALTHCHECK` | Dockerfile | Liveness probe; MAY invoke a projected tool. |
-| `LABEL` | Dockerfile | Standard OCI metadata; available for hand-authored `org.agentrc.*` metadata. |
+| `LABEL` | Dockerfile | Standard OCI metadata; available for hand-authored `ai.agentrc.*` metadata. |
 | `ENV` / `ARG` / `WORKDIR` / `USER` / `EXPOSE` / `RUN` | Dockerfile | Standard semantics; available, unchanged. |
 | **`IDENTITY`** | **New** | Who / what the agent is: name, version, author, description. |
 | **`CAPABILITY`** | **New** | What modalities / patterns the agent supports (text, streaming, multimodal, …). |
@@ -234,14 +234,14 @@ IDENTITY name=claims-triage version=1.0 author=acme
 IDENTITY description="Triages insurance claims by severity and routes escalations"
 ```
 
-**Build translation:** each key emits a label `org.agentrc.identity.<key>=<value>`
+**Build translation:** each key emits a label `ai.agentrc.identity.<key>=<value>`
 directly (these are short).
 
 ```text
-org.agentrc.identity.name=claims-triage
-org.agentrc.identity.version=1.0
-org.agentrc.identity.author=acme
-org.agentrc.identity.description=Triages insurance claims by severity and routes escalations
+ai.agentrc.identity.name=claims-triage
+ai.agentrc.identity.version=1.0
+ai.agentrc.identity.author=acme
+ai.agentrc.identity.description=Triages insurance claims by severity and routes escalations
 ```
 
 ## 6. `CAPABILITY` — what the agent supports
@@ -260,15 +260,15 @@ CAPABILITY streaming
 CAPABILITY function-calling
 ```
 
-**Build translation:** each line emits `org.agentrc.capability.<value>=true`.
+**Build translation:** each line emits `ai.agentrc.capability.<value>=true`.
 (Whether a single comma-joined label is used instead is
 [open decision #5](#142-open-decisions-surface-these-do-not-silently-resolve);
 pick one and be consistent.)
 
 ```text
-org.agentrc.capability.text=true
-org.agentrc.capability.streaming=true
-org.agentrc.capability.function-calling=true
+ai.agentrc.capability.text=true
+ai.agentrc.capability.streaming=true
+ai.agentrc.capability.function-calling=true
 ```
 
 ## 7. `SOP` — the agent's system prompt / objective
@@ -306,8 +306,8 @@ can be large, the compiler MUST NOT inline the full text into a label; instead
 it emits a **pointer plus digest**:
 
 ```text
-org.agentrc.sop=/mnt/SOP
-org.agentrc.sop.sha256=<digest>
+ai.agentrc.sop=/mnt/SOP
+ai.agentrc.sop.sha256=<digest>
 ```
 
 so the platform can see that an SOP exists, verify it, or override the file,
@@ -326,7 +326,7 @@ POLICY <namespaced.key> <value>
 Each `POLICY` line is a **single request** to the platform. Requests are
 **independent** (no block syntax, no `END`), **typed** by a dotted namespace, and
 **independently honourable, narrowable, or rejectable**. The developer writes the
-**short form** (no `org.agentrc.` prefix); the compiler prepends it when emitting
+**short form** (no `ai.agentrc.` prefix); the compiler prepends it when emitting
 labels ([§9.1](#91-policy--labels)). Top-level namespaces: `agent.*`,
 `substrate.*`, `model.*`, and `network`. All are extensible.
 
@@ -405,8 +405,8 @@ corresponding `network` egress request** for that host, emitted as an explicit,
 **attributed** label so it is never a silent network hole:
 
 ```text
-org.agentrc.network.dns.hooks.internal=443
-org.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
+ai.agentrc.network.dns.hooks.internal=443
+ai.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
 ```
 
 The platform still must grant the derived egress; auto-derivation is an ergonomic
@@ -416,7 +416,7 @@ convenience, not an implicit grant. Deny-by-default still applies (see [§11](#1
 
 If developers wrote requests as ad-hoc `LABEL`s, every team would invent its own
 conventions and nothing would be standard. `POLICY` gives one canonical, typed
-surface; the compiler maps it to the `org.agentrc.*` label space so the platform
+surface; the compiler maps it to the `ai.agentrc.*` label space so the platform
 sees uniform, machine-readable intent.
 
 ### 8.7 `substrate.<platform>.*` — platform-scoped substrate requests
@@ -435,7 +435,7 @@ coexist, and each platform reads only its own keys.
 Platform-scoped keys are emitted as labels the same way as any other request:
 
 ```text
-org.agentrc.substrate.<platform>.<key>=<value>
+ai.agentrc.substrate.<platform>.<key>=<value>
 ```
 
 On a given platform, a platform-scoped key **beats** the generic `substrate.*`
@@ -520,45 +520,45 @@ The platform reads **labels**, not the Agentfile.
 
 ### 9.1 `POLICY` → labels
 
-Each `POLICY <key> <value>` becomes `org.agentrc.<key>=<value>`.
+Each `POLICY <key> <value>` becomes `ai.agentrc.<key>=<value>`.
 
 | Authored | Emitted label |
 |---|---|
-| `POLICY agent.idle_timeout 5m` | `org.agentrc.agent.idle_timeout=5m` |
-| `POLICY agent.context.type autocompressed` | `org.agentrc.agent.context.type=autocompressed` |
-| `POLICY agent.hooks.pre https://hooks.internal/pre-step` | `org.agentrc.agent.hooks.pre=https://hooks.internal/pre-step` (+ auto-derived egress, [§8.5](#85-auto-derived-egress-from-hook--interrupt-urls)) |
-| `POLICY agent.sub_agents.max 5` | `org.agentrc.agent.sub_agents.max=5` |
-| `POLICY substrate.runtime.memory 8gb` | `org.agentrc.substrate.runtime.memory=8gb` |
-| `POLICY substrate.ptty true` | `org.agentrc.substrate.ptty=true` |
-| `POLICY model.name claude-opus-4` | `org.agentrc.model.name=claude-opus-4` |
-| `POLICY model.capability vision` | `org.agentrc.model.capability.vision=true` |
-| `POLICY network dns:api.github.com:443` | `org.agentrc.network.dns.api.github.com=443` |
+| `POLICY agent.idle_timeout 5m` | `ai.agentrc.agent.idle_timeout=5m` |
+| `POLICY agent.context.type autocompressed` | `ai.agentrc.agent.context.type=autocompressed` |
+| `POLICY agent.hooks.pre https://hooks.internal/pre-step` | `ai.agentrc.agent.hooks.pre=https://hooks.internal/pre-step` (+ auto-derived egress, [§8.5](#85-auto-derived-egress-from-hook--interrupt-urls)) |
+| `POLICY agent.sub_agents.max 5` | `ai.agentrc.agent.sub_agents.max=5` |
+| `POLICY substrate.runtime.memory 8gb` | `ai.agentrc.substrate.runtime.memory=8gb` |
+| `POLICY substrate.ptty true` | `ai.agentrc.substrate.ptty=true` |
+| `POLICY model.name claude-opus-4` | `ai.agentrc.model.name=claude-opus-4` |
+| `POLICY model.capability vision` | `ai.agentrc.model.capability.vision=true` |
+| `POLICY network dns:api.github.com:443` | `ai.agentrc.network.dns.api.github.com=443` |
 
 ### 9.2 `IDENTITY` / `CAPABILITY` / `SOP` → labels
 
 | Authored | Emitted label(s) |
 |---|---|
-| `IDENTITY name=claims-triage version=1.0` | `org.agentrc.identity.name=claims-triage`, `org.agentrc.identity.version=1.0` |
-| `CAPABILITY streaming` | `org.agentrc.capability.streaming=true` |
-| `SOP …` / `COPY ./sop.md /mnt/SOP` | `org.agentrc.sop=/mnt/SOP`, `org.agentrc.sop.sha256=<digest>` (pointer + digest, never full text) |
+| `IDENTITY name=claims-triage version=1.0` | `ai.agentrc.identity.name=claims-triage`, `ai.agentrc.identity.version=1.0` |
+| `CAPABILITY streaming` | `ai.agentrc.capability.streaming=true` |
+| `SOP …` / `COPY ./sop.md /mnt/SOP` | `ai.agentrc.sop=/mnt/SOP`, `ai.agentrc.sop.sha256=<digest>` (pointer + digest, never full text) |
 
 ### 9.3 Resource delivery → layers + labels
 
 | Authored | Build behaviour | Emitted label(s) |
 |---|---|---|
-| `COPY ./tools/x /mnt/tools/x` | Embed file as a layer. | `org.agentrc.tool.x=local` |
-| `ADD --remote --cached <url> /mnt/tools/x` | Fetch at build, embed as a layer. | `org.agentrc.tool.x=<digest>` + `org.agentrc.tool.x.origin=<url>` |
-| `ADD --remote --runtime <url> /mnt/mcp/x` | Do not embed; record reference. | `org.agentrc.mcp.x=runtime:<url>` |
+| `COPY ./tools/x /mnt/tools/x` | Embed file as a layer. | `ai.agentrc.tool.x=local` |
+| `ADD --remote --cached <url> /mnt/tools/x` | Fetch at build, embed as a layer. | `ai.agentrc.tool.x=<digest>` + `ai.agentrc.tool.x.origin=<url>` |
+| `ADD --remote --runtime <url> /mnt/mcp/x` | Do not embed; record reference. | `ai.agentrc.mcp.x=runtime:<url>` |
 
 For every embedded MCP server or skill, the compiler MUST emit both the
 **resolved digest** and the **origin reference**, e.g.:
 
 ```text
-org.agentrc.mcp.github=sha256:abc123...
-org.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
+ai.agentrc.mcp.github=sha256:abc123...
+ai.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
 ```
 
-so a platform or organization MAY rewrite `org.agentrc.mcp.github.origin` to an
+so a platform or organization MAY rewrite `ai.agentrc.mcp.github.origin` to an
 internal mirror at deploy time without rebuilding.
 
 ### 9.4 Policy encoding — both forms supported
@@ -624,7 +624,7 @@ docker build -f Agentfile -t ghcr.io/acme/my-agent:1.0 .
 
 The `# syntax=` directive routes the Agentfile through the agentrc frontend
 image, which parses the agentrc keywords, compiles to LLB, and produces the OCI
-artifact with all `org.agentrc.*` labels. The frontend image is **published** at
+artifact with all `ai.agentrc.*` labels. The frontend image is **published** at
 `ghcr.io/adeelahmad/agentrc-frontend`, so a `# syntax=ghcr.io/adeelahmad/agentrc-frontend`
 directive routes `docker build` through it directly; see the
 [CLI page](/cli/) for current status. The native `arc run`/`sign`/`verify`
@@ -643,7 +643,7 @@ agentrc run    <ref> --backend local|bedrock|kubernetes [per-backend flags]
 
 | Command | Purpose |
 |---|---|
-| `agentrc build` (`arc build`) | Compile an Agentfile to a signed OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources. |
+| `agentrc build` (`arc build`) | Compile an Agentfile to a signed OCI artifact, emitting `ai.agentrc.*` labels and embedding `--cached` resources. |
 | `agentrc push` | Push the artifact to any OCI registry. |
 | `agentrc pull` | Pull an artifact. |
 | `agentrc run` | Run an artifact on a chosen backend. Substrate is a **run-time** choice (`--backend` / `--isolation`); it is **not** an Agentfile directive. |
@@ -658,7 +658,7 @@ frontend and the CLI are two front doors to the same compiler.
 At deploy / run time the platform:
 
 1. Pulls the OCI artifact.
-2. Reads all `org.agentrc.*` labels from the image config — **without parsing the
+2. Reads all `ai.agentrc.*` labels from the image config — **without parsing the
    Agentfile.**
 3. Evaluates each request (`POLICY`-derived label, including auto-derived egress)
    against organization / platform policy and available resources, then
@@ -692,23 +692,23 @@ The relationship is a compilation, not an abandonment:
 author writes          platform compiles to        platform enforces
 ─────────────          ────────────────────        ─────────────────
 POLICY request   ──►   Cedar entities + policies    deny-by-default,
-(org.agentrc.*)        (request + org rules)         forbid > permit,
+(ai.agentrc.*)        (request + org rules)         forbid > permit,
                                                       order-independent,
                                                       monotonic across FROM
 ```
 
 A **conformant platform** MUST, for each granted request, derive Cedar entities /
 actions and evaluate them under Cedar's semantics. The principal is the agent
-identity (`org.agentrc.identity.name`); the action and resource are derived from
+identity (`ai.agentrc.identity.name`); the action and resource are derived from
 the request namespace:
 
 | Request label | Cedar action | Cedar resource |
 |---|---|---|
-| `org.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
-| `org.agentrc.tool.<name>` (a projected tool) | `Action::"tool.invoke"` | `Tool::"<name>"` |
-| `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
-| `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
-| `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
+| `ai.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
+| `ai.agentrc.tool.<name>` (a projected tool) | `Action::"tool.invoke"` | `Tool::"<name>"` |
+| `ai.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
+| `ai.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
+| `ai.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
 
 **Enforcement properties a conformant platform MUST preserve** (these are
 Cedar's, and they are why Cedar is the engine):
@@ -750,7 +750,7 @@ For now, an agent that needs a credential MAY reference it by name and leave
 [§14.3](#143-deferred-to-a-later-version).
 
 > **Implementer note:** do not add a `SECRET` / `CRED` keyword or an
-> `org.agentrc.secret.*` label schema in this pass. Secrets are a future design
+> `ai.agentrc.secret.*` label schema in this pass. Secrets are a future design
 > (Vault / broker / workload-identity integration), not a settled part of the
 > spec.
 
@@ -854,7 +854,7 @@ arc run   ghcr.io/acme/claims-triage:1.0 --isolation microvm
 
 The Agentfile compiles to an ordinary **OCI artifact**: standard layers carry the
 embedded resources (`/mnt/tools`, `/mnt/skills`, `/mnt/mcp`, `/mnt/SOP`), and the
-image config carries the `org.agentrc.*` labels. That means agents push, pull,
+image config carries the `ai.agentrc.*` labels. That means agents push, pull,
 sign, and mirror through any OCI-compatible registry exactly like container
 images — see the [OCI labels &amp; package profile](/profiles/oci-package/). The
 agent's projected filesystem (`/mnt`) is described by the
@@ -867,7 +867,7 @@ verified against the adversarial [conformance suite](/docs/conformance/).
 | You are… | agentrc gives you… |
 |---|---|
 | An **agent developer / adopter** | A Dockerfile-shaped recipe — four new keywords over keywords you already know — that builds with `docker build` or `arc build`. |
-| A **platform / runner author** | A labels-only contract: read `org.agentrc.*`, grant / narrow / reject, enforce with Cedar, fail closed. No need to parse the Agentfile. |
+| A **platform / runner author** | A labels-only contract: read `ai.agentrc.*`, grant / narrow / reject, enforce with Cedar, fail closed. No need to parse the Agentfile. |
 | A **security / compliance reviewer** | One artifact whose labels state every request: tools, network, model, sub-agents, lifecycle — vetted before it runs. |
 | A **registry maintainer** | A standard OCI artifact with digests and `.origin` labels you can mirror, sign ([Sigstore](https://www.sigstore.dev/)), and attest ([SLSA](https://slsa.dev/)). |
 | A **standards / interop implementer** | A small grammar, a fixed label namespace, and a normative request → Cedar mapping to build against. |
@@ -889,14 +889,14 @@ verified against the adversarial [conformance suite](/docs/conformance/).
   `--chown`.
 - `SOP` supports inline, heredoc, and file-backed forms; always embedded at
   `/mnt/SOP`; label is a **pointer + digest**, never the full text.
-- `IDENTITY` = `key=value` pairs → `org.agentrc.identity.*`. `CAPABILITY` = one
-  per line → `org.agentrc.capability.*`.
-- `POLICY` short form authored; compiler prepends `org.agentrc.`. Namespaces:
+- `IDENTITY` = `key=value` pairs → `ai.agentrc.identity.*`. `CAPABILITY` = one
+  per line → `ai.agentrc.capability.*`.
+- `POLICY` short form authored; compiler prepends `ai.agentrc.`. Namespaces:
   `agent.*`, `substrate.*`, `model.*`, `network` — all extensible.
 - Hook / interrupt URLs auto-derive an **explicit, attributed** `network` egress
   label; never a silent hole.
 - **Secrets are deferred** — no `SECRET` / `CRED` keyword, no
-  `org.agentrc.secret.*` schema in this pass
+  `ai.agentrc.secret.*` schema in this pass
   ([§12.1](#121-secrets-deferred)); credential resolution (Vault / broker /
   workload-identity) is a future design.
 - **No `AUDIT` keyword.** Audit rides on `agent.hooks.on_tool_call` (a developer
@@ -930,7 +930,7 @@ verified against the adversarial [conformance suite](/docs/conformance/).
    or substituting an embedded resource via `*.origin`, MUST emit an audit
    record.
 5. **`CAPABILITY` label shape.** One label per capability
-   (`org.agentrc.capability.streaming=true`) vs a single comma-joined label —
+   (`ai.agentrc.capability.streaming=true`) vs a single comma-joined label —
    pick one.
 6. **`TOOL` sugar.** `TOOL` was removed in favour of `COPY` / `ADD`. A thin
    `TOOL name@source` sugar that desugars to `ADD --remote …/mnt/tools/name` MAY

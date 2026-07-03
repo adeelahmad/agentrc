@@ -17,7 +17,7 @@ import (
 func newInspectCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "inspect <path-or-ref>",
-		Short: "Read an artifact's org.agentrc.* labels to review what an agent requests before it runs",
+		Short: "Read an artifact's ai.agentrc.* labels to review what an agent requests before it runs",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			target := args[0]
@@ -105,7 +105,7 @@ func inspectRemoteArtifact(cmd *cobra.Command, ref string) error {
 func printAgentrcLabels(cmd *cobra.Command, labels map[string]string) {
 	w := cmd.OutOrStdout()
 	for _, k := range sortedKeys(labels) {
-		if strings.HasPrefix(k, "org.agentrc.") {
+		if strings.HasPrefix(k, "ai.agentrc.") {
 			fmt.Fprintf(w, "%s=%s\n", k, labels[k])
 		}
 	}

@@ -2,7 +2,7 @@
 // llb.State plus OCI image config. It compiles the (already agentrc-keyword
 // stripped) CleanedSource with BuildKit's own real dockerfile2llb compiler —
 // giving full, correct standard Dockerfile semantics for free — and then
-// layers on the four agentrc keywords' effects: org.agentrc.* labels, the
+// layers on the four agentrc keywords' effects: ai.agentrc.* labels, the
 // embedded /mnt/SOP file, and ADD --remote --cached fetch/embed.
 package llb
 
@@ -300,10 +300,10 @@ func applyDigestPolicyMode(state llb.State, labels map[string]string) (llb.State
 	policyLabels := map[string]string{}
 	kept := map[string]string{}
 	for k, v := range labels {
-		if strings.HasPrefix(k, "org.agentrc.agent.") ||
-			strings.HasPrefix(k, "org.agentrc.substrate.") ||
-			strings.HasPrefix(k, "org.agentrc.model.") ||
-			strings.HasPrefix(k, "org.agentrc.network.") {
+		if strings.HasPrefix(k, "ai.agentrc.agent.") ||
+			strings.HasPrefix(k, "ai.agentrc.substrate.") ||
+			strings.HasPrefix(k, "ai.agentrc.model.") ||
+			strings.HasPrefix(k, "ai.agentrc.network.") {
 			policyLabels[k] = v
 			continue
 		}
@@ -321,7 +321,7 @@ func applyDigestPolicyMode(state llb.State, labels map[string]string) (llb.State
 	}
 	digest := "sha256:" + hashHex(manifest)
 	state = writeFile(state, "/.agentrc/policy-manifest.json", manifest)
-	kept["org.agentrc.policy.manifest.sha256"] = digest
+	kept["ai.agentrc.policy.manifest.sha256"] = digest
 	return state, kept, nil
 }
 

@@ -9,37 +9,37 @@ import (
 // fullBedrockLabels returns a label set that populates every CreateAgentRuntime
 // field, so the mapping test can assert 13/13. Callers mutate/delete keys to
 // exercise the fail-closed paths. Keys follow the emitted-label contract:
-//   - org.agentrc.identity.*       → agentRuntimeName / description
+//   - ai.agentrc.identity.*       → agentRuntimeName / description
 //   - image.ref (CLI-injected)     → containerUri
 //   - env.<NAME> (CLI-injected)    → environmentVariables
-//   - org.agentrc.substrate.aws.*  → roleArn/networkMode/securityGroups/subnets/
+//   - ai.agentrc.substrate.aws.*  → roleArn/networkMode/securityGroups/subnets/
 //     serverProtocol/maxLifetime/codeConfiguration
-//   - org.agentrc.substrate.runtime.language → codeConfiguration.runtime
-//   - org.agentrc.agent.auth.jwt.* → customJWTAuthorizer
-//   - org.agentrc.agent.idle_timeout → idleRuntimeSessionTimeout
+//   - ai.agentrc.substrate.runtime.language → codeConfiguration.runtime
+//   - ai.agentrc.agent.auth.jwt.* → customJWTAuthorizer
+//   - ai.agentrc.agent.idle_timeout → idleRuntimeSessionTimeout
 //
 // Repeatable requests (securityGroup, subnet, allowed_audience, allowed_client)
 // are comma-joined in a single label value.
 func fullBedrockLabels() map[string]string {
 	return map[string]string{
-		"org.agentrc.identity.name":                   "code-reviewer",
-		"org.agentrc.identity.description":            "Reviews pull requests",
+		"ai.agentrc.identity.name":                   "code-reviewer",
+		"ai.agentrc.identity.description":            "Reviews pull requests",
 		"image.ref":                                   "123456789012.dkr.ecr.us-east-1.amazonaws.com/code-reviewer:1.0",
-		"org.agentrc.substrate.aws.roleArn":           "arn:aws:iam::123456789012:role/agent-exec",
-		"org.agentrc.substrate.aws.networkMode":       "PUBLIC",
-		"org.agentrc.substrate.aws.securityGroup":     "sg-0abc123,sg-0def456",
-		"org.agentrc.substrate.aws.subnet":            "subnet-0abc123,subnet-0def456",
-		"org.agentrc.substrate.aws.protocol":          "HTTP",
-		"org.agentrc.substrate.aws.maxLifetime":       "1h",
-		"org.agentrc.substrate.aws.deployment.mode":   "code",
-		"org.agentrc.substrate.aws.code.s3.uri":       "s3://acme-agents/code-reviewer.zip",
-		"org.agentrc.substrate.runtime.language":      "python:3.11",
+		"ai.agentrc.substrate.aws.roleArn":           "arn:aws:iam::123456789012:role/agent-exec",
+		"ai.agentrc.substrate.aws.networkMode":       "PUBLIC",
+		"ai.agentrc.substrate.aws.securityGroup":     "sg-0abc123,sg-0def456",
+		"ai.agentrc.substrate.aws.subnet":            "subnet-0abc123,subnet-0def456",
+		"ai.agentrc.substrate.aws.protocol":          "HTTP",
+		"ai.agentrc.substrate.aws.maxLifetime":       "1h",
+		"ai.agentrc.substrate.aws.deployment.mode":   "code",
+		"ai.agentrc.substrate.aws.code.s3.uri":       "s3://acme-agents/code-reviewer.zip",
+		"ai.agentrc.substrate.runtime.language":      "python:3.11",
 		"env.LOG_LEVEL":                               "info",
-		"org.agentrc.agent.idle_timeout":              "5m",
-		"org.agentrc.agent.auth.mode":                 "jwt",
-		"org.agentrc.agent.auth.jwt.discovery_url":    "https://auth.acme/.well-known/openid-configuration",
-		"org.agentrc.agent.auth.jwt.allowed_audience": "agentrc://code-reviewer",
-		"org.agentrc.agent.auth.jwt.allowed_client":   "acme-ci,acme-bot",
+		"ai.agentrc.agent.idle_timeout":              "5m",
+		"ai.agentrc.agent.auth.mode":                 "jwt",
+		"ai.agentrc.agent.auth.jwt.discovery_url":    "https://auth.acme/.well-known/openid-configuration",
+		"ai.agentrc.agent.auth.jwt.allowed_audience": "agentrc://code-reviewer",
+		"ai.agentrc.agent.auth.jwt.allowed_client":   "acme-ci,acme-bot",
 	}
 }
 
@@ -105,7 +105,7 @@ func TestBedrockDryRunEmitsValidJSON(t *testing.T) {
 // FAILS now: stub returns placeholder JSON and a nil error.
 func TestBedrockDryRunFailsClosedWithoutRoleArn(t *testing.T) {
 	labels := fullBedrockLabels()
-	delete(labels, "org.agentrc.substrate.aws.roleArn")
+	delete(labels, "ai.agentrc.substrate.aws.roleArn")
 
 	out, err := translate("bedrock", labels)
 	if err == nil {
@@ -121,7 +121,7 @@ func TestBedrockDryRunFailsClosedWithoutRoleArn(t *testing.T) {
 // endpoint (in fact no config at all). FAILS now: stub never errors.
 func TestBedrockFailsClosedOnUnenforceableJWT(t *testing.T) {
 	labels := fullBedrockLabels()
-	delete(labels, "org.agentrc.agent.auth.jwt.discovery_url")
+	delete(labels, "ai.agentrc.agent.auth.jwt.discovery_url")
 
 	out, err := translate("bedrock", labels)
 	if err == nil {
@@ -140,7 +140,7 @@ func TestBedrockFailsClosedOnUnenforceableJWT(t *testing.T) {
 // (§8.9). FAILS now: stub never errors.
 func TestBedrockFailsClosedCodeModeWithoutLanguage(t *testing.T) {
 	labels := fullBedrockLabels()
-	delete(labels, "org.agentrc.substrate.runtime.language")
+	delete(labels, "ai.agentrc.substrate.runtime.language")
 
 	out, err := translate("bedrock", labels)
 	if err == nil {

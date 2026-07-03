@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Core
-description: "Agentfile Core Profile (0.1.0-draft.6): parse the Dockerfile-shaped Agentfile and compile it to org.agentrc.* labels and layers."
+description: "Agentfile Core Profile (0.1.0-draft.6): parse the Dockerfile-shaped Agentfile and compile it to ai.agentrc.* labels and layers."
 permalink: /profiles/core/
 ---
 # Agentfile Core Profile
@@ -19,7 +19,7 @@ permalink: /profiles/core/
 ## Purpose
 
 The Core Profile defines what it means to **read a Dockerfile-shaped Agentfile and
-compile it into an OCI artifact** — namely, the `org.agentrc.*` image labels plus
+compile it into an OCI artifact** — namely, the `ai.agentrc.*` image labels plus
 the layers that carry the agent's `/mnt` tree. It is the contract a compiler
 implementation claims: recognize the four agentrc keywords (`IDENTITY`,
 `CAPABILITY`, `SOP`, `POLICY`) and the standard Dockerfile keywords, and emit the
@@ -53,7 +53,7 @@ all of these.
 | `COPY` | Dockerfile | Add **local** tools, skills, MCP bundles, or an SOP file into the `/mnt` tree. |
 | `ADD` | Dockerfile (extended) | Add **remote** resources via `--remote` plus delivery flags. |
 | `HEALTHCHECK` | Dockerfile | Liveness probe; MAY invoke a projected tool. |
-| `LABEL` | Dockerfile | Standard OCI metadata; available for hand-authored `org.agentrc.*` metadata. |
+| `LABEL` | Dockerfile | Standard OCI metadata; available for hand-authored `ai.agentrc.*` metadata. |
 | `ENV` / `ARG` / `WORKDIR` / `USER` / `EXPOSE` / `RUN` | Dockerfile | Standard semantics; available, unchanged. |
 
 > **There is no `TOOL`, `MCP`, `SERVER`, `FUNC`, `CRED`, `SECRET`, `AUDIT`,
@@ -102,14 +102,14 @@ An implementation claiming this profile MUST:
    `--runtime` resources as references;
 7. use the **destination path under `/mnt`** to classify each `COPY` / `ADD`
    resource as a tool, skill, MCP bundle, or SOP;
-8. translate authored intent into `org.agentrc.*` labels and `/mnt` layers exactly
+8. translate authored intent into `ai.agentrc.*` labels and `/mnt` layers exactly
    per the [spec §9 tables](/spec/) (reproduced below);
 9. auto-derive an **explicit, attributed** `network` egress label from any URL in
    `agent.hooks.*` or `agent.interrupt_endpoint`, never a silent egress;
 10. report line numbers for parse failures, and reject unknown agentrc keywords
     rather than silently dropping them.
 
-A `POLICY` line is authored in **short form** (no `org.agentrc.` prefix); the
+A `POLICY` line is authored in **short form** (no `ai.agentrc.` prefix); the
 compiler prepends the namespace when it emits the label. The compiler never
 evaluates a `POLICY` — it only records the request. Whether a request is granted,
 narrowed, or rejected is a platform decision.
@@ -118,7 +118,7 @@ narrowed, or rejected is a platform decision.
 A platform-scoped request `substrate.<token>.*` (spec §8.7) is a KEY under the
 existing `substrate.*` namespace, not a new namespace. The compiler MUST accept
 **any** platform token — including tokens it does not recognize — and emit the
-corresponding `org.agentrc.substrate.<token>.*` label verbatim; an unknown token
+corresponding `ai.agentrc.substrate.<token>.*` label verbatim; an unknown token
 is NEVER a parse error (a linter MAY warn). At enforcement time a platform simply
 ignores keys scoped to a different platform. The compiler does not judge which
 tokens are "real"; it records the request and lets the platform pick the keys
@@ -131,51 +131,51 @@ These are the tables the compiler MUST implement. They are reproduced from the
 
 ### `POLICY` → labels
 
-Each `POLICY <key> <value>` becomes `org.agentrc.<key>=<value>`.
+Each `POLICY <key> <value>` becomes `ai.agentrc.<key>=<value>`.
 
 | Authored | Emitted label |
 |---|---|
-| `POLICY agent.idle_timeout 5m` | `org.agentrc.agent.idle_timeout=5m` |
-| `POLICY agent.context.type autocompressed` | `org.agentrc.agent.context.type=autocompressed` |
-| `POLICY agent.hooks.pre https://hooks.internal/pre-step` | `org.agentrc.agent.hooks.pre=https://hooks.internal/pre-step` (+ auto-derived egress) |
-| `POLICY agent.sub_agents.max 5` | `org.agentrc.agent.sub_agents.max=5` |
-| `POLICY substrate.runtime.memory 8gb` | `org.agentrc.substrate.runtime.memory=8gb` |
-| `POLICY substrate.ptty true` | `org.agentrc.substrate.ptty=true` |
-| `POLICY model.name claude-opus-4` | `org.agentrc.model.name=claude-opus-4` |
-| `POLICY model.capability vision` | `org.agentrc.model.capability.vision=true` |
-| `POLICY network dns:api.github.com:443` | `org.agentrc.network.dns.api.github.com=443` |
+| `POLICY agent.idle_timeout 5m` | `ai.agentrc.agent.idle_timeout=5m` |
+| `POLICY agent.context.type autocompressed` | `ai.agentrc.agent.context.type=autocompressed` |
+| `POLICY agent.hooks.pre https://hooks.internal/pre-step` | `ai.agentrc.agent.hooks.pre=https://hooks.internal/pre-step` (+ auto-derived egress) |
+| `POLICY agent.sub_agents.max 5` | `ai.agentrc.agent.sub_agents.max=5` |
+| `POLICY substrate.runtime.memory 8gb` | `ai.agentrc.substrate.runtime.memory=8gb` |
+| `POLICY substrate.ptty true` | `ai.agentrc.substrate.ptty=true` |
+| `POLICY model.name claude-opus-4` | `ai.agentrc.model.name=claude-opus-4` |
+| `POLICY model.capability vision` | `ai.agentrc.model.capability.vision=true` |
+| `POLICY network dns:api.github.com:443` | `ai.agentrc.network.dns.api.github.com=443` |
 
 For an auto-derived egress, the compiler MUST emit both the egress label and its
 attribution, so it is never a silent network hole:
 
 ```text
-org.agentrc.network.dns.hooks.internal=443
-org.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
+ai.agentrc.network.dns.hooks.internal=443
+ai.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
 ```
 
 ### `IDENTITY` / `CAPABILITY` / `SOP` → labels
 
 | Authored | Emitted label(s) |
 |---|---|
-| `IDENTITY name=claims-triage version=1.0` | `org.agentrc.identity.name=claims-triage`, `org.agentrc.identity.version=1.0` |
-| `CAPABILITY streaming` | `org.agentrc.capability.streaming=true` |
-| `SOP …` / `COPY ./sop.md /mnt/SOP` | `org.agentrc.sop=/mnt/SOP`, `org.agentrc.sop.sha256=<digest>` (pointer + digest, never full text) |
+| `IDENTITY name=claims-triage version=1.0` | `ai.agentrc.identity.name=claims-triage`, `ai.agentrc.identity.version=1.0` |
+| `CAPABILITY streaming` | `ai.agentrc.capability.streaming=true` |
+| `SOP …` / `COPY ./sop.md /mnt/SOP` | `ai.agentrc.sop=/mnt/SOP`, `ai.agentrc.sop.sha256=<digest>` (pointer + digest, never full text) |
 
 ### Resource delivery → layers + labels
 
 | Authored | Build behaviour | Emitted label(s) |
 |---|---|---|
-| `COPY ./tools/x /mnt/tools/x` | Embed file as a layer. | `org.agentrc.tool.x=local` |
-| `ADD --remote --cached <url> /mnt/tools/x` | Fetch at build, embed as a layer. | `org.agentrc.tool.x=<digest>` + `org.agentrc.tool.x.origin=<url>` |
-| `ADD --remote --runtime <url> /mnt/mcp/x` | Do not embed; record reference. | `org.agentrc.mcp.x=runtime:<url>` |
+| `COPY ./tools/x /mnt/tools/x` | Embed file as a layer. | `ai.agentrc.tool.x=local` |
+| `ADD --remote --cached <url> /mnt/tools/x` | Fetch at build, embed as a layer. | `ai.agentrc.tool.x=<digest>` + `ai.agentrc.tool.x.origin=<url>` |
+| `ADD --remote --runtime <url> /mnt/mcp/x` | Do not embed; record reference. | `ai.agentrc.mcp.x=runtime:<url>` |
 
 For every embedded MCP server or skill, the compiler MUST emit **both** the
 resolved digest and the origin reference, so a platform can re-point to a mirror
 at deploy time without rebuilding:
 
 ```text
-org.agentrc.mcp.github=sha256:abc123...
-org.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
+ai.agentrc.mcp.github=sha256:abc123...
+ai.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
 ```
 
 ### Policy encoding
@@ -197,7 +197,7 @@ agentrc has two build paths — the BuildKit frontend invoked by the
 (see the [CLI page](/cli/)). They are two front doors to the same compiler.
 
 > **A conformant implementation MUST produce identical OCI artifacts — same
-> layers, same `org.agentrc.*` labels, same digest — from the same Agentfile,
+> layers, same `ai.agentrc.*` labels, same digest — from the same Agentfile,
 > whether built via the frontend or via `arc build`.** This is the single most
 > important conformance property of this profile and is exercised adversarially by
 > the [conformance suite](/docs/conformance/) (`build-labels-identical`).
@@ -223,16 +223,16 @@ compiles to layers carrying `/mnt/tools/file_read` and `/mnt/SOP`, plus these
 labels in the image config:
 
 ```text
-org.agentrc.identity.name=claims-triage
-org.agentrc.identity.version=1.0
-org.agentrc.identity.author=acme
-org.agentrc.capability.text=true
-org.agentrc.capability.streaming=true
-org.agentrc.sop=/mnt/SOP
-org.agentrc.sop.sha256=<digest>
-org.agentrc.tool.file_read=local
-org.agentrc.model.name=claude-opus-4
-org.agentrc.network.dns.api.github.com=443
+ai.agentrc.identity.name=claims-triage
+ai.agentrc.identity.version=1.0
+ai.agentrc.identity.author=acme
+ai.agentrc.capability.text=true
+ai.agentrc.capability.streaming=true
+ai.agentrc.sop=/mnt/SOP
+ai.agentrc.sop.sha256=<digest>
+ai.agentrc.tool.file_read=local
+ai.agentrc.model.name=claude-opus-4
+ai.agentrc.network.dns.api.github.com=443
 ```
 
 The platform reads those labels — never the Agentfile source.

@@ -2,7 +2,7 @@
 // Dockerfile-shaped Agentfiles (0.1.0-draft.6): it compiles the standard
 // Dockerfile surface with BuildKit's own dockerfile2llb compiler and layers
 // on the four agentrc keywords (IDENTITY, CAPABILITY, SOP, POLICY) plus the
-// ADD --remote extension, emitting org.agentrc.* labels. It is invoked
+// ADD --remote extension, emitting ai.agentrc.* labels. It is invoked
 // either directly via `buildctl build --frontend gateway.v0 --opt
 // source=<this-image-ref>`, or automatically by `docker build -f Agentfile
 // .` once the Agentfile's first line is `# syntax=<this-image-ref>`.

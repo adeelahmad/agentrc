@@ -10,7 +10,7 @@ These are concrete, copy-pasteable Agentfiles in the v0.1 model: a
 Dockerfile-shaped recipe with four new keywords (`IDENTITY`, `CAPABILITY`,
 `SOP`, `POLICY`) over standard Dockerfile keywords. Each builds with either
 `docker build -f Agentfile .` (via the BuildKit frontend) or `arc build .` —
-both emit identical OCI artifacts with `org.agentrc.*` labels that the platform
+both emit identical OCI artifacts with `ai.agentrc.*` labels that the platform
 reads to grant, narrow, or reject each request. See the [specification](/spec/)
 for the full keyword reference.
 
@@ -47,12 +47,12 @@ POLICY network dns:api.example.com:443
 HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-schema
 ```
 
-This compiles to labels such as `org.agentrc.identity.name=hello`,
-`org.agentrc.capability.text=true`, `org.agentrc.tool.file_read=local`,
-`org.agentrc.model.name=claude-sonnet-4`, and
-`org.agentrc.network.dns.api.example.com=443`. The `SOP` is embedded as a
+This compiles to labels such as `ai.agentrc.identity.name=hello`,
+`ai.agentrc.capability.text=true`, `ai.agentrc.tool.file_read=local`,
+`ai.agentrc.model.name=claude-sonnet-4`, and
+`ai.agentrc.network.dns.api.example.com=443`. The `SOP` is embedded as a
 readable file at `/mnt/SOP` and recorded as a pointer plus digest
-(`org.agentrc.sop=/mnt/SOP`), never inlined into a label. The platform reads
+(`ai.agentrc.sop=/mnt/SOP`), never inlined into a label. The platform reads
 those labels — not the Agentfile — when it decides what to honour.
 
 ## The workflow companion is deferred

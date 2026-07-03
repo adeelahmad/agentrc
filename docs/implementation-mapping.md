@@ -19,7 +19,7 @@ implementation work to the v0.1 model — and a clear statement of where the cod
 
 ```text
 Agentfile ──build──►  OCI artifact (labels + layers)  ──run──►  Platform
-(human recipe)        org.agentrc.* labels + /mnt resources      reads labels,
+(human recipe)        ai.agentrc.* labels + /mnt resources      reads labels,
                                                                  grants/narrows/
    frontend / compiler      OCI labels & package          rejects, enforces
    (§9 translation)         (registry-portable)           via Cedar, on a
@@ -33,15 +33,15 @@ exactly one role in this pipeline.
 
 | Current implementation work | v0.1 role | What it produces / consumes |
 |---|---|---|
-| Agentfile parser | **Frontend / compiler** — translates the Agentfile into an OCI artifact | Reads the four agentrc keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) plus standard Dockerfile keywords; emits `org.agentrc.*` labels and `/mnt` layers per [spec §9](/spec/). |
-| Cedar policy gate | **Platform enforcement engine** — compilation target for typed requests | Consumes the granted `org.agentrc.*` request labels (never the Agentfile), compiles them plus org rules into one Cedar `PolicySet`, evaluates deny-by-default. See [Enforcement profile](/profiles/security/). |
+| Agentfile parser | **Frontend / compiler** — translates the Agentfile into an OCI artifact | Reads the four agentrc keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) plus standard Dockerfile keywords; emits `ai.agentrc.*` labels and `/mnt` layers per [spec §9](/spec/). |
+| Cedar policy gate | **Platform enforcement engine** — compilation target for typed requests | Consumes the granted `ai.agentrc.*` request labels (never the Agentfile), compiles them plus org rules into one Cedar `PolicySet`, evaluates deny-by-default. See [Enforcement profile](/profiles/security/). |
 | Credential handling | **Deferred — platform-defined** | Secrets are out of scope for this draft: there is no agentrc secret schema. An agent that needs a credential leaves resolution entirely to the platform (Vault / broker / env / workload identity). |
-| OCI image / package work | **OCI labels & package** | Builds the standard OCI artifact: layers carry `/mnt` resources, the image config carries the `org.agentrc.*` labels. See [OCI labels & package profile](/profiles/oci-package/). |
+| OCI image / package work | **OCI labels & package** | Builds the standard OCI artifact: layers carry `/mnt` resources, the image config carries the `ai.agentrc.*` labels. See [OCI labels & package profile](/profiles/oci-package/). |
 | microVM / runner drivers | **One substrate among many** — execution driver for `CMD` | A substrate executes `CMD`; it is selected at run time (`arc run --backend` / `--isolation`), **not** in the Agentfile. microVM is one substrate, not the product identity. |
 | Tool patching / projection | **`/mnt` projection** | Projects `/mnt/tools`, `/mnt/skills`, `/mnt/mcp`, and populates `/mnt/proc`; loads the SOP from `/mnt/SOP`. See [projection profile](/profiles/tool-projection/). |
 
 The implementation may keep its own internal names. None of those names define
-the public identity of the project — the **Agentfile** and the `org.agentrc.*`
+the public identity of the project — the **Agentfile** and the `ai.agentrc.*`
 **labels** do.
 
 ## What each component owes the spec
@@ -52,11 +52,11 @@ emit **identical** OCI artifacts — same labels, same layers. The compiler MUST
 embed `--cached` resources as layers, record `--runtime` resources as references,
 emit both a digest and an `.origin` label for embedded MCP servers and skills,
 auto-derive an attributed `network` egress label from hook / interrupt URLs, and
-emit the SOP as a **pointer + digest** (`org.agentrc.sop=/mnt/SOP`,
-`org.agentrc.sop.sha256=<digest>`) — never the full prompt text in a label.
+emit the SOP as a **pointer + digest** (`ai.agentrc.sop=/mnt/SOP`,
+`ai.agentrc.sop.sha256=<digest>`) — never the full prompt text in a label.
 
 **Platform enforcement engine.** Cedar is **platform-side only** and MUST NOT
-appear in any Agentfile. The engine reads the `org.agentrc.*` labels (not the
+appear in any Agentfile. The engine reads the `ai.agentrc.*` labels (not the
 Agentfile source), maps each request to a Cedar action/resource with the agent
 identity as the principal, and preserves Cedar's properties: deny-by-default,
 `forbid` over `permit` order-independently, and monotonic intersection across

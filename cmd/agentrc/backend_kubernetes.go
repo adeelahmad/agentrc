@@ -18,12 +18,12 @@ type mcpSidecar struct {
 // sidecars), a Service, and a deny-by-default egress NetworkPolicy. Manifests
 // only — one format (open question #4, UNRESOLVED).
 func translateKubernetes(labels map[string]string) (string, error) {
-	name := labels["org.agentrc.identity.name"]
+	name := labels["ai.agentrc.identity.name"]
 	if name == "" {
 		name = "agent"
 	}
 	image := labels["image.ref"]
-	sa := labels["org.agentrc.substrate.kubernetes.serviceAccount"]
+	sa := labels["ai.agentrc.substrate.kubernetes.serviceAccount"]
 	sidecars := mcpSidecars(labels)
 
 	var b strings.Builder
@@ -72,8 +72,8 @@ func translateKubernetes(labels map[string]string) (string, error) {
 func writeContainer(b *strings.Builder, name, image string, labels map[string]string, sidecars []mcpSidecar) {
 	fmt.Fprintf(b, "        - name: %s\n          image: %q\n", name, image)
 
-	mem := k8sMemory(labels["org.agentrc.substrate.runtime.memory"])
-	cpu := labels["org.agentrc.substrate.runtime.cpu"]
+	mem := k8sMemory(labels["ai.agentrc.substrate.runtime.memory"])
+	cpu := labels["ai.agentrc.substrate.runtime.cpu"]
 	if mem != "" || cpu != "" {
 		b.WriteString("          resources:\n            limits:\n")
 		if mem != "" {
@@ -109,10 +109,10 @@ type dnsAllow struct {
 	port string
 }
 
-// dnsAllows collects org.agentrc.network.dns.<host>=<port> labels, sorted for
+// dnsAllows collects ai.agentrc.network.dns.<host>=<port> labels, sorted for
 // deterministic output.
 func dnsAllows(labels map[string]string) []dnsAllow {
-	const prefix = "org.agentrc.network.dns."
+	const prefix = "ai.agentrc.network.dns."
 	var out []dnsAllow
 	for k, v := range labels {
 		if host := strings.TrimPrefix(k, prefix); host != k {
@@ -123,11 +123,11 @@ func dnsAllows(labels map[string]string) []dnsAllow {
 	return out
 }
 
-// mcpSidecars collects org.agentrc.mcp.<name>=runtime:<url> labels into sidecar
+// mcpSidecars collects ai.agentrc.mcp.<name>=runtime:<url> labels into sidecar
 // definitions, sorted for deterministic output. Cached digests
-// (org.agentrc.mcp.<name>.origin, or non-runtime values) are skipped.
+// (ai.agentrc.mcp.<name>.origin, or non-runtime values) are skipped.
 func mcpSidecars(labels map[string]string) []mcpSidecar {
-	const prefix = "org.agentrc.mcp."
+	const prefix = "ai.agentrc.mcp."
 	var out []mcpSidecar
 	for k, v := range labels {
 		rest := strings.TrimPrefix(k, prefix)

@@ -7,14 +7,14 @@ sitemap: false
 
 > {{ site.description }}
 
-agentrc is an open specification for a **Dockerfile-shaped Agentfile** that declares, packages, and governs a portable AI agent. An author writes the Agentfile using four new keywords — `IDENTITY`, `CAPABILITY`, `SOP`, `POLICY` — over standard Dockerfile keywords (`FROM`, `CMD`, `COPY`, `ADD`, `LABEL`, `HEALTHCHECK`, …). Tools, skills, and MCP servers are files placed under `/mnt` with `COPY` (local) or `ADD --remote` (remote); resource, model, network, and lifecycle needs are typed `POLICY` requests. The build (BuildKit frontend or the `agentrc`/`arc` CLI) compiles the Agentfile into an OCI artifact and emits `org.agentrc.*` labels. The platform reads those labels — never the Agentfile — and grants, narrows, or rejects each request, enforcing the result with Cedar (deny-by-default, `forbid` over `permit`, tightening-only across `FROM`). agentrc is not a runtime, sandbox, model provider, or agent framework.
+agentrc is an open specification for a **Dockerfile-shaped Agentfile** that declares, packages, and governs a portable AI agent. An author writes the Agentfile using four new keywords — `IDENTITY`, `CAPABILITY`, `SOP`, `POLICY` — over standard Dockerfile keywords (`FROM`, `CMD`, `COPY`, `ADD`, `LABEL`, `HEALTHCHECK`, …). Tools, skills, and MCP servers are files placed under `/mnt` with `COPY` (local) or `ADD --remote` (remote); resource, model, network, and lifecycle needs are typed `POLICY` requests. The build (BuildKit frontend or the `agentrc`/`arc` CLI) compiles the Agentfile into an OCI artifact and emits `ai.agentrc.*` labels. The platform reads those labels — never the Agentfile — and grants, narrows, or rejects each request, enforcing the result with Cedar (deny-by-default, `forbid` over `permit`, tightening-only across `FROM`). agentrc is not a runtime, sandbox, model provider, or agent framework.
 
 Every page on this site is also available as raw Markdown via the "View Markdown" link in its page actions, or directly from the repository source tree.
 
 ## Start here
 
 - [What is agentrc?]({{ '/docs/what-is-agentrc/' | absolute_url }}): What the Agentfile is, the problem it solves, and why a labels-only platform contract is needed.
-- [Quickstart]({{ '/docs/quickstart/' | absolute_url }}): Write an Agentfile, build it (frontend or `arc`), read its `org.agentrc.*` labels, push, and run.
+- [Quickstart]({{ '/docs/quickstart/' | absolute_url }}): Write an Agentfile, build it (frontend or `arc`), read its `ai.agentrc.*` labels, push, and run.
 
 ## Specification
 
@@ -24,7 +24,7 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 
 - [Agentfile]({{ '/docs/agentfile/' | absolute_url }}): The Dockerfile-shaped, single-agent declaration format and its four new keywords.
 - [Security]({{ '/docs/security/' | absolute_url }}): Label-based boundaries (network, tools/MCP, devices, sub-agents) and platform-side Cedar enforcement.
-- [Package model]({{ '/docs/package/' | absolute_url }}): The OCI artifact — layers carrying `/mnt` resources, image config carrying `org.agentrc.*` labels, signing, and `.origin` override.
+- [Package model]({{ '/docs/package/' | absolute_url }}): The OCI artifact — layers carrying `/mnt` resources, image config carrying `ai.agentrc.*` labels, signing, and `.origin` override.
 - [Runners]({{ '/docs/runners/' | absolute_url }}): What a platform reads (labels) versus what a substrate executes (`CMD`), and the grant/narrow/reject contract.
 - [Conformance]({{ '/docs/conformance/' | absolute_url }}): Profile-based conformance and the adversarial, fail-closed test-suite outline.
 - [CLI]({{ '/cli/' | absolute_url }}): The two build paths — the BuildKit frontend and the native `agentrc`/`arc` CLI.
@@ -32,9 +32,9 @@ Every page on this site is also available as raw Markdown via the "View Markdown
 
 ## Profiles
 
-- [Core]({{ '/profiles/core/' | absolute_url }}): The Agentfile core — the four keywords plus the standard Dockerfile keywords, compiled to `org.agentrc.*` labels and layers.
+- [Core]({{ '/profiles/core/' | absolute_url }}): The Agentfile core — the four keywords plus the standard Dockerfile keywords, compiled to `ai.agentrc.*` labels and layers.
 - [Security]({{ '/profiles/security/' | absolute_url }}): The platform-side Cedar enforcement profile and the normative request → Cedar mapping.
-- [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): The `org.agentrc.*` label namespace, layer layout, media types, and annotations.
+- [OCI Package]({{ '/profiles/oci-package/' | absolute_url }}): The `ai.agentrc.*` label namespace, layer layout, media types, and annotations.
 - [Tool Projection]({{ '/profiles/tool-projection/' | absolute_url }}): The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract.
 - [Platform Conformance]({{ '/profiles/runner-conformance/' | absolute_url }}): Platform conformance obligations — read labels, grant/narrow/reject, fetch runtime resources, enforce via Cedar, fail closed.
 

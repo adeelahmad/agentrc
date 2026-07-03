@@ -32,8 +32,8 @@ POLICY agent.hooks.post         https://hooks.internal.example/post-step
 # platform AUTO-DERIVES a matching `network` egress grant and records it with a
 # `.source` label that distinguishes DERIVED grants from explicitly REQUESTED
 # ones — e.g.
-#   org.agentrc.network.dns.hooks.internal.example=443
-#   org.agentrc.network.dns.hooks.internal.example.source=auto:agent.hooks.pre
+#   ai.agentrc.network.dns.hooks.internal.example=443
+#   ai.agentrc.network.dns.hooks.internal.example.source=auto:agent.hooks.pre
 # The `.source=auto:...` attribution means the platform still has to grant the
 # derived egress; auto-derivation is ergonomics, not an implicit hole.
 

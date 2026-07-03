@@ -7,7 +7,7 @@ permalink: /docs/non-goals/
 # Non-goals
 
 agentrc is a packaging and governance contract: an Agentfile compiles to an
-[OCI artifact](/docs/package/) carrying `org.agentrc.*` labels, and a platform
+[OCI artifact](/docs/package/) carrying `ai.agentrc.*` labels, and a platform
 reads those labels to grant, narrow, or reject each request. To keep that
 contract small and adoptable, agentrc deliberately does **not** define:
 

@@ -15,7 +15,7 @@ explicit. Every bullet FAILS now (translators not implemented). Scope `./cmd/age
       assert dispatch reaches the local translator (microsandbox seam), not the old "not
       implemented" error. FAILS now: no local translator.
 - [ ] `cmd/agentrc/backend_local_test.go::TestLocalPositioningLineVerbatim` — assert the §0.8
-      line "Reference translators — a proof of concept until platforms read `org.agentrc.*`
+      line "Reference translators — a proof of concept until platforms read `ai.agentrc.*`
       labels natively. Not production runners." appears verbatim in the surface. FAILS now: absent.
 
 ## T23 — Backend `bedrock` (mapping + fail-closed)
@@ -63,5 +63,5 @@ explicit. Every bullet FAILS now (translators not implemented). Scope `./cmd/age
       python3 -m json.tool` and `--backend kubernetes --dry-run` yaml-parse both pass (§V.9).
       FAILS now: translators absent.
 - [ ] `scripts/verify-sprint2.sh::v_no_fourth_namespace` — assert translator code emits only
-      known `org.agentrc.*` namespaces (no invented fourth; §0.3). RED now: green; regression guard.
+      known `ai.agentrc.*` namespaces (no invented fourth; §0.3). RED now: green; regression guard.
 </content>

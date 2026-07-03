@@ -33,7 +33,7 @@ HEALTHCHECK="CMD /mnt/tools/file_read --agentrc-schema"
 # T26 demo narrative — fragmented to dodge self-match on the tree-wide grep.
 NARR="Same artifact, same labels, three ""substrates. The translators are the proof of concept; the labels are the standard."
 
-# Allowed org.agentrc.* label namespaces (no invented fourth — §0.3).
+# Allowed ai.agentrc.* label namespaces (no invented fourth — §0.3).
 KNOWN_NS="agent capability identity mcp model network policy skill sop substrate tool"
 
 # List (non-docs/agents, non-scripts) files that contain the demo narrative.
@@ -349,7 +349,7 @@ v_keyword_count() {
   FAILM v_keyword_count "keyword invariant broken:$miss"; return 1
 }
 
-# §0.3: translator code emits only known org.agentrc.* namespaces.
+# §0.3: translator code emits only known ai.agentrc.* namespaces.
 v_no_fourth_namespace() {
   local bad="" ns
   for ns in $(grep -rhoE 'org\.agentrc\.[a-z_]+' cmd/ internal/ 2>/dev/null \
@@ -357,7 +357,7 @@ v_no_fourth_namespace() {
     echo " $KNOWN_NS " | grep -q " $ns " || bad="$bad $ns"
   done
   if [ -z "$bad" ]; then PASS v_no_fourth_namespace; return 0; fi
-  FAILM v_no_fourth_namespace "unknown org.agentrc namespace(s) emitted:$bad"; return 1
+  FAILM v_no_fourth_namespace "unknown ai.agentrc namespace(s) emitted:$bad"; return 1
 }
 
 # §V.9: bedrock JSON + kubernetes YAML dry-runs parse.
@@ -379,7 +379,7 @@ v9_backend_dryruns() {
 # =============================================================================
 # T25 — CLI docs table
 # =============================================================================
-POS_LINE='Reference translators — a proof of concept until platforms read `org.agentrc.*` labels natively. Not production runners.'
+POS_LINE='Reference translators — a proof of concept until platforms read `ai.agentrc.*` labels natively. Not production runners.'
 
 t25_run_implemented() {
   # the `run` row status reads "implemented" with a "reference translators" qualifier

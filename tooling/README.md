@@ -8,7 +8,7 @@ extension, layered on real Dockerfile instructions.
 ## Layout
 
 - `internal/agentfile` — extracts the agentrc-specific surface from an
-  Agentfile and builds `org.agentrc.*` labels. It does **not** implement
+  Agentfile and builds `ai.agentrc.*` labels. It does **not** implement
   its own Dockerfile parser: it uses BuildKit's own
   `frontend/dockerfile/parser` to tokenize the file, classifies each
   top-level instruction as one of the four agentrc keywords / `ADD
@@ -18,7 +18,7 @@ extension, layered on real Dockerfile instructions.
 - `internal/llb` — compiles `CleanedSource` with BuildKit's own
   `dockerfile2llb.Dockerfile2LLB` (full, correct standard Dockerfile
   semantics: multi-stage builds, `ARG`/`ENV`, `COPY`, `HEALTHCHECK`, …for
-  free), then layers on the agentrc effects: `org.agentrc.*` labels, the
+  free), then layers on the agentrc effects: `ai.agentrc.*` labels, the
   embedded `/mnt/SOP` file, and `ADD --remote --cached` fetch + embed.
 - `cmd/agentrc-frontend` — the BuildKit gateway frontend, built on
   `dockerui` (the same library the real `dockerfile` frontend uses).
@@ -56,12 +56,12 @@ go build -o bin/agentrc-frontend ./cmd/agentrc-frontend
 ./bin/agentrc inspect examples/Agentfile.code-reviewer  # local: human-readable summary
 ./bin/agentrc build examples/Agentfile.code-reviewer -t ghcr.io/org/code-reviewer:1.0
 ./bin/agentrc push ghcr.io/org/code-reviewer:1.0
-./bin/agentrc inspect ghcr.io/org/code-reviewer:1.0   # remote: prints org.agentrc.* labels
+./bin/agentrc inspect ghcr.io/org/code-reviewer:1.0   # remote: prints ai.agentrc.* labels
 ```
 
 `agentrc inspect` accepts either a local Agentfile path (prints a static
 summary from the extracted file) or a registry reference (pulls the real,
-already-built image's config and prints its `org.agentrc.*` labels — this
+already-built image's config and prints its `ai.agentrc.*` labels — this
 is the "review before run" path from profiles/oci-package.md §8).
 
 `agentrc build`, `push`, and `pull` shell out to `docker build`/`push`/`pull`
@@ -98,13 +98,13 @@ without `--build-arg`.
   `--remote`, `HEALTHCHECK`, `LABEL`, `ENV`, `ARG`, `WORKDIR`, `USER`,
   `EXPOSE`, `RUN`) keep their real Dockerfile semantics exactly, via
   `dockerfile2llb.Dockerfile2LLB` — no reinterpretation.
-- **`IDENTITY`** → `org.agentrc.identity.<key>` labels.
-- **`CAPABILITY`** → `org.agentrc.capability.<value>=true` labels.
+- **`IDENTITY`** → `ai.agentrc.identity.<key>` labels.
+- **`CAPABILITY`** → `ai.agentrc.capability.<value>=true` labels.
 - **`SOP`** (inline, heredoc, or file-backed via `COPY`/`ADD --remote
   .../mnt/SOP`) → always embedded at `/mnt/SOP`; label is a pointer +
-  digest (`org.agentrc.sop`, `org.agentrc.sop.sha256`), never the full text.
-- **`POLICY`** → `org.agentrc.<key>=<value>`; the `network` namespace's
-  `dns:<host>:<port>` value becomes `org.agentrc.network.dns.<host>=<port>`.
+  digest (`ai.agentrc.sop`, `ai.agentrc.sop.sha256`), never the full text.
+- **`POLICY`** → `ai.agentrc.<key>=<value>`; the `network` namespace's
+  `dns:<host>:<port>` value becomes `ai.agentrc.network.dns.<host>=<port>`.
   A `POLICY` value that's a URL under `agent.hooks.*` /
   `agent.interrupt_endpoint` auto-derives an attributed network-egress
   label per spec/index.md §8.5.
@@ -116,7 +116,7 @@ without `--build-arg`.
   a warning instead.
 - **`--policy-mode digest`** pulls the `agent.*`/`substrate.*`/`model.*`/
   `network.*` labels out into a JSON manifest layer and replaces them with
-  a single `org.agentrc.policy.manifest.sha256` pointer label
+  a single `ai.agentrc.policy.manifest.sha256` pointer label
   (spec/index.md §9.4 leaves the default mode as an open decision; this
   implementation defaults to `inline`).
 

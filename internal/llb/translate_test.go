@@ -76,8 +76,8 @@ func TestTranslateAllExamples(t *testing.T) {
 			if _, err := res.State.Marshal(ctx); err != nil {
 				t.Fatalf("State.Marshal() error = %v", err)
 			}
-			if res.Image.Config.Labels["org.agentrc.identity.name"] == "" {
-				t.Error("missing org.agentrc.identity.name label")
+			if res.Image.Config.Labels["ai.agentrc.identity.name"] == "" {
+				t.Error("missing ai.agentrc.identity.name label")
 			}
 		})
 	}
@@ -93,19 +93,19 @@ func TestTranslateMinimalLabels(t *testing.T) {
 	labels := res.Image.Config.Labels
 
 	want := map[string]string{
-		"org.agentrc.identity.name":   "hello",
-		"org.agentrc.capability.text": "true",
-		"org.agentrc.sop":             "/mnt/SOP",
-		"org.agentrc.tool.file_read":  "local",
-		"org.agentrc.model.name":      "claude-sonnet-4",
+		"ai.agentrc.identity.name":   "hello",
+		"ai.agentrc.capability.text": "true",
+		"ai.agentrc.sop":             "/mnt/SOP",
+		"ai.agentrc.tool.file_read":  "local",
+		"ai.agentrc.model.name":      "claude-sonnet-4",
 	}
 	for k, v := range want {
 		if labels[k] != v {
 			t.Errorf("labels[%q] = %q, want %q", k, labels[k], v)
 		}
 	}
-	if labels["org.agentrc.sop.sha256"] == "" {
-		t.Error("org.agentrc.sop.sha256 missing")
+	if labels["ai.agentrc.sop.sha256"] == "" {
+		t.Error("ai.agentrc.sop.sha256 missing")
 	}
 }
 
@@ -119,15 +119,15 @@ func TestTranslateCodeReviewerRemoteResources(t *testing.T) {
 	labels := res.Image.Config.Labels
 
 	// The --cached skill must be embedded: digest + origin.
-	if labels["org.agentrc.skill.code-review"] == "" || labels["org.agentrc.skill.code-review"] == "local" {
-		t.Errorf("skill label = %q, want a resolved digest", labels["org.agentrc.skill.code-review"])
+	if labels["ai.agentrc.skill.code-review"] == "" || labels["ai.agentrc.skill.code-review"] == "local" {
+		t.Errorf("skill label = %q, want a resolved digest", labels["ai.agentrc.skill.code-review"])
 	}
-	if labels["org.agentrc.skill.code-review.origin"] != "https://registry.agentrc.io/skills/code-review:1.2.3" {
-		t.Errorf("skill origin = %q", labels["org.agentrc.skill.code-review.origin"])
+	if labels["ai.agentrc.skill.code-review.origin"] != "https://registry.agentrc.io/skills/code-review:1.2.3" {
+		t.Errorf("skill origin = %q", labels["ai.agentrc.skill.code-review.origin"])
 	}
 	// The --runtime mcp server must stay reference-only.
-	if labels["org.agentrc.mcp.github"] != "runtime:mcp://registry.internal.acme/servers/github:latest" {
-		t.Errorf("mcp label = %q", labels["org.agentrc.mcp.github"])
+	if labels["ai.agentrc.mcp.github"] != "runtime:mcp://registry.internal.acme/servers/github:latest" {
+		t.Errorf("mcp label = %q", labels["ai.agentrc.mcp.github"])
 	}
 }
 
@@ -160,8 +160,8 @@ func TestTranslateWarnIfUnavailableDegradesToRuntimeLabel(t *testing.T) {
 	if len(res.Warnings) != 1 {
 		t.Fatalf("Warnings = %v, want 1", res.Warnings)
 	}
-	if res.Image.Config.Labels["org.agentrc.tool.x"] != "runtime:https://example.com/unavailable-thing" {
-		t.Errorf("tool.x label = %q", res.Image.Config.Labels["org.agentrc.tool.x"])
+	if res.Image.Config.Labels["ai.agentrc.tool.x"] != "runtime:https://example.com/unavailable-thing" {
+		t.Errorf("tool.x label = %q", res.Image.Config.Labels["ai.agentrc.tool.x"])
 	}
 }
 
@@ -173,14 +173,14 @@ func TestTranslatePolicyModeDigest(t *testing.T) {
 		t.Fatalf("Translate() error = %v", err)
 	}
 	labels := res.Image.Config.Labels
-	if labels["org.agentrc.policy.manifest.sha256"] == "" {
+	if labels["ai.agentrc.policy.manifest.sha256"] == "" {
 		t.Error("expected a policy manifest digest label in digest mode")
 	}
-	if _, ok := labels["org.agentrc.substrate.runtime.memory"]; ok {
+	if _, ok := labels["ai.agentrc.substrate.runtime.memory"]; ok {
 		t.Error("inline policy labels should be replaced by the digest pointer in digest mode")
 	}
 	// Non-policy labels must still be present.
-	if labels["org.agentrc.identity.name"] == "" {
+	if labels["ai.agentrc.identity.name"] == "" {
 		t.Error("identity labels must survive digest mode")
 	}
 	if _, err := res.State.Marshal(ctx); err != nil {
@@ -200,15 +200,15 @@ func TestTranslateFileBackedSOPViaRemoteAdd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Translate() error = %v", err)
 	}
-	if res.Image.Config.Labels["org.agentrc.sop"] != "/mnt/SOP" {
-		t.Errorf("org.agentrc.sop = %q", res.Image.Config.Labels["org.agentrc.sop"])
+	if res.Image.Config.Labels["ai.agentrc.sop"] != "/mnt/SOP" {
+		t.Errorf("ai.agentrc.sop = %q", res.Image.Config.Labels["ai.agentrc.sop"])
 	}
-	if res.Image.Config.Labels["org.agentrc.sop.sha256"] == "" {
-		t.Error("org.agentrc.sop.sha256 is empty for a remote-ADD-backed SOP")
+	if res.Image.Config.Labels["ai.agentrc.sop.sha256"] == "" {
+		t.Error("ai.agentrc.sop.sha256 is empty for a remote-ADD-backed SOP")
 	}
 	// A file-backed SOP must never appear as a regular mcp/tool/skill
 	// resource label alongside the sop pointer.
-	if _, ok := res.Image.Config.Labels["org.agentrc.tool.SOP"]; ok {
+	if _, ok := res.Image.Config.Labels["ai.agentrc.tool.SOP"]; ok {
 		t.Error("file-backed SOP incorrectly also labeled as a generic resource")
 	}
 }

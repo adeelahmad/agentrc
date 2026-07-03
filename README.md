@@ -14,7 +14,7 @@
 
 ## What is agentrc?
 
-`agentrc` (Agent Run Config — like `bashrc`/`zshrc`, but for an agent) is the contract an agent declares: what it is, how it starts, what resources it requests, and how those requests are governed. The **Agentfile** is Dockerfile-shaped — four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) over the standard Dockerfile keywords you already know. The build emits namespaced `org.agentrc.*` OCI labels; the **platform** reads those labels — never the Agentfile — and decides what to honour.
+`agentrc` (Agent Run Config — like `bashrc`/`zshrc`, but for an agent) is the contract an agent declares: what it is, how it starts, what resources it requests, and how those requests are governed. The **Agentfile** is Dockerfile-shaped — four new keywords (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) over the standard Dockerfile keywords you already know. The build emits namespaced `ai.agentrc.*` OCI labels; the **platform** reads those labels — never the Agentfile — and decides what to honour.
 
 agentrc is **not** a runtime, sandbox, cloud platform, model provider, or agent framework. It is the neutral declaration, packaging, and governance layer above all of those.
 
@@ -24,7 +24,7 @@ A single reviewable `Agentfile` declares:
 - **tools, skills, and MCP servers** — files placed into the `/mnt` tree with `COPY` (local) or `ADD --remote` (remote); the destination path determines the resource type;
 - **typed requests** — `POLICY` lines asking the platform for a model, network egress, or agent / substrate constraints (`model.*`, `network`, `agent.*`, `substrate.*`);
 - **secrets** — **deferred**; this draft defines no secret keyword/schema and leaves credential resolution to the platform;
-- **packaging** — the build translates intent into `org.agentrc.*` [OCI](https://opencontainers.org/) labels; the platform reads the labels and **grants, narrows, or rejects** each request. Enforcement is **[Cedar](https://www.cedarpolicy.com/), platform-side** (deny-by-default), and Cedar is never written in the Agentfile.
+- **packaging** — the build translates intent into `ai.agentrc.*` [OCI](https://opencontainers.org/) labels; the platform reads the labels and **grants, narrows, or rejects** each request. Enforcement is **[Cedar](https://www.cedarpolicy.com/), platform-side** (deny-by-default), and Cedar is never written in the Agentfile.
 
 ## 📖 Read the docs
 
@@ -70,7 +70,7 @@ POLICY agent.tool_timeout 30s
 POLICY network dns:api.github.com:443
 ```
 
-Build it with the BuildKit frontend (`docker build -f Agentfile -t ghcr.io/acme/code-reviewer:1.0 .`) or the native CLI (`arc build -t ghcr.io/acme/code-reviewer:1.0 .`) — both produce an identical OCI artifact whose `org.agentrc.*` labels carry every request above.
+Build it with the BuildKit frontend (`docker build -f Agentfile -t ghcr.io/acme/code-reviewer:1.0 .`) or the native CLI (`arc build -t ghcr.io/acme/code-reviewer:1.0 .`) — both produce an identical OCI artifact whose `ai.agentrc.*` labels carry every request above.
 
 ## This repository
 
@@ -80,7 +80,7 @@ Local preview and publishing notes are in [`README_DEV.md`](README_DEV.md).
 
 ## Acknowledgements
 
-agentrc builds on [Agent SOP](https://github.com/strands-agents/agent-sop) (an influence on the `SOP` keyword), [microsandbox](https://github.com/superradcompany/microsandbox) (a reference for the deferred secrets design), [UTCP](https://github.com/universal-tool-calling-protocol/utcp-specification), [MCP](https://github.com/modelcontextprotocol) (servers projected under `/mnt/mcp/`), [Cedar](https://github.com/cedar-policy/cedar) (the platform-side enforcement engine and compilation target for typed `POLICY` requests, never an author surface), [Agent Skills](https://github.com/agentskills/agentskills) (`SKILL.md` bundles under `/mnt/skills/`), [OCI](https://github.com/opencontainers) (artifact + `org.agentrc.*` labels), [Sigstore](https://github.com/sigstore), [SLSA](https://github.com/slsa-framework), [OpenTelemetry](https://github.com/open-telemetry), and [A2A](https://github.com/a2aproject/A2A) (a reference point for the deferred multi-agent workflow companion; the agent-to-agent protocol is out of scope this version). See [Acknowledgements](https://agentrc.ai/acknowledgements/).
+agentrc builds on [Agent SOP](https://github.com/strands-agents/agent-sop) (an influence on the `SOP` keyword), [microsandbox](https://github.com/superradcompany/microsandbox) (a reference for the deferred secrets design), [UTCP](https://github.com/universal-tool-calling-protocol/utcp-specification), [MCP](https://github.com/modelcontextprotocol) (servers projected under `/mnt/mcp/`), [Cedar](https://github.com/cedar-policy/cedar) (the platform-side enforcement engine and compilation target for typed `POLICY` requests, never an author surface), [Agent Skills](https://github.com/agentskills/agentskills) (`SKILL.md` bundles under `/mnt/skills/`), [OCI](https://github.com/opencontainers) (artifact + `ai.agentrc.*` labels), [Sigstore](https://github.com/sigstore), [SLSA](https://github.com/slsa-framework), [OpenTelemetry](https://github.com/open-telemetry), and [A2A](https://github.com/a2aproject/A2A) (a reference point for the deferred multi-agent workflow companion; the agent-to-agent protocol is out of scope this version). See [Acknowledgements](https://agentrc.ai/acknowledgements/).
 
 ## License
 
