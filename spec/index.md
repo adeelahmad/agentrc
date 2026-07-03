@@ -194,11 +194,11 @@ ADD --remote [--cached | --runtime] [--fail-if-unavailable | --warn-if-unavailab
 
 ```dockerfile
 # Tool, remote, embedded by default
-ADD --remote --chmod=755 https://registry.agentrc.io/tools/http_get:latest /mnt/tools/http_get
+ADD --remote --chmod=755 https://registry.example.com/tools/http_get:latest /mnt/tools/http_get
 
 # Skill, remote, explicitly cached, hard-fail if missing
 ADD --remote --cached --fail-if-unavailable \
-    https://registry.agentrc.io/skills/code-review:1.2.3 /mnt/skills/code-review
+    https://registry.example.com/skills/code-review:1.2.3 /mnt/skills/code-review
 
 # MCP server, internal, fetched at runtime, hard-fail if registry unreachable
 ADD --remote --runtime --fail-if-unavailable \
@@ -206,10 +206,10 @@ ADD --remote --runtime --fail-if-unavailable \
 
 # MCP server, embedded for speed, but tolerate absence
 ADD --remote --cached --warn-if-unavailable \
-    https://registry.agentrc.io/mcp/web-search:latest /mnt/mcp/web-search
+    https://registry.example.com/mcp/web-search:latest /mnt/mcp/web-search
 
 # SOP, remote file
-ADD --remote https://registry.agentrc.io/sops/claims-triage:latest /mnt/SOP
+ADD --remote https://registry.example.com/sops/claims-triage:latest /mnt/SOP
 ```
 
 ### 4.4 Embedding MUST stay visible and overridable
@@ -297,7 +297,7 @@ EOF
 ```dockerfile
 COPY ./sop.md /mnt/SOP
 # or
-ADD --remote https://registry.agentrc.io/sops/claims-triage:latest /mnt/SOP
+ADD --remote https://registry.example.com/sops/claims-triage:latest /mnt/SOP
 ```
 
 **Build translation.** Regardless of form, the compiler MUST embed the SOP as a
@@ -555,7 +555,7 @@ For every embedded MCP server or skill, the compiler MUST emit both the
 
 ```text
 ai.agentrc.mcp.github=sha256:abc123...
-ai.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
+ai.agentrc.mcp.github.origin=https://registry.example.com/mcp/github:latest
 ```
 
 so a platform or organization MAY rewrite `ai.agentrc.mcp.github.origin` to an
@@ -795,11 +795,11 @@ COPY --chmod=755 ./tools/shell     /mnt/tools/shell
 
 # --- Tools (remote, embedded by default) ------------------------------------
 ADD --remote --chmod=755 \
-    https://registry.agentrc.io/tools/http_get:latest /mnt/tools/http_get
+    https://registry.example.com/tools/http_get:latest /mnt/tools/http_get
 
 # --- Skills (remote, cached, hard-fail if missing) --------------------------
 ADD --remote --cached --fail-if-unavailable \
-    https://registry.agentrc.io/skills/code-review:1.2.3 /mnt/skills/code-review
+    https://registry.example.com/skills/code-review:1.2.3 /mnt/skills/code-review
 
 # --- MCP server (internal, fetched at runtime, hard-fail if unreachable) -----
 ADD --remote --runtime --fail-if-unavailable \

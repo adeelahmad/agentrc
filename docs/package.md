@@ -101,7 +101,7 @@ and an **`.origin`** reference, for example:
 
 ```text
 ai.agentrc.mcp.github=sha256:abc123...
-ai.agentrc.mcp.github.origin=https://registry.agentrc.io/mcp/github:latest
+ai.agentrc.mcp.github.origin=https://registry.example.com/mcp/github:latest
 ```
 
 This lets a platform or organization re-point a public resource to an internal

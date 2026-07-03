@@ -14,6 +14,15 @@ requests, generic agent authorization, and a runtime-language hint — plus a
 (`IDENTITY`, `CAPABILITY`, `SOP`, `POLICY`) are unchanged, and `substrate.*`
 is not renamed.
 
+### Changed — BREAKING
+
+- **OCI label namespace renamed `org.agentrc.*` → `ai.agentrc.*`** — the correct
+  reverse-DNS of `agentrc.ai` (the old `org.agentrc` implied a `.org` we do not
+  own). This changes every emitted label key, the `# syntax=` frontend output,
+  `arc inspect`, and the reference translators. Rebuild artifacts with the
+  current CLI/frontend (`v0.1.6`+) to emit the new keys; images built with older
+  releases keep the `org.agentrc.*` keys.
+
 ### Added
 
 - **§8.7 `substrate.<platform>.*`** — platform-scoped substrate requests
