@@ -13,17 +13,17 @@ know `docker build`, you already know most of this. For the full normative
 grammar, see the [specification](/spec/).
 
 <div class="callout">
-<strong>Status: steps 1–4 work today; step 5 is planned.</strong> A reference
-implementation of the native <code>agentrc</code> CLI (<code>build</code>,
-<code>inspect</code>, <code>push</code>, <code>pull</code>, <code>lint</code>,
-<code>lock</code>, <code>init</code>) and the BuildKit frontend both exist —
-see <a href="/cli/">the live CLI status table</a> and <code>tooling/</code> in
-the repository. The frontend image is published at
+<strong>Status: all five steps work today.</strong> The native <code>agentrc</code>
+CLI (<code>init</code>, <code>lint</code>, <code>build</code>, <code>inspect</code>,
+<code>push</code>, <code>pull</code>, <code>lock</code>, <code>run</code>) and the
+BuildKit frontend both exist — see <a href="/cli/">the live CLI status table</a>
+and <code>tooling/</code> in the repository. The frontend image is published at
 <code>ghcr.io/adeelahmad/agentrc-frontend</code>, so the <code># syntax=</code>
 line routes <code>docker build -f Agentfile .</code> through it (see step 2).
-<strong>Step 5 (<code>arc run</code>) is planned</strong> — agentrc declares
-agents, it does not ship a runtime; running an artifact is a compatible
-platform's job.
+<strong>Step 5 (<code>arc run</code>) ships as a reference translator</strong>:
+<code>--dry-run</code> renders the deploy config a backend would apply. agentrc
+declares agents and translates them; it does not ship a production runtime — that
+remains a compatible platform's job.
 </div>
 
 ## Installation
@@ -187,12 +187,15 @@ arc push ghcr.io/you/hello:1.0
 
 ## 5. Run on a substrate
 
-Status: `arc run` is planned — agentrc declares agents, it does not ship a
-runtime (see [Non-goals](/docs/non-goals/) and the [CLI status table](/cli/)).
-This is the interface a compatible platform provides:
+`arc run` ships as a **reference translator**: `--dry-run` prints the deploy
+config a backend would apply, so you can preview the translation locally.
+agentrc declares and translates agents; it does not ship a production runtime —
+executing the artifact remains a compatible platform's job (see
+[Non-goals](/docs/non-goals/) and the [CLI status table](/cli/)).
 
 ```bash
-arc run ghcr.io/you/hello:1.0 --isolation microvm
+# preview what a local runner would execute (--isolation is scoped to --backend local)
+arc run ghcr.io/you/hello:1.0 --backend local --isolation microvm --dry-run
 ```
 
 At run time the platform pulls the artifact, reads every `ai.agentrc.*` label,

@@ -26,7 +26,7 @@ CMD claude --print
 # Tools — a local executable and a remote skill bundle
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
 ADD --remote --cached --fail-if-unavailable \
-    https://registry.agentrc.io/skills/code-review:1.2.3 /mnt/skills/code-review
+    https://registry.example.com/skills/code-review:1.2.3 /mnt/skills/code-review
 
 # MCP server, resolved on the target network at bootstrap
 ADD --remote --runtime --fail-if-unavailable \
