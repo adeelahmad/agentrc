@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="agentrc icon white">
+  <title>agentrc icon white</title>
+  
+  
+<g transform="translate(0,0) scale(1)" fill="none" stroke="#FFFFFF" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M20 12 C13 12 13 17 13 22 C13 27 8 27 8 32 C8 37 13 37 13 42 C13 47 13 52 20 52"/>
+  <path d="M44 12 C51 12 51 17 51 22 C51 27 56 27 56 32 C56 37 51 37 51 42 C51 47 51 52 44 52"/>
+  <rect x="22" y="25" width="20" height="16" rx="6"/>
+  <path d="M32 25 V17"/>
+  <circle cx="32" cy="14" r="2.4" fill="#FFFFFF" stroke="none"/>
+  <circle cx="28" cy="33" r="1.9" fill="#FFFFFF" stroke="none"/>
+  <circle cx="36" cy="33" r="1.9" fill="#FFFFFF" stroke="none"/>
+</g>
+</svg>
