@@ -7,7 +7,7 @@ permalink: /
 <section class="hero">
   <div>
     <div class="eyebrow">Open specification</div>
-    <h1 style="margin:.3rem 0 .8rem">portable, governed ai <span style="color:var(--accent)">agents<span class="term-cursor">_</span></span></h1>
+    <h1 style="margin:.3rem 0 .8rem;min-height:2.3em"><span id="rotator">portable, governed ai agents</span><span class="term-cursor" aria-hidden="true">_</span></h1>
     <p class="lead"><strong style="color:var(--text-strong)">Like <code>bashrc</code> or <code>zshrc</code>, but for an agent.</strong> An Agentfile declares one AI agent's identity, capabilities, system prompt, and tools, plus its requests for models, resources, and network — as typed policy a security team can review. Package it as an OCI artifact; compatible runners execute and enforce it. Not a runtime, cloud, model provider, or agent framework.</p>
     <div class="cta-row">
       <a class="button primary" href="{{ '/spec/' | relative_url }}">Read the specification →</a>
@@ -173,3 +173,30 @@ ghcr.io/you/hello:0.1</code></pre>
   <span class="pill">Secrets deferred</span>
 </div>
 <p class="muted" style="font-size:.84rem;margin-top:1.1rem">The project is published as a standards-style repository: specification first, reference tooling second.</p>
+
+<script>
+(function () {
+  var el = document.getElementById('rotator');
+  if (!el) return;
+  var phrases = [
+    'portable, governed ai agents',
+    'a federation of trust, developer to agent',
+    'secure boundaries for agentic apps'
+  ];
+  // Respect reduced-motion: leave the static first phrase in place.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var pi = 0, ci = phrases[0].length, deleting = true;
+  function tick() {
+    var p = phrases[pi];
+    if (!deleting) {
+      ci++; el.textContent = p.slice(0, ci);
+      if (ci === p.length) { deleting = true; return setTimeout(tick, 1900); }
+      return setTimeout(tick, 45);
+    }
+    ci--; el.textContent = p.slice(0, ci);
+    if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; return setTimeout(tick, 420); }
+    return setTimeout(tick, 28);
+  }
+  setTimeout(tick, 2000);
+})();
+</script>
