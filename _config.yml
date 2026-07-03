@@ -41,6 +41,8 @@ nav:
     url: /docs/
   - title: Examples
     url: /examples/
+  - title: Builder
+    url: /builder/
   - title: Profiles
     url: /profiles/
   - title: CLI

@@ -4,7 +4,7 @@
 
 **Agent Run Config** — an open, Dockerfile-shaped specification for declaring, packaging, securing, and sharing portable AI agents.
 
-[**agentrc.ai**](https://agentrc.ai) · [Docs](https://agentrc.ai/docs/) · [Specification](https://agentrc.ai/spec/) · [Discord](https://discord.gg/jWx6Qak5D) · [GitHub](https://github.com/adeelahmad/agentrc)
+[**agentrc.ai**](https://agentrc.ai) · [Docs](https://agentrc.ai/docs/) · [Specification](https://agentrc.ai/spec/) · [Builder](https://agentrc.ai/builder/) · [Discord](https://discord.gg/jWx6Qak5D) · [GitHub](https://github.com/adeelahmad/agentrc)
 
 > ⚠️ **Working Draft (0.1.0-draft.6).** agentrc is an evolving specification draft, not a finished standard. Expect breaking changes.
 
@@ -34,6 +34,7 @@ Everything lives on **[agentrc.ai](https://agentrc.ai)**:
 |---|---|
 | [What is agentrc?](https://agentrc.ai/docs/what-is-agentrc/) | The problem, the need, and what it solves |
 | [Quickstart](https://agentrc.ai/docs/quickstart/) | Write, build, read the labels, push, and run your first Agentfile |
+| [Agentfile Builder](https://agentrc.ai/builder/) | Fill a form (or drag-drop tools) and watch the Agentfile + the agent's boundaries build live in the browser |
 | [Specification](https://agentrc.ai/spec/) | The full working draft |
 | [Core profile](https://agentrc.ai/profiles/core/) | Parsing the four keywords + Dockerfile keywords into labels |
 | [Security](https://agentrc.ai/docs/security/) | Label-based boundaries and platform-side Cedar enforcement |
@@ -62,7 +63,7 @@ CMD claude --print
 
 COPY --chmod=755 ./tools/file_read /mnt/tools/file_read
 ADD --remote --cached --fail-if-unavailable \
-    https://registry.agentrc.io/skills/code-review:1.2.3 /mnt/skills/code-review
+    https://registry.example.com/skills/code-review:1.2.3 /mnt/skills/code-review
 
 POLICY model.name      claude-opus-4
 POLICY model.fallback  claude-sonnet-4
