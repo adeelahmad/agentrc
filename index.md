@@ -7,8 +7,22 @@ permalink: /
 <section class="hero">
   <div>
     <div class="eyebrow">Open specification</div>
-    <h1 style="margin:.3rem 0 .8rem;min-height:2.3em"><span id="rotator">portable, governed ai agents</span><span class="term-cursor" aria-hidden="true">_</span></h1>
-    <p class="lead"><strong style="color:var(--text-strong)">Like <code>bashrc</code> or <code>zshrc</code>, but for an agent.</strong> An Agentfile declares one AI agent's identity, capabilities, system prompt, and tools, plus its requests for models, resources, and network — as typed policy a security team can review. Package it as an OCI artifact; compatible runners execute and enforce it. Not a runtime, cloud, model provider, or agent framework.</p>
+    <h1 style="margin:.3rem 0 .5rem">portable, governed ai <span style="color:var(--accent)">agents<span class="term-cursor" aria-hidden="true">_</span></span></h1>
+    <div class="type-line"><span class="pr">agentrc:~$</span> <span id="rotator">like bashrc, but for an agent</span><span class="term-cursor" aria-hidden="true">_</span></div>
+    <!-- LAUNCH COPY — hold until `arc test` ships, then flip (the hero change IS the announcement):
+      • H1 → "TDD for agents_"  (demote the current H1 to a subhead line)
+      • add to rotation: "reproduce the boundaries — egress, tools, limits — in ci",
+                         "a poisoned skill turns the pipeline red"
+      • subheadline → "An Agentfile declares one agent — identity, tools, typed policy. arc lock pins
+        every skill and MCP server to a digest; the build compiles it into an OCI artifact whose
+        boundaries travel with it. Test inside the same envelope in CI. Run it unchanged on local,
+        Bedrock, or Kubernetes."
+      • docs (pre-write, defuse "isn't this DeepEval/promptfoo?"): eval frameworks assert on OUTPUTS —
+        stochastic, flaky, need a frontier model in the loop. arc test asserts on POLICY —
+        deterministic, cheap, red-or-green. They test the brain; agentrc tests the boundaries; a
+        serious team runs both. -->
+
+    <p class="lead">An Agentfile declares one agent — identity, tools, typed policy. The build compiles it to an OCI artifact whose <strong style="color:var(--text-strong)">boundaries travel with it</strong>: lint them in CI and run it unchanged on local, Bedrock, or Kubernetes. Not a runtime, cloud, or framework.</p>
     <div class="cta-row">
       <a class="button primary" href="{{ '/spec/' | relative_url }}">Read the specification →</a>
       <a class="button" href="{{ '/docs/quickstart/' | relative_url }}">Start with an Agentfile</a>
@@ -19,21 +33,21 @@ permalink: /
     </div>
   </div>
   <div class="term-col">
-    <pre class="ascii-rain" aria-hidden="true">01 &gt; { } _ /mnt
+    <pre class="ascii-rain" aria-hidden="true">boundaries ==
+egress: denied
+.source=auto
 =&gt; POLICY 10
-arc build ..
-0x1f 4a2b &gt;_
+arc lint ✓
+envelope ==
+oci://ghcr..
 IDENTITY ::
+ci: red
 { agent } //
-CAPABILITY 1
-SOP -&gt; run
-label 0.1.0
-$ arc lint _
+arc test ✓
+deny-default
 network:443
 grant|narrow
-oci://ghcr..
-04a2 &gt; 1101
-deny-default
+label 0.1.6
 &gt;_ cedar ok</pre>
     <div class="term-window">
       <div class="term-bar">
@@ -180,9 +194,13 @@ ghcr.io/you/hello:0.1</code></pre>
   var el = document.getElementById('rotator');
   if (!el) return;
   var phrases = [
-    'portable, governed ai agents',
-    'a federation of trust, developer to agent',
-    'secure boundaries for agentic apps'
+    'like bashrc, but for an agent',
+    'like package-lock.json, but for an agent',
+    'pin skills, tools & mcp servers to digests',
+    'policy, not hope. deny by default.',
+    'boundaries travel with the artifact',
+    'the policy diff is in the code review',
+    'build once. run local, bedrock, kubernetes.'
   ];
   var pi = 0, ci = 0, deleting = false;
   el.textContent = '';
