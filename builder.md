@@ -1,0 +1,320 @@
+---
+layout: default
+title: Agentfile Builder
+description: "Build an Agentfile in your browser and inspect the agent's boundaries — model, egress, tools, skills, MCP — as a governed OCI manifest."
+permalink: /builder/
+---
+<style>
+/* Scoped to #builder; maps the builder's names onto the site's theme tokens so
+   it inherits the site's fonts + light/dark theme and never collides with the
+   site's own .card/.btn/.item classes. */
+#builder{
+  --strong:var(--text-strong); --mono:var(--font-mono); --sans:var(--font-display);
+  --line2:var(--line-strong); --panel2:var(--panel-2);
+  --net:#38BDF8; --tool:#34D399; --skill:#A78BFA; --mcp:#22D3EE; --builtin:#f5a623;
+  font-family:var(--mono); font-size:14.5px; line-height:1.55;
+}
+#builder .bhead{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;margin:0 0 1.1rem;border-top:none}
+#builder .bhead h1{font-family:var(--sans);font-size:clamp(1.55rem,3vw,2.1rem);margin:0;border:none;padding:0}
+#builder .bhead .sub{color:var(--muted);font-size:.82rem;font-family:var(--mono)}
+#builder .bhead .sp{margin-left:auto;display:flex;gap:.5rem}
+#builder .wrap{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:1.1rem}
+#builder .right{display:grid;grid-template-rows:auto auto;gap:1.1rem;min-width:0}
+#builder .bcard{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:.9rem 1.05rem;margin-bottom:1rem}
+#builder .bcard>h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin:0 0 .7rem;font-family:var(--mono);font-weight:600;border:none;padding:0}
+#builder .bcard>h3 .q{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400}
+#builder label{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:.65rem 0 .25rem}
+#builder input,#builder textarea,#builder select{width:100%;background:var(--code);border:1px solid var(--line);border-radius:7px;color:var(--code-text);font:13px/1.5 var(--mono);padding:.5rem .6rem;outline:none}
+#builder input:focus,#builder textarea:focus,#builder select:focus{border-color:var(--accent)}
+#builder textarea{resize:vertical;min-height:52px}
+#builder .row{display:flex;gap:.5rem}#builder .row>*{flex:1}
+#builder .chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem}
+#builder .chip{font-size:.75rem;border:1px solid var(--line2);border-radius:999px;padding:.26rem .58rem;color:var(--muted);cursor:pointer;user-select:none}
+#builder .chip.on{color:var(--accent);border-color:var(--accent);background:rgba(235,90,15,.10)}
+#builder .chip.b.on{color:var(--builtin);border-color:var(--builtin);background:rgba(245,166,35,.10)}
+#builder .mini{font-size:.72rem;color:var(--muted);margin-top:.35rem}
+#builder .btn{font-family:var(--mono);font-size:.8rem;font-weight:600;border:1px solid var(--line2);background:var(--panel2);color:var(--strong);border-radius:7px;padding:.42rem .7rem;cursor:pointer}
+#builder .btn:hover{border-color:var(--accent);color:var(--accent)}
+#builder .btn.sm{padding:.3rem .5rem;font-size:.74rem}
+#builder .list{margin:.45rem 0 0;display:flex;flex-direction:column;gap:.3rem}
+#builder .item{display:flex;align-items:center;gap:.5rem;font-size:.79rem;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem;color:var(--code-text)}
+#builder .item .x{margin-left:auto;color:var(--muted);cursor:pointer;border:none;background:none;font-family:var(--mono)}
+#builder .item .x:hover{color:var(--accent)}
+#builder .item .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+#builder .item .tag{color:var(--muted);font-size:.66rem;border:1px solid var(--line);border-radius:4px;padding:0 .3rem}
+#builder .drop{margin-top:.5rem;border:1.5px dashed var(--line2);border-radius:9px;padding:.75rem;text-align:center;color:var(--muted);font-size:.76rem;cursor:pointer}
+#builder .drop.over{border-color:var(--accent);color:var(--accent);background:rgba(235,90,15,.06)}
+#builder .seg{display:flex;gap:0;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-top:.3rem}
+#builder .seg button{flex:1;background:var(--code);border:none;border-right:1px solid var(--line);color:var(--muted);font:12px var(--mono);padding:.4rem;cursor:pointer}
+#builder .seg button:last-child{border-right:none}
+#builder .seg button.on{background:rgba(235,90,15,.12);color:var(--accent)}
+#builder .tog{display:inline-flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--muted);cursor:pointer;margin-top:.4rem}
+#builder .tog input{width:auto}
+#builder .term{background:var(--code);border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+#builder .term-bar{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+#builder .dot3{display:flex;gap:.4rem}#builder .dot3 i{width:10px;height:10px;border-radius:50%;background:var(--line2)}
+#builder .term-title{font-size:.74rem;color:var(--muted)}#builder .term-title b{color:var(--accent);font-weight:500}
+#builder .term-actions{margin-left:auto;display:flex;gap:.4rem}
+#builder .term pre{margin:0;padding:.9rem 1rem;font-size:12.5px;line-height:1.68;overflow:auto;color:var(--code-text);max-height:340px;background:none;border:none}
+#builder .k{color:#60A5FA}#builder .s{color:#E5C07B}#builder .c{color:#566372}
+#builder .runline{padding:.55rem .9rem;border-top:1px solid var(--line);font-size:.76rem;color:var(--muted)}
+#builder .runline code{color:var(--accent-2);background:none}
+#builder .cv-head{display:flex;align-items:center;gap:.7rem;margin-bottom:.55rem;flex-wrap:wrap}
+#builder .cv-head h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);font-family:var(--mono);font-weight:600;margin:0;border:none;padding:0}
+#builder .legend{margin-left:auto;display:flex;gap:.7rem;flex-wrap:wrap;font-size:.68rem;color:var(--muted)}
+#builder .legend span{display:inline-flex;align-items:center;gap:.3rem}#builder .legend i{width:8px;height:8px;border-radius:50%}
+#builder .board{border:1.5px dashed rgba(248,113,113,.4);border-radius:16px;padding:.85rem 1rem 1rem;background:radial-gradient(70% 65% at 30% 30%,rgba(235,90,15,.05),transparent 72%)}
+#builder .board-deny{font-family:var(--mono);font-size:.72rem;color:#f87171;opacity:.9;margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+#builder .agent-card{display:inline-flex;align-items:center;gap:.6rem;border:1.5px solid var(--accent);border-radius:11px;padding:.5rem .85rem;background:rgba(235,90,15,.08);margin:0 0 .85rem;box-shadow:0 0 40px rgba(235,90,15,.12)}
+#builder .agent-card .ad{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);flex:0 0 auto}
+#builder .agent-card .nm{font-family:var(--sans);font-weight:700;color:var(--strong);font-size:1rem;line-height:1.15}
+#builder .agent-card .cap{font-family:var(--mono);color:var(--muted);font-size:.73rem}
+#builder .lanes{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:.75rem}
+#builder .lane .lhead{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.13em;display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem}
+#builder .lane .lhead i{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+#builder .lane .lhead .ct{margin-left:auto;color:var(--muted);opacity:.7;letter-spacing:0}
+#builder .node{display:flex;align-items:center;gap:.5rem;border:1px solid var(--line);border-radius:8px;padding:.38rem .55rem;font-family:var(--mono);font-size:.78rem;color:var(--code-text);margin-bottom:.35rem;background:#0d1320;word-break:break-all}
+#builder .node .d{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+#builder .lane .empty{font-family:var(--mono);font-size:.72rem;color:var(--muted);opacity:.5;border:1px dashed var(--line);border-radius:8px;padding:.38rem .55rem}
+#builder .hint{font-size:.68rem;color:var(--muted);text-align:center;margin-top:.4rem;opacity:.8}
+#bctx{position:fixed;z-index:50;background:#0d1320;border:1px solid var(--line-strong);border-radius:9px;padding:.3rem;display:none;box-shadow:0 12px 40px rgba(0,0,0,.5);min-width:150px}
+#bctx button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--code-text);font:12.5px var(--font-mono);padding:.4rem .55rem;border-radius:6px;cursor:pointer}
+#bctx button:hover{background:var(--panel-2);color:var(--accent)}
+#bctx .h{font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);padding:.3rem .55rem}
+#btoast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0d1320;border:1px solid var(--accent);color:var(--accent);font:12.5px var(--font-mono);padding:.5rem .9rem;border-radius:8px;z-index:60;display:none}
+@media(max-width:960px){#builder .wrap{grid-template-columns:1fr}}
+</style>
+
+<div id="builder">
+  <div class="bhead">
+    <h1>Agentfile builder</h1>
+    <span class="sub">fill it in — see the Agentfile and the agent's boundaries build live</span>
+    <span class="sp"><button class="btn sm" id="shareBtn">🔗 share</button><button class="btn sm" id="resetBtn">reset</button></span>
+  </div>
+
+  <div class="wrap">
+    <div class="left">
+      <div class="bcard">
+        <h3>Target platform <span class="q">— where it runs</span></h3>
+        <div class="seg" id="platform">
+          <button data-v="microsandbox" class="on">microsandbox</button>
+          <button data-v="bedrock">AWS Bedrock</button>
+          <button data-v="kubernetes">Kubernetes</button>
+        </div>
+        <label>Base image (FROM)</label>
+        <input id="from" list="images" value="python:3.11-slim">
+        <datalist id="images"><option value="python:3.11-slim"><option value="node:22-slim"><option value="golang:1.25-alpine"><option value="ubuntu:24.04"></datalist>
+      </div>
+
+      <div class="bcard">
+        <h3>Identity</h3>
+        <label>Name</label><input id="name" value="support-bot">
+        <div class="row"><div><label>Version</label><input id="ver" value="1.0"></div><div><label>Author</label><input id="author" value="you"></div></div>
+        <label>Description</label><textarea id="desc">Answers billing questions and escalates anything else.</textarea>
+        <label>Capabilities</label><div class="chips" id="caps"></div>
+        <label>SOP (system prompt)</label><textarea id="sop">Answer billing questions. Escalate anything else.</textarea>
+        <label>CMD (entrypoint)</label><input id="cmd" value="python ./agent.py">
+      </div>
+
+      <div class="bcard">
+        <h3>Model &amp; limits</h3>
+        <label>Model</label><input id="model" list="models" value="claude-sonnet-4">
+        <datalist id="models"><option value="claude-sonnet-4"><option value="claude-opus-4"><option value="gpt-4o"></datalist>
+        <div class="row"><div><label>Tool timeout</label><input id="toolTimeout" value="30s"></div><div><label>Idle timeout</label><input id="idleTimeout" placeholder="5m"></div></div>
+      </div>
+
+      <div class="bcard">
+        <h3>Network egress <span class="q">(allow-list)</span></h3>
+        <div class="row"><input id="net_host" placeholder="api.stripe.com"><input id="net_port" placeholder="443" style="max-width:64px"><button class="btn sm" onclick="bAddNet()">+</button></div>
+        <div class="list" id="net_list"></div>
+        <div class="mini">Everything not listed is <b style="color:#f87171">denied</b>.</div>
+      </div>
+
+      <div class="bcard">
+        <h3>Tools</h3>
+        <label>Built-in (platform-provided, like claude.ai)</label>
+        <div class="chips" id="builtins"></div>
+        <label>Add a tool</label>
+        <div class="seg" id="tool_src"><button data-v="local" class="on">local file</button><button data-v="utcp">UTCP</button></div>
+        <div class="row" style="margin-top:.4rem"><input id="tool_name" placeholder="name (e.g. file_read)"><button class="btn sm" onclick="bAddTool()">+ add</button></div>
+        <div id="tool_url_row" style="display:none"><input id="tool_url" placeholder="https://utcp.io/... manifest URL"></div>
+        <div class="drop" id="drop">⬇ drag &amp; drop files → local tools</div>
+        <div class="list" id="tool_list"></div>
+      </div>
+
+      <div class="bcard">
+        <h3>Skills</h3>
+        <div class="seg" id="skill_src"><button data-v="inline" class="on">upload (inline)</button><button data-v="url">URL</button><button data-v="registry">registry</button></div>
+        <div class="row" style="margin-top:.4rem"><input id="skill_name" placeholder="name"><button class="btn sm" onclick="bAddSkill()">+ add</button></div>
+        <div id="skill_url_row" style="display:none"><input id="skill_url" placeholder="https://registry.example.com/skills/code-review:1.2.3"></div>
+        <label class="tog" id="skill_cache_row" style="display:none"><input type="checkbox" id="skill_cached" checked> pin &amp; cache into the image (--cached)</label>
+        <div class="list" id="skill_list"></div>
+      </div>
+
+      <div class="bcard">
+        <h3>MCP servers</h3>
+        <div class="row"><input id="mcp_name" placeholder="name (e.g. github)"><button class="btn sm" onclick="bAddMcp()">+</button></div>
+        <div id="mcp_url_row"><input id="mcp_url" placeholder="https://registry.example.com/mcp/github:latest" style="margin-top:.4rem"></div>
+        <div class="list" id="mcp_list"></div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="bcard" style="margin-bottom:0">
+        <div class="cv-head"><h3>Agent boundaries</h3>
+          <div class="legend">
+            <span><i style="background:#EB5A0F"></i>model</span><span><i style="background:#38BDF8"></i>egress</span>
+            <span><i style="background:#34D399"></i>tool</span><span><i style="background:#f5a623"></i>built-in</span>
+            <span><i style="background:#A78BFA"></i>skill</span><span><i style="background:#22D3EE"></i>mcp</span>
+          </div>
+        </div>
+        <div id="board" class="board"></div>
+        <div class="hint">right-click the board to add an egress host, tool, skill, or MCP</div>
+      </div>
+
+      <div class="term" style="margin-top:1.1rem">
+        <div class="term-bar"><span class="dot3"><i></i><i></i><i></i></span><span class="term-title">agentrc:~$ <b>cat Agentfile</b></span>
+          <span class="term-actions"><button class="btn sm" id="copyBtn">copy</button><button class="btn sm" id="dlBtn">download</button></span></div>
+        <pre><code id="af"></code></pre>
+        <div class="runline">then: <code id="runcmd"></code></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bctx"></div>
+  <div id="btoast"></div>
+</div>
+
+<script>
+(function(){
+var CAPS=["text","streaming","vision","tools","audio","code"];
+var BUILTINS=["bash","text_editor","web_search","code_exec"];
+var DEF={platform:"microsandbox",from:"python:3.11-slim",name:"support-bot",ver:"1.0",author:"you",
+ desc:"Answers billing questions and escalates anything else.",caps:["text"],
+ sop:"Answer billing questions. Escalate anything else.",cmd:"python ./agent.py",
+ model:"claude-sonnet-4",toolTimeout:"30s",idleTimeout:"",
+ net:[{host:"api.stripe.com",port:"443"}],builtins:["bash"],
+ tools:[{type:"local",name:"file_read"}],skills:[],mcp:[]};
+var state=JSON.parse(JSON.stringify(DEF));
+var toolSrc="local",skillSrc="inline";
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s).replace(/[&<>]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[m]})}
+function toast(m){var t=$("btoast");t.textContent=m;t.style.display="block";setTimeout(function(){t.style.display="none"},1600)}
+
+function saveHash(){try{history.replaceState(null,"","#s="+btoa(encodeURIComponent(JSON.stringify(state))))}catch(e){}}
+function loadHash(){try{var m=location.hash.match(/s=(.+)$/);if(m){var o=JSON.parse(decodeURIComponent(atob(m[1])));state=Object.assign(JSON.parse(JSON.stringify(DEF)),o)}}catch(e){}}
+
+var FIELDS=["from","name","ver","author","desc","sop","cmd","model","toolTimeout","idleTimeout"];
+function bindFields(){FIELDS.forEach(function(k){var el=$(k);if(!el)return;el.addEventListener("input",function(){state[k]=el.value;render()})})}
+function fillFields(){FIELDS.forEach(function(k){if($(k))$(k).value=state[k]||""});segSet("platform",state.platform)}
+function segSet(id,v){Array.prototype.forEach.call($(id).children,function(b){b.classList.toggle("on",b.dataset.v===v)})}
+
+$("platform").addEventListener("click",function(e){if(e.target.dataset.v){state.platform=e.target.dataset.v;segSet("platform",state.platform);render()}});
+$("tool_src").addEventListener("click",function(e){if(e.target.dataset.v){toolSrc=e.target.dataset.v;segSet("tool_src",toolSrc);$("tool_url_row").style.display=toolSrc==="utcp"?"block":"none"}});
+$("skill_src").addEventListener("click",function(e){if(e.target.dataset.v){skillSrc=e.target.dataset.v;segSet("skill_src",skillSrc);$("skill_url_row").style.display=skillSrc==="inline"?"none":"block";$("skill_cache_row").style.display=skillSrc==="inline"?"none":"flex"}});
+
+function chips(hostId,items,arrKey,cls){var c=$(hostId);c.innerHTML="";items.forEach(function(it){var el=document.createElement("span");el.className="chip"+(cls||"")+(state[arrKey].indexOf(it)>=0?" on":"");el.textContent=it;el.onclick=function(){var i=state[arrKey].indexOf(it);i>=0?state[arrKey].splice(i,1):state[arrKey].push(it);render()};c.appendChild(el)})}
+
+window.bAddNet=function(h,p){h=h||$("net_host").value.trim();p=p||$("net_port").value.trim()||"443";if(!h)return;state.net.push({host:h,port:p});$("net_host").value="";$("net_port").value="";render()}
+window.bAddTool=function(){var n=$("tool_name").value.trim();if(!n)return;var t={type:toolSrc,name:n};if(toolSrc==="utcp")t.url=$("tool_url").value.trim()||"https://utcp.io/manifest/"+n;state.tools.push(t);$("tool_name").value="";$("tool_url").value="";render()}
+window.bAddSkill=function(){var n=$("skill_name").value.trim();if(!n)return;var s={name:n,source:skillSrc};if(skillSrc!=="inline"){s.url=$("skill_url").value.trim();s.cached=$("skill_cached").checked}state.skills.push(s);$("skill_name").value="";$("skill_url").value="";render()}
+window.bAddMcp=function(){var n=$("mcp_name").value.trim();if(!n)return;state.mcp.push({name:n,url:$("mcp_url").value.trim()});$("mcp_name").value="";$("mcp_url").value="";render()}
+function rm(arr,i){arr.splice(i,1);render()}
+
+function lists(){
+  var nl=$("net_list");nl.innerHTML="";state.net.forEach(function(e,i){var d=document.createElement("div");d.className="item";d.innerHTML='<span class="dot" style="background:#38BDF8"></span>dns:'+esc(e.host)+':'+esc(e.port)+'<button class="x">✕</button>';d.querySelector(".x").onclick=function(){rm(state.net,i)};nl.appendChild(d)});
+  var tl=$("tool_list");tl.innerHTML="";state.tools.forEach(function(t,i){var d=document.createElement("div");d.className="item";d.innerHTML='<span class="dot" style="background:#34D399"></span>'+esc(t.name)+'<span class="tag">'+t.type+'</span><button class="x">✕</button>';d.querySelector(".x").onclick=function(){rm(state.tools,i)};tl.appendChild(d)});
+  var sl=$("skill_list");sl.innerHTML="";state.skills.forEach(function(s,i){var d=document.createElement("div");d.className="item";d.innerHTML='<span class="dot" style="background:#A78BFA"></span>'+esc(s.name)+'<span class="tag">'+s.source+(s.cached?" ·pinned":"")+'</span><button class="x">✕</button>';d.querySelector(".x").onclick=function(){rm(state.skills,i)};sl.appendChild(d)});
+  var ml=$("mcp_list");ml.innerHTML="";state.mcp.forEach(function(m,i){var d=document.createElement("div");d.className="item";d.innerHTML='<span class="dot" style="background:#22D3EE"></span>'+esc(m.name)+'<button class="x">✕</button>';d.querySelector(".x").onclick=function(){rm(state.mcp,i)};ml.appendChild(d)});
+}
+
+function agentfile(){
+  var L=[];L.push('<span class="c"># syntax=agentrc.agentfile/v0.1</span>');
+  L.push('<span class="k">FROM</span> '+esc(state.from||"python:3.11-slim"));
+  L.push('<span class="k">IDENTITY</span> name='+esc(state.name||"agent")+(state.ver?' version='+esc(state.ver):'')+(state.author?' author='+esc(state.author):''));
+  if(state.desc)L.push('<span class="k">IDENTITY</span> description=<span class="s">"'+esc(state.desc.replace(/\s+/g," ").trim())+'"</span>');
+  if(state.caps.length)L.push('<span class="k">CAPABILITY</span> '+esc(state.caps.join(" ")));
+  if(state.sop.trim())L.push('<span class="k">SOP</span> '+esc(state.sop.replace(/\s+/g," ").trim()));
+  if(state.cmd.trim())L.push('<span class="k">CMD</span> '+esc(state.cmd.trim()));
+  var localT=state.tools.filter(function(t){return t.type==="local"}),utcpT=state.tools.filter(function(t){return t.type==="utcp"});
+  var inlineSk=state.skills.filter(function(s){return s.source==="inline"});
+  if(localT.length||inlineSk.length){L.push('');L.push('<span class="c"># local resources → /mnt</span>');
+    localT.forEach(function(t){L.push('<span class="k">COPY</span> --chmod=755 ./tools/'+esc(t.name)+' /mnt/tools/'+esc(t.name))});
+    inlineSk.forEach(function(s){L.push('<span class="k">COPY</span> ./skills/'+esc(s.name)+' /mnt/skills/'+esc(s.name))})}
+  var remote=[];utcpT.forEach(function(t){remote.push('<span class="k">ADD</span> --remote '+esc(t.url)+' /mnt/tools/'+esc(t.name)+'  <span class="c"># UTCP (utcp.io)</span>')});
+  state.skills.filter(function(s){return s.source!=="inline"}).forEach(function(s){remote.push('<span class="k">ADD</span> --remote'+(s.cached?' --cached':'')+' '+esc(s.url||"…")+' /mnt/skills/'+esc(s.name))});
+  state.mcp.forEach(function(m){remote.push('<span class="k">ADD</span> --remote --cached '+esc(m.url||"…")+' /mnt/mcp/'+esc(m.name))});
+  if(remote.length){L.push('');L.push('<span class="c"># remote resources — pinned to digests at build (arc lock)</span>');remote.forEach(function(r){L.push(r)})}
+  L.push('');L.push('<span class="c"># typed requests — platform grants, narrows, or rejects</span>');
+  if(state.model.trim())L.push('<span class="k">POLICY</span> model.name         '+esc(state.model.trim()));
+  if(state.builtins.length)L.push('<span class="k">POLICY</span> agent.tools        '+esc(state.builtins.join(",")));
+  if(state.toolTimeout.trim())L.push('<span class="k">POLICY</span> agent.tool_timeout '+esc(state.toolTimeout.trim()));
+  if(state.idleTimeout.trim())L.push('<span class="k">POLICY</span> agent.idle_timeout '+esc(state.idleTimeout.trim()));
+  state.net.forEach(function(e){L.push('<span class="k">POLICY</span> network dns:'+esc(e.host)+':'+esc(e.port))});
+  if(state.platform==="bedrock")L.push('<span class="k">POLICY</span> substrate.aws.roleArn <span class="s">arn:aws:iam::123:role/agent</span>');
+  if(state.platform==="kubernetes")L.push('<span class="k">POLICY</span> substrate.kubernetes.serviceAccount agent-sa');
+  return L.join("\n");
+}
+function plain(){return $("af").textContent}
+function runCmd(){
+  var ref="ghcr.io/you/"+(state.name||"agent")+":"+(state.ver||"0.1");
+  var m={microsandbox:"local --isolation microvm",bedrock:"bedrock",kubernetes:"kubernetes"}[state.platform];
+  return "arc build -t "+ref+" .  &&  arc run "+ref+" --backend "+m+" --dry-run";
+}
+
+function renderBoard(){
+  var cats=[
+    {label:"model",c:"#EB5A0F",items:state.model.trim()?[state.model.trim()]:[]},
+    {label:"egress",c:"#38BDF8",items:state.net.map(function(e){return "dns:"+e.host+":"+e.port})},
+    {label:"built-in",c:"#f5a623",items:state.builtins.slice()},
+    {label:"tools",c:"#34D399",items:state.tools.map(function(t){return t.name+(t.type==="utcp"?" · utcp":"")})},
+    {label:"skills",c:"#A78BFA",items:state.skills.map(function(s){return s.name+(s.cached?" · pinned":(s.source!=="inline"?" · "+s.source:""))})},
+    {label:"mcp",c:"#22D3EE",items:state.mcp.map(function(m){return m.name})}
+  ];
+  var caps=state.caps.slice(0,4).join(" · ")||"—";
+  var h='<div class="board-deny"><span>⛨</span> '+esc(state.platform)+' sandbox · <b>deny-by-default</b> — anything not listed is blocked</div>';
+  h+='<div class="agent-card"><span class="ad"></span><div><div class="nm">'+esc(state.name||"agent")+'</div><div class="cap">'+esc(caps)+'</div></div></div>';
+  h+='<div class="lanes">';
+  cats.forEach(function(cat){
+    h+='<div class="lane"><div class="lhead" style="color:'+cat.c+'"><i style="background:'+cat.c+'"></i>'+cat.label+'<span class="ct">'+cat.items.length+'</span></div>';
+    if(cat.items.length)cat.items.forEach(function(it){h+='<div class="node" style="border-color:'+cat.c+'66"><span class="d" style="background:'+cat.c+'"></span>'+esc(it)+'</div>'});
+    else h+='<div class="empty">— none —</div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  $("board").innerHTML=h;
+}
+
+function render(){lists();chips("caps",CAPS,"caps","");chips("builtins",BUILTINS,"builtins"," b");$("af").innerHTML=agentfile();$("runcmd").textContent=runCmd();renderBoard();saveHash()}
+
+var ctx=$("bctx");
+$("board").addEventListener("contextmenu",function(e){e.preventDefault();ctx.style.display="block";ctx.style.left=Math.min(e.clientX,innerWidth-170)+"px";ctx.style.top=Math.min(e.clientY,innerHeight-190)+"px";
+ ctx.innerHTML='<div class="h">add to boundary</div><button data-a="net">＋ network egress</button><button data-a="tool">＋ local tool</button><button data-a="builtin">＋ built-in tool</button><button data-a="skill">＋ skill (url)</button><button data-a="mcp">＋ MCP server</button>'});
+document.addEventListener("click",function(){ctx.style.display="none"});
+ctx.addEventListener("click",function(e){var a=e.target.dataset.a;if(!a)return;
+  if(a==="net"){var v=prompt("egress host:port","api.example.com:443");if(v){var p=v.split(":");window.bAddNet(p[0],p[1]||"443")}}
+  else if(a==="tool"){var v=prompt("local tool name","my_tool");if(v){state.tools.push({type:"local",name:v});render()}}
+  else if(a==="builtin"){var v=prompt("built-in tool (bash / text_editor / web_search / code_exec)","bash");if(v&&state.builtins.indexOf(v)<0){state.builtins.push(v);render()}}
+  else if(a==="skill"){var v=prompt("skill name","code-review");if(v){var u=prompt("skill URL","https://registry.example.com/skills/"+v+":1.0");state.skills.push({name:v,source:"url",url:u||"",cached:true});render()}}
+  else if(a==="mcp"){var v=prompt("MCP name","github");if(v){var u=prompt("MCP origin URL","https://registry.example.com/mcp/"+v+":latest");state.mcp.push({name:v,url:u||""});render()}}
+});
+
+var dz=$("drop");
+["dragover","dragenter"].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.add("over")})});
+["dragleave","drop"].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.remove("over")})});
+dz.addEventListener("drop",function(e){var fs=e.dataTransfer.files;for(var i=0;i<fs.length;i++)state.tools.push({type:"local",name:fs[i].name.replace(/[^A-Za-z0-9._-]/g,"_")});render()});
+dz.addEventListener("click",function(){var inp=document.createElement("input");inp.type="file";inp.multiple=true;inp.onchange=function(){for(var i=0;i<inp.files.length;i++)state.tools.push({type:"local",name:inp.files[i].name.replace(/[^A-Za-z0-9._-]/g,"_")});render()};inp.click()});
+
+$("net_host").addEventListener("keydown",function(e){if(e.key==="Enter")window.bAddNet()});
+$("tool_name").addEventListener("keydown",function(e){if(e.key==="Enter")window.bAddTool()});
+$("skill_name").addEventListener("keydown",function(e){if(e.key==="Enter")window.bAddSkill()});
+$("mcp_name").addEventListener("keydown",function(e){if(e.key==="Enter")window.bAddMcp()});
+
+$("copyBtn").addEventListener("click",function(){navigator.clipboard&&navigator.clipboard.writeText(plain());this.textContent="copied ✓";var b=this;setTimeout(function(){b.textContent="copy"},1200)});
+$("dlBtn").addEventListener("click",function(){var u=URL.createObjectURL(new Blob([plain()],{type:"text/plain"}));var a=document.createElement("a");a.href=u;a.download="Agentfile";a.click();URL.revokeObjectURL(u)});
+$("shareBtn").addEventListener("click",function(){saveHash();navigator.clipboard&&navigator.clipboard.writeText(location.href);toast("Shareable link copied ✓")});
+$("resetBtn").addEventListener("click",function(){state=JSON.parse(JSON.stringify(DEF));fillFields();render()});
+
+loadHash();bindFields();fillFields();render();
+})();
+</script>
