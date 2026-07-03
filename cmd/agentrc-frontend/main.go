@@ -72,9 +72,11 @@ func build(ctx context.Context, c client.Client) (*client.Result, error) {
 
 		translated, err := agentllb.Translate(ctx, f, agentllb.Options{
 			Convert: dockerfile2llb.ConvertOpt{
-				Config:         bc.Config,
+				Config: bc.Config,
+				// Client alone: dockerfile2llb derives the main context from it.
+				// Passing Client AND MainContext is rejected by BuildKit
+				// ("Client and MainContext cannot both be provided", convert.go).
 				Client:         bc,
-				MainContext:    mainCtx,
 				TargetPlatform: &p,
 				MetaResolver:   c,
 				LLBCaps:        &llbCaps,
