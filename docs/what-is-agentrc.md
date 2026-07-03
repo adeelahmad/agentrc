@@ -8,7 +8,7 @@ permalink: /docs/what-is-agentrc/
 
 **agentrc** is an open specification for **declaring, packaging, governing, and sharing AI agents** as portable, content-addressed artifacts. At its center is the **Agentfile** — a Dockerfile-shaped recipe for one agent.
 
-You already know the shape: `FROM`, `CMD`, `COPY`, `ADD`, `LABEL`, `HEALTHCHECK`. agentrc adds just **four new keywords** — `IDENTITY`, `CAPABILITY`, `SOP`, and `POLICY` — and otherwise reuses standard Dockerfile keywords. The agentrc BuildKit frontend (or the `agentrc` CLI) compiles the Agentfile into an ordinary **OCI artifact** whose image config carries namespaced `org.agentrc.*` labels. A **platform** reads those labels — never the Agentfile source — and decides what to honour.
+You already know the shape: `FROM`, `CMD`, `COPY`, `ADD`, `LABEL`, `HEALTHCHECK`. agentrc adds just **four new keywords** — `IDENTITY`, `CAPABILITY`, `SOP`, and `POLICY` — and otherwise reuses standard Dockerfile keywords. The agentrc BuildKit frontend (or the `agentrc` CLI) compiles the Agentfile into an ordinary **OCI artifact** whose image config carries namespaced `ai.agentrc.*` labels. A **platform** reads those labels — never the Agentfile source — and decides what to honour.
 
 agentrc is **not** a runtime, sandbox, cloud platform, model provider, or agent framework. It is the neutral declaration, packaging, and governance layer that sits *above* all of those.
 
@@ -29,7 +29,7 @@ agentrc gives you one Dockerfile-shaped recipe and one portable package that mak
 
 - **One recipe, any runner.** An `Agentfile` describes a single agent — identity, capabilities, system prompt, tools, skills, MCP servers, model, network, and operational constraints — independent of where it runs. Build it with `docker build` (via the `# syntax=agentrc.agentfile/v0.1` frontend) or with `arc build`; both emit the identical OCI artifact. Run it on a local process, a container, or a microVM — the substrate is a run-time choice, never an Agentfile directive.
 - **`POLICY` is a request, not enforcement.** Each `POLICY` line is the developer *asking* the platform for a resource, a model, or an operational constraint. The platform (runtime / operator / organization) is free to **grant, narrow, or reject** any request. The Agentfile expresses *intent*; the platform holds *authority*.
-- **Labels are the manifest.** The build translates authored intent into namespaced OCI labels under `org.agentrc.*`. The platform reads those labels at deploy / run time — **without parsing the Agentfile.** Labels are the machine-readable contract; the Agentfile is the human-authored recipe.
+- **Labels are the manifest.** The build translates authored intent into namespaced OCI labels under `ai.agentrc.*`. The platform reads those labels at deploy / run time — **without parsing the Agentfile.** Labels are the machine-readable contract; the Agentfile is the human-authored recipe.
 - **Secrets are deferred.** This draft defines no `SECRET`/`CRED` keyword and no secret schema; an agent that needs a credential leaves resolution entirely to the platform (Vault / broker / env / workload identity) — out of scope for now.
 - **Cedar enforcement is platform-side, deny-by-default, fail closed.** The platform compiles each granted request plus its own organization rules into [Cedar](https://www.cedarpolicy.com/) and evaluates the grant: absence of a grant is a denial, an organization `forbid` defeats any agent request order-independently, and authorization tightens monotonically across `FROM`. A conformant platform that cannot enforce a required boundary refuses to run. Cedar is the enforcement engine and compilation target — **never an Agentfile author surface.**
 
@@ -39,7 +39,7 @@ agentrc gives you one Dockerfile-shaped recipe and one portable package that mak
 |---|---|
 | An **agent developer / adopter** | A Dockerfile-shaped recipe — four new keywords over keywords you already know — that builds with `docker build` or `arc build`. |
 | A **security / compliance reviewer** | One artifact whose labels state every request: tools, network, model, sub-agents — vetted before it runs. |
-| A **platform / runner author** | A labels-only contract: read `org.agentrc.*`, grant / narrow / reject, enforce with Cedar, fail closed. No need to parse the Agentfile. |
+| A **platform / runner author** | A labels-only contract: read `ai.agentrc.*`, grant / narrow / reject, enforce with Cedar, fail closed. No need to parse the Agentfile. |
 | A **registry maintainer** | A standard OCI artifact with digests and `.origin` labels you can mirror, sign, and attest. |
 
 ## Standards agentrc builds on
@@ -52,7 +52,7 @@ agentrc is deliberately a thin governance layer over proven, open standards rath
 | **Skills** | [Agent Skills](https://agentskills.io/) — the open `SKILL.md` format | Skill bundles under `/mnt/skills/`. |
 | **Instructions** | [Agent SOP](https://github.com/strands-agents/agent-sop) — natural-language, RFC-2119-constrained operating procedures | The `SOP` keyword; embedded as a readable file at `/mnt/SOP` (the label is a pointer + digest, never the full text). |
 | **Authorization** | [Cedar](https://www.cedarpolicy.com/) — the open authorization policy language from AWS | The **platform-side** enforcement engine and compilation target for typed `POLICY` requests. Not an Agentfile author surface. |
-| **Packaging** | [OCI](https://opencontainers.org/) — content-addressed, signable artifacts | An OCI artifact: layers carry the `/mnt` resources; the image config carries `org.agentrc.*` labels. |
+| **Packaging** | [OCI](https://opencontainers.org/) — content-addressed, signable artifacts | An OCI artifact: layers carry the `/mnt` resources; the image config carries `ai.agentrc.*` labels. |
 
 agentrc declares and governs these; it does not replace any of them.
 
@@ -69,5 +69,5 @@ To stay useful to *every* runtime instead of competing with them, agentrc delibe
 - [Enforcement (Cedar) profile](/profiles/security/) — how the platform enforces granted requests.
 
 <div class="callout">
-<strong>In one line:</strong> The Agentfile is a Dockerfile-shaped recipe for one agent; the build emits <code>org.agentrc.*</code> OCI labels; the platform reads the labels — not the Agentfile — and grants, narrows, or rejects each request, enforcing the result with Cedar. The agent carries no secret value and writes no policy language.
+<strong>In one line:</strong> The Agentfile is a Dockerfile-shaped recipe for one agent; the build emits <code>ai.agentrc.*</code> OCI labels; the platform reads the labels — not the Agentfile — and grants, narrows, or rejects each request, enforcing the result with Cedar. The agent carries no secret value and writes no policy language.
 </div>

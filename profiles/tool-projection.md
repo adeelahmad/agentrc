@@ -17,7 +17,7 @@ This profile defines the **projected filesystem** an agentrc agent sees at run
 time: the `/mnt` tree where its tools, skills, MCP servers, system prompt, and
 live runtime state are exposed. It is the run-time companion to the
 [Specification](/spec/): the build embeds resources at `/mnt/<...>` and emits
-`org.agentrc.*` labels; this profile describes what a platform MUST project so a
+`ai.agentrc.*` labels; this profile describes what a platform MUST project so a
 `CMD` can find and invoke those resources.
 
 Projection does **not** make agentrc a runtime. It defines the portable surface
@@ -49,7 +49,7 @@ provided the paths and the invocation contract below hold.
 ## Tools
 
 A **tool** is an executable file under `/mnt/tools/`. The platform projects each
-tool the build embedded (`org.agentrc.tool.<name>=local`) or referenced
+tool the build embedded (`ai.agentrc.tool.<name>=local`) or referenced
 (`=<digest>` / `=runtime:<url>`) so the `CMD` can invoke it by path.
 
 To be self-describing, a tool SHOULD expose its schema by **one** of:
@@ -75,7 +75,7 @@ help/`man`-style output and to enumerate the agent's capability surface.
 Skill bundles are projected under `/mnt/skills/<name>/` as directories of
 instructions, scripts, and resources — a `SKILL.md` plus its supporting files.
 They are added with `COPY ./skills/<name> /mnt/skills/<name>` or
-`ADD --remote … /mnt/skills/<name>` and recorded in `org.agentrc.skill.*` labels.
+`ADD --remote … /mnt/skills/<name>` and recorded in `ai.agentrc.skill.*` labels.
 
 ```text
 /mnt/skills/
@@ -90,7 +90,7 @@ declares and governs MCP; it does not replace it. An embedded MCP server carries
 both a digest and an `.origin` label, so a platform MAY re-point it to an
 internal mirror at deploy time without rebuilding (see the
 [OCI labels & package profile](/profiles/oci-package/)). A `--runtime` MCP
-server (`org.agentrc.mcp.<name>=runtime:<url>`) is fetched when the agent
+server (`ai.agentrc.mcp.<name>=runtime:<url>`) is fetched when the agent
 bootstraps.
 
 ```text
@@ -104,7 +104,7 @@ bootstraps.
 The system prompt is always a readable file at **`/mnt/SOP`**, regardless of
 whether it was authored inline, as a heredoc, or file-backed via `COPY`/`ADD`.
 The platform loads `/mnt/SOP` at startup. Labels carry only a **pointer plus
-digest** (`org.agentrc.sop=/mnt/SOP`, `org.agentrc.sop.sha256=<digest>`), never
+digest** (`ai.agentrc.sop=/mnt/SOP`, `ai.agentrc.sop.sha256=<digest>`), never
 the full text, so the platform can verify or override the file without carrying
 the prompt in metadata.
 
@@ -134,14 +134,14 @@ what is actually in force:
 
 ```text
 /mnt/proc/
-  identity     # the resolved org.agentrc.identity.* for this agent
+  identity     # the resolved ai.agentrc.identity.* for this agent
   policy       # the requests as granted/narrowed by the platform (post-Cedar)
   budgets      # live timeouts, memory/CPU, sub-agent and other limits
   audit        # a tail of the audit stream (tool calls, grants, denials)
 ```
 
 What appears under `/mnt/proc/policy` is the **granted** set, not the raw
-request: the platform reads the `org.agentrc.*` labels, evaluates each request
+request: the platform reads the `ai.agentrc.*` labels, evaluates each request
 against its own Cedar policies, and projects the result. A request the platform
 narrowed or rejected is reflected here, not silently honoured.
 

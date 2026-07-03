@@ -29,7 +29,7 @@
     },
     "labels_digest": {
       "type": "string",
-      "description": "Digest over the emitted org.agentrc.* label set, for integrity checks."
+      "description": "Digest over the emitted ai.agentrc.* label set, for integrity checks."
     },
     "base": {
       "type": "object",
@@ -73,11 +73,11 @@
           },
           "digest": {
             "type": "string",
-            "description": "Resolved content digest for embedded resources (org.agentrc.<kind>.<name>)."
+            "description": "Resolved content digest for embedded resources (ai.agentrc.<kind>.<name>)."
           },
           "origin": {
             "type": "string",
-            "description": "Origin reference (org.agentrc.<kind>.<name>.origin) so a platform may re-point to a mirror without rebuilding."
+            "description": "Origin reference (ai.agentrc.<kind>.<name>.origin) so a platform may re-point to a mirror without rebuilding."
           },
           "fail_mode": {
             "type": "string",
@@ -94,7 +94,7 @@
       "properties": {
         "sha256": {
           "type": "string",
-          "description": "SHA-256 digest of the SOP file embedded at /mnt/SOP (org.agentrc.sop.sha256)."
+          "description": "SHA-256 digest of the SOP file embedded at /mnt/SOP (ai.agentrc.sop.sha256)."
         }
       },
       "additionalProperties": true

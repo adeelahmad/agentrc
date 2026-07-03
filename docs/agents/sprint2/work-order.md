@@ -39,7 +39,7 @@ Repo: /Users/adeelahmad/work/agentrc (`master`). Live: https://agentrc.ai.
 7. Every example file must pass `arc lint` (`go run ./cmd/agentrc lint <file>` from repo root —
    note: CLI is at repo-root ./cmd/agentrc, NOT tooling/).
 8. Backend docs positioning line, VERBATIM: "Reference translators — a proof of concept until
-   platforms read `org.agentrc.*` labels natively. Not production runners."
+   platforms read `ai.agentrc.*` labels natively. Not production runners."
 9. Locate every target by grep first. Rebuild site + pass §V before commit. (No local Jekyll in
    this env → build-dependent checks delegated to CI + live, as in Sprint 1.)
 
@@ -61,7 +61,7 @@ default-mode prose — §14.2 #1). Verify: `arc lint` passes both; links resolve
 ### Phase 4 — spec draft.6 (authored from inline detail below; commit addendum iff owner provides)
 **T17 — §8.5 `substrate.<platform>.*`** [P1] Tokens `aws|gcp|azure|kubernetes|local`; unknown
 tokens MUST parse; foreign-platform keys ignored, never errors (linter MAY warn); labels
-`org.agentrc.substrate.<platform>.<key>=<value>`; platform-scoped beats generic on that platform
+`ai.agentrc.substrate.<platform>.<key>=<value>`; platform-scoped beats generic on that platform
 only; tightening-only across `FROM` per namespace. AWS registry: `roleArn`, `networkMode`,
 `securityGroup` (rep.), `subnet` (rep.), `protocol`, `maxLifetime`, `deployment.mode`
 (`container` default|`code`), `code.s3.uri`.
@@ -90,7 +90,7 @@ draft.6**; implement the T8 A/B choice (default A).
   `rg 'POLICY substrate\.' spec/` intact.
 **T22 — Backend `local`** [P1] Wire the existing microsandbox VMM MVP under `--backend local`
 (default). Plumbing only + §0.8 positioning line.
-**T23 — Backend `bedrock` (labels → CreateAgentRuntime, 13/13)** [P1] Map org.agentrc.* labels +
+**T23 — Backend `bedrock` (labels → CreateAgentRuntime, 13/13)** [P1] Map ai.agentrc.* labels +
 image config to Bedrock AgentRuntime fields (agentRuntimeName/description ← IDENTITY;
 containerUri ← OCI ref; roleArn ← substrate.aws.roleArn; networkMode ← substrate.aws.networkMode;
 securityGroups/subnets ← substrate.aws.securityGroup/subnet; serverProtocol ← substrate.aws.protocol;

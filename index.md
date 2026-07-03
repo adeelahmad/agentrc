@@ -58,7 +58,7 @@ deny-default
 <span class="k">POLICY</span> network dns:api.example.com:443
 
 <span class="k">HEALTHCHECK</span> --interval=60s CMD /mnt/tools/file_read --agentrc-schema</code></pre></div>
-      <div class="term-status" id="tstatus"><span>arc lint: ok</span><span>compiles to OCI + <code>org.agentrc.*</code> labels</span><span>policy reviewable</span></div>
+      <div class="term-status" id="tstatus"><span>arc lint: ok</span><span>compiles to OCI + <code>ai.agentrc.*</code> labels</span><span>policy reviewable</span></div>
     </div>
   </div>
 </section>
@@ -77,7 +77,7 @@ deny-default
   <div class="card" style="display:flex;flex-direction:column;gap:.7rem;min-height:150px">
     <span style="display:grid;place-items:center;width:38px;height:38px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--accent)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></span>
     <h3 style="font-size:1rem;margin:0">Portable everywhere</h3>
-    <p class="muted" style="margin:0;font-size:.84rem;flex:1">The build translates intent into namespaced <code>org.agentrc.*</code> OCI labels. Platforms read the labels — never the Agentfile — so agents ship, sign, and mirror like any container image.</p>
+    <p class="muted" style="margin:0;font-size:.84rem;flex:1">The build translates intent into namespaced <code>ai.agentrc.*</code> OCI labels. Platforms read the labels — never the Agentfile — so agents ship, sign, and mirror like any container image.</p>
   </div>
 </section>
 
@@ -122,7 +122,7 @@ cd agentrc &amp;&amp; go build -o arc ./cmd/agentrc</code></pre>
 
 <section class="get-started">
   <h2 id="cloud">Ship the same artifact to the cloud</h2>
-  <p class="lead">The build writes <code>org.agentrc.*</code> labels once. Point <code>arc run</code> at any backend to translate those labels into that platform's deploy form.</p>
+  <p class="lead">The build writes <code>ai.agentrc.*</code> labels once. Point <code>arc run</code> at any backend to translate those labels into that platform's deploy form.</p>
   <div class="grid">
     <div class="card">
       <h3 style="font-size:1rem">Push once</h3>
@@ -143,7 +143,7 @@ ghcr.io/you/hello:0.1</code></pre>
       <p class="muted" style="margin:.55rem 0 0;font-size:.8rem">→ deploy manifests</p>
     </div>
   </div>
-  <div class="callout"><strong>Same artifact, same labels, three substrates.</strong> Reference translators — a proof of concept until platforms read <code>org.agentrc.*</code> labels natively. Not production runners.</div>
+  <div class="callout"><strong>Same artifact, same labels, three substrates.</strong> Reference translators — a proof of concept until platforms read <code>ai.agentrc.*</code> labels natively. Not production runners.</div>
 </section>
 
 <h2>The separation agentrc creates</h2>
@@ -156,7 +156,7 @@ ghcr.io/you/hello:0.1</code></pre>
     <tr><td>Tools, skills, MCP servers</td><td><code>COPY / ADD --remote</code> into <code>/mnt</code></td><td>compiler → layers + labels</td><td>Portable across stacks</td></tr>
     <tr><td>Resource, model, network, lifecycle requests</td><td><code>POLICY</code> (typed namespaces)</td><td>platform (grant / narrow / reject)</td><td>Governed and reviewable</td></tr>
     <tr><td>Enforcement</td><td>typed requests compiled to Cedar</td><td>platform (deny-by-default, <code>forbid &gt; permit</code>)</td><td>Least privilege by design</td></tr>
-    <tr><td>Packaging and sharing</td><td>OCI artifact + <code>org.agentrc.*</code> labels</td><td>any OCI registry</td><td>Interoperable distribution</td></tr>
+    <tr><td>Packaging and sharing</td><td>OCI artifact + <code>ai.agentrc.*</code> labels</td><td>any OCI registry</td><td>Interoperable distribution</td></tr>
     <tr><td>Execution substrate</td><td>run-time choice (<code>arc run --backend</code>)</td><td>local, container, microVM, cloud runners</td><td>Freedom with guardrails</td></tr>
   </tbody>
 </table>
@@ -215,14 +215,14 @@ ghcr.io/you/hello:0.1</code></pre>
     {
       cmd: 'arc build -t ghcr.io/you/hello:0.1 .',
       body: '<pre><code><span class="c"># the build translates intent into OCI labels</span>\n' +
-            '<span class="k">org.agentrc.identity.name</span>=hello\n' +
-            '<span class="k">org.agentrc.capability</span>=text\n' +
-            '<span class="k">org.agentrc.model.name</span>=claude-sonnet-4\n' +
-            '<span class="k">org.agentrc.agent.tool_timeout</span>=30s\n' +
-            '<span class="k">org.agentrc.network.dns.api.example.com</span>=443\n' +
-            '<span class="k">org.agentrc.tool.file_read</span>=/mnt/tools/file_read\n' +
-            '<span class="k">org.agentrc.sop.sha256</span>=<span class="s">a1b2c3…</span></code></pre>',
-      status: '<span>compiled → OCI</span><span>7 <code>org.agentrc.*</code> labels</span><span>signed &amp; portable</span>'
+            '<span class="k">ai.agentrc.identity.name</span>=hello\n' +
+            '<span class="k">ai.agentrc.capability</span>=text\n' +
+            '<span class="k">ai.agentrc.model.name</span>=claude-sonnet-4\n' +
+            '<span class="k">ai.agentrc.agent.tool_timeout</span>=30s\n' +
+            '<span class="k">ai.agentrc.network.dns.api.example.com</span>=443\n' +
+            '<span class="k">ai.agentrc.tool.file_read</span>=/mnt/tools/file_read\n' +
+            '<span class="k">ai.agentrc.sop.sha256</span>=<span class="s">a1b2c3…</span></code></pre>',
+      status: '<span>compiled → OCI</span><span>7 <code>ai.agentrc.*</code> labels</span><span>signed &amp; portable</span>'
     },
     {
       cmd: 'arc run …hello:0.1 --backend bedrock --dry-run',

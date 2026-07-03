@@ -16,12 +16,12 @@ plain-struct/YAML emission over heavy SDK/k8s clients (ENOSPC dep-tree risk); ke
   `translate`/dispatch seam from T21. Plumbing only (dry-run/plumbing depth acceptable —
   open question #5, UNRESOLVED).
 - Include the §0.8 positioning line VERBATIM in the command/docs surface: "Reference
-  translators — a proof of concept until platforms read `org.agentrc.*` labels natively.
+  translators — a proof of concept until platforms read `ai.agentrc.*` labels natively.
   Not production runners."
 
 ## T23 — Backend `bedrock` (labels → CreateAgentRuntime) [P1]
 
-`cmd/agentrc/backend_bedrock.go`: map `org.agentrc.*` labels + image config → Bedrock
+`cmd/agentrc/backend_bedrock.go`: map `ai.agentrc.*` labels + image config → Bedrock
 `CreateAgentRuntime` fields (13/13):
 - agentRuntimeName / description ← IDENTITY; containerUri ← OCI ref; roleArn ←
   `substrate.aws.roleArn`; networkMode ← `substrate.aws.networkMode`; securityGroups/subnets

@@ -6,7 +6,7 @@ permalink: /docs/runners/
 ---
 # Platforms and substrates
 
-A **platform** consumes an agentrc artifact by reading its `org.agentrc.*`
+A **platform** consumes an agentrc artifact by reading its `ai.agentrc.*`
 labels — **never the Agentfile**. A **substrate** executes the agent's `CMD`.
 agentrc is neither: it is the portable, governed declaration that both read.
 
@@ -48,10 +48,10 @@ platform parse the Agentfile source.
 
 | A conformant platform MUST… | Detail |
 |---|---|
-| Read labels, not the Agentfile | Load every `org.agentrc.*` label from the image config; decide entirely from labels. |
+| Read labels, not the Agentfile | Load every `ai.agentrc.*` label from the image config; decide entirely from labels. |
 | Grant / narrow / reject each request | Evaluate every `POLICY`-derived request — including auto-derived egress — against org / platform policy and available resources. Decisions SHOULD be auditable. |
 | Fetch `--runtime` resources | Fetch `runtime:<url>` resources at bootstrap; honour `--fail-if-unavailable` (refuse to boot) and `--warn-if-unavailable` (log and continue). |
-| Substitute via `.origin` | MAY redirect an embedded resource by honouring an overridden `org.agentrc.*.origin` label (e.g., a public MCP server to an internal mirror) without rebuilding. |
+| Substitute via `.origin` | MAY redirect an embedded resource by honouring an overridden `ai.agentrc.*.origin` label (e.g., a public MCP server to an internal mirror) without rebuilding. |
 | Enforce via Cedar | Compile granted requests plus org rules into Cedar and evaluate: **deny-by-default**, **`forbid` over `permit`** (order-independent), **monotonic intersection across `FROM`**. |
 | Project `/mnt` | Load the SOP from `/mnt/SOP`, select / validate the model from `model.*`, project `/mnt/tools`, `/mnt/skills`, `/mnt/mcp`, and populate `/mnt/proc`. |
 | Fail closed | If a required boundary cannot be enforced or the policy cannot be evaluated, refuse to boot. |

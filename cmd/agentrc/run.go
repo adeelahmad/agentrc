@@ -18,7 +18,7 @@ func isValidBackend(b string) bool {
 	return false
 }
 
-// translate is the pure per-backend seam: it maps org.agentrc.* labels to the
+// translate is the pure per-backend seam: it maps ai.agentrc.* labels to the
 // backend's native config (bedrock JSON, kubernetes manifests, local exec plan).
 // It is fail-closed — an unenforceable request yields an error and no config.
 func translate(backend string, labels map[string]string) (string, error) {
@@ -40,29 +40,29 @@ func translate(backend string, labels map[string]string) (string, error) {
 // of the config each backend would produce for the given ref.
 func representativeLabels(ref string) map[string]string {
 	return map[string]string{
-		"org.agentrc.identity.name":                       "code-reviewer",
-		"org.agentrc.identity.description":                "Reviews pull requests",
+		"ai.agentrc.identity.name":                       "code-reviewer",
+		"ai.agentrc.identity.description":                "Reviews pull requests",
 		"image.ref":                                       ref,
-		"org.agentrc.substrate.aws.roleArn":               "arn:aws:iam::123456789012:role/agent-exec",
-		"org.agentrc.substrate.aws.networkMode":           "PUBLIC",
-		"org.agentrc.substrate.aws.securityGroup":         "sg-0abc123,sg-0def456",
-		"org.agentrc.substrate.aws.subnet":                "subnet-0abc123,subnet-0def456",
-		"org.agentrc.substrate.aws.protocol":              "HTTP",
-		"org.agentrc.substrate.aws.maxLifetime":           "1h",
-		"org.agentrc.substrate.aws.deployment.mode":       "code",
-		"org.agentrc.substrate.aws.code.s3.uri":           "s3://acme-agents/code-reviewer.zip",
-		"org.agentrc.substrate.runtime.language":          "python:3.11",
-		"org.agentrc.substrate.runtime.memory":            "8gb",
-		"org.agentrc.substrate.runtime.cpu":               "2",
+		"ai.agentrc.substrate.aws.roleArn":               "arn:aws:iam::123456789012:role/agent-exec",
+		"ai.agentrc.substrate.aws.networkMode":           "PUBLIC",
+		"ai.agentrc.substrate.aws.securityGroup":         "sg-0abc123,sg-0def456",
+		"ai.agentrc.substrate.aws.subnet":                "subnet-0abc123,subnet-0def456",
+		"ai.agentrc.substrate.aws.protocol":              "HTTP",
+		"ai.agentrc.substrate.aws.maxLifetime":           "1h",
+		"ai.agentrc.substrate.aws.deployment.mode":       "code",
+		"ai.agentrc.substrate.aws.code.s3.uri":           "s3://acme-agents/code-reviewer.zip",
+		"ai.agentrc.substrate.runtime.language":          "python:3.11",
+		"ai.agentrc.substrate.runtime.memory":            "8gb",
+		"ai.agentrc.substrate.runtime.cpu":               "2",
 		"env.LOG_LEVEL":                                   "info",
-		"org.agentrc.agent.idle_timeout":                  "5m",
-		"org.agentrc.agent.auth.mode":                     "jwt",
-		"org.agentrc.agent.auth.jwt.discovery_url":        "https://auth.acme/.well-known/openid-configuration",
-		"org.agentrc.agent.auth.jwt.allowed_audience":     "agentrc://code-reviewer",
-		"org.agentrc.agent.auth.jwt.allowed_client":       "acme-ci,acme-bot",
-		"org.agentrc.network.dns.api.github.com":          "443",
-		"org.agentrc.substrate.kubernetes.serviceAccount": "agent-sa",
-		"org.agentrc.mcp.github":                          "runtime:https://registry.agentrc.io/mcp/github:latest",
+		"ai.agentrc.agent.idle_timeout":                  "5m",
+		"ai.agentrc.agent.auth.mode":                     "jwt",
+		"ai.agentrc.agent.auth.jwt.discovery_url":        "https://auth.acme/.well-known/openid-configuration",
+		"ai.agentrc.agent.auth.jwt.allowed_audience":     "agentrc://code-reviewer",
+		"ai.agentrc.agent.auth.jwt.allowed_client":       "acme-ci,acme-bot",
+		"ai.agentrc.network.dns.api.github.com":          "443",
+		"ai.agentrc.substrate.kubernetes.serviceAccount": "agent-sa",
+		"ai.agentrc.mcp.github":                          "runtime:https://registry.agentrc.io/mcp/github:latest",
 	}
 }
 

@@ -19,7 +19,7 @@ permalink: /profiles/runner-conformance/
 
 This profile (`agentrc/platform/v0.1`) defines **platform-conformance** — reading
 labels and granting / projecting / enforcing them — which is distinct from
-**build-conformance**, a compiler emitting correct `org.agentrc.*` labels from an
+**build-conformance**, a compiler emitting correct `ai.agentrc.*` labels from an
 Agentfile, which lives in the [Core profile](/profiles/core/).
 
 > Secrets are **deferred** in this draft; credential resolution is platform-defined
@@ -28,7 +28,7 @@ Agentfile, which lives in the [Core profile](/profiles/core/).
 ## Purpose
 
 agentrc itself is not a runner. An Agentfile compiles to an ordinary **OCI
-artifact** carrying `org.agentrc.*` labels and layers; *something* must read those
+artifact** carrying `ai.agentrc.*` labels and layers; *something* must read those
 labels and run the agent. This profile exists so independent platforms — clouds,
 CLIs, sandboxes, Kubernetes operators, framework-native adapters — can state
 exactly what level of agentrc support they provide, and so that two conformant
@@ -49,7 +49,7 @@ the platform is free to **grant, narrow, or reject**.
 ```text
 author writes          compiler emits              platform decides + enforces
 ─────────────          ──────────────              ───────────────────────────
-POLICY request   ──►   org.agentrc.* labels   ──►  grant / narrow / reject,
+POLICY request   ──►   ai.agentrc.* labels   ──►  grant / narrow / reject,
 (in the Agentfile)     (in the OCI image config)   then enforce with Cedar
 ```
 
@@ -60,20 +60,20 @@ Everything below is keyed off the labels, never off the source recipe.
 A platform claiming **agentrc Platform Conformance** MUST, at deploy / run time:
 
 1. **Pull** the OCI artifact from any OCI-compatible registry.
-2. **Read all `org.agentrc.*` labels** from the image config **without parsing the
+2. **Read all `ai.agentrc.*` labels** from the image config **without parsing the
    Agentfile.** Source is unavailable and unnecessary; the labels are the
    manifest.
 3. **Evaluate each request** — every `POLICY`-derived label, including
-   auto-derived `org.agentrc.network.dns.*` egress — against organization /
+   auto-derived `ai.agentrc.network.dns.*` egress — against organization /
    platform policy and available resources, and **grant, narrow, or reject** it.
    Narrowing and rejection SHOULD be auditable (this auditability requirement is
    [open decision #4](/spec/)).
-4. **Fetch `--runtime` resources now.** For each `org.agentrc.<kind>.<name>=runtime:<url>`
+4. **Fetch `--runtime` resources now.** For each `ai.agentrc.<kind>.<name>=runtime:<url>`
    label, fetch the resource at bootstrap and apply its failure mode:
    `--fail-if-unavailable` (default — refuse to boot) or `--warn-if-unavailable`
    (log and continue).
 5. **Honour `*.origin` overrides.** The platform MAY substitute an embedded
-   (`--cached`) resource by reading an overridden `org.agentrc.<kind>.<name>.origin`
+   (`--cached`) resource by reading an overridden `ai.agentrc.<kind>.<name>.origin`
    label — e.g. re-point a public MCP server to an internal mirror — without
    rebuilding the artifact.
 6. **Enforce via Cedar** (see [Enforcement](#enforcement)): deny-by-default,
@@ -95,14 +95,14 @@ The label namespaces a conformant platform consumes:
 
 | Label namespace | Source keyword | What the platform does |
 |---|---|---|
-| `org.agentrc.identity.*` | `IDENTITY` | Establishes the Cedar principal (`org.agentrc.identity.name`). |
-| `org.agentrc.capability.*` | `CAPABILITY` | Advertised modalities; informational + match against substrate. |
-| `org.agentrc.sop`, `org.agentrc.sop.sha256` | `SOP` | Locates and verifies the prompt file at `/mnt/SOP` (pointer + digest, never full text). |
-| `org.agentrc.agent.*` | `POLICY agent.*` | Agent-side operational constraints / lifecycle / hooks. |
-| `org.agentrc.substrate.*` | `POLICY substrate.*` | Resource requests (memory, cpu, device, ptty…). |
-| `org.agentrc.model.*` | `POLICY model.*` | Model selection / fallback / required capabilities. |
-| `org.agentrc.network.dns.*` | `POLICY network` + auto-derived | Egress grants; auto-derived entries carry a `.source` attribution. |
-| `org.agentrc.tool.*` / `.skill.*` / `.mcp.*` | `COPY` / `ADD --remote` | Resource delivery: `local`, `<digest>` (+ `.origin`), or `runtime:<url>`. |
+| `ai.agentrc.identity.*` | `IDENTITY` | Establishes the Cedar principal (`ai.agentrc.identity.name`). |
+| `ai.agentrc.capability.*` | `CAPABILITY` | Advertised modalities; informational + match against substrate. |
+| `ai.agentrc.sop`, `ai.agentrc.sop.sha256` | `SOP` | Locates and verifies the prompt file at `/mnt/SOP` (pointer + digest, never full text). |
+| `ai.agentrc.agent.*` | `POLICY agent.*` | Agent-side operational constraints / lifecycle / hooks. |
+| `ai.agentrc.substrate.*` | `POLICY substrate.*` | Resource requests (memory, cpu, device, ptty…). |
+| `ai.agentrc.model.*` | `POLICY model.*` | Model selection / fallback / required capabilities. |
+| `ai.agentrc.network.dns.*` | `POLICY network` + auto-derived | Egress grants; auto-derived entries carry a `.source` attribution. |
+| `ai.agentrc.tool.*` / `.skill.*` / `.mcp.*` | `COPY` / `ADD --remote` | Resource delivery: `local`, `<digest>` (+ `.origin`), or `runtime:<url>`. |
 
 The platform MUST support **both** policy encodings: **inline** values in labels,
 and **digest** form where a label carries the digest of a structured manifest
@@ -115,15 +115,15 @@ Enforcement is **Cedar, platform-side.** Cedar MUST NOT appear in the Agentfile;
 authors speak only typed `POLICY` requests. The platform compiles each granted
 request **plus its own organization Cedar policies** into one Cedar `PolicySet`
 and evaluates the grant. A conformant platform MUST derive Cedar entities /
-actions from the request labels (principal = `org.agentrc.identity.name`):
+actions from the request labels (principal = `ai.agentrc.identity.name`):
 
 | Request label | Cedar action | Cedar resource |
 |---|---|---|
-| `org.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
-| `org.agentrc.tool.<name>` | `Action::"tool.invoke"` | `Tool::"<name>"` |
-| `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
-| `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
-| `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
+| `ai.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
+| `ai.agentrc.tool.<name>` | `Action::"tool.invoke"` | `Tool::"<name>"` |
+| `ai.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
+| `ai.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
+| `ai.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
 
 The enforcement properties a conformant platform MUST preserve (these are
 [Cedar's](https://www.cedarpolicy.com/)):
@@ -174,7 +174,7 @@ A conformant platform SHOULD publish a support statement so authors and security
 reviewers know what to expect. It SHOULD declare:
 
 1. supported Agentfile syntax version (e.g. `agentrc.agentfile/v0.1`);
-2. which `org.agentrc.*` label namespaces it reads and honours;
+2. which `ai.agentrc.*` label namespaces it reads and honours;
 3. supported policy encoding(s) — inline, digest, or both;
 4. supported substrates / isolation modes, if any;
 5. resource delivery support — `--cached`, `--runtime`, and `*.origin` override;

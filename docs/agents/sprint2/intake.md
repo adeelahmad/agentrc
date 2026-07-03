@@ -20,7 +20,7 @@ substrate-neutral" by shipping five things in order: (1) two new lint-clean exam
 spec **draft.6** that adds **exactly three** new POLICY namespaces —
 `substrate.<platform>.*`, `agent.auth.*`, `substrate.runtime.language` — and nothing
 else; (3) the CLI **`--substrate` → `--backend`** rename with three reference
-translators (`local`, `bedrock`, `kubernetes`) that map `org.agentrc.*` labels to each
+translators (`local`, `bedrock`, `kubernetes`) that map `ai.agentrc.*` labels to each
 platform's native config, all fail-closed; (4) a one-agent/three-backend demo proving
 "same artifact, same labels, three substrates"; and (5) a full release with live
 re-verification. The version string stays `0.1.0-draft.5` until T20, which bumps it
@@ -37,7 +37,7 @@ POLICY namespaces (draft.6) + `--backend` translators + three-backend demo + rel
 - **T20 [P1]** — Supporting edits + **sitewide version bump draft.5 → draft.6 (one commit)** + T8 landing: §14.2 open decision #6 promotion candidates (`protocol`, `maxLifetime`); /docs/agentfile/ platform-scoped paragraph + JWT example; /profiles/core/ accepts unknown `substrate.<token>.*`; `Agentfile.code-reviewer` commented `substrate.aws.*` + `agent.auth.*` block; CHANGELOG draft.6 entry; implement T8 choice (default Option A).
 - **T21 [P0* demo]** — Flag rename `--substrate` → `--backend` everywhere (CLI code, help, /cli/, quickstart step 5, tooling README): `arc run <ref> --backend local|bedrock|kubernetes` with per-backend flags; `--dry-run` prints translated config and exits. Record: GCP dropped, Docker Compose dropped. Verify `rg -- '--substrate' -l` → 0; `rg 'POLICY substrate\.' spec/` intact.
 - **T22 [P1]** — Backend `local`: wire the existing microsandbox VMM MVP under `--backend local` (default). Plumbing only + §0.8 positioning line.
-- **T23 [P1]** — Backend `bedrock`: map `org.agentrc.*` labels + image config → Bedrock `CreateAgentRuntime` fields (13/13 mapping). Fail-closed on missing `roleArn`, unenforceable `agent.auth.mode=jwt`, code-mode without resolvable language. `--dry-run` emits translated config.
+- **T23 [P1]** — Backend `bedrock`: map `ai.agentrc.*` labels + image config → Bedrock `CreateAgentRuntime` fields (13/13 mapping). Fail-closed on missing `roleArn`, unenforceable `agent.auth.mode=jwt`, code-mode without resolvable language. `--dry-run` emits translated config.
 - **T24 [P1]** — Backend `kubernetes`: emit (dry-run) or apply Deployment / Service / deny-by-default NetworkPolicy (from `POLICY network dns:*`) / ServiceAccount / MCP-server sidecars. ONE emission format (manifests OR Helm), not both.
 - **T25 [P1]** — CLI docs table: `run` → `implemented (local, bedrock, kubernetes — reference translators)`; `sign`/`verify` stay `planned`; §0.8 positioning line above the table.
 - **T26 [P2]** — One-agent/three-backends demo: `arc build`, then `--backend local --isolation microvm`, `--backend bedrock --dry-run`, `--backend kubernetes --dry-run`. Verbatim narrative on "Same artifact, same labels, three substrates."
@@ -61,7 +61,7 @@ Global invariants from work-order §0 (never violate):
    no inline Cedar, no secret keyword. `agent.auth.*` is generic fail-closed authZ
    config, NOT a secret.
 6. **§0.8 positioning line, VERBATIM** on backend docs: "Reference translators — a
-   proof of concept until platforms read `org.agentrc.*` labels natively. Not
+   proof of concept until platforms read `ai.agentrc.*` labels natively. Not
    production runners." (never paraphrased).
 7. **ONE canonical hello** — byte-identical wherever rendered inline and identical to
    `examples/Agentfile.minimal` (M-001: diff, don't grep-substring).

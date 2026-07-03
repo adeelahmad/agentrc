@@ -12,7 +12,7 @@ permalink: /profiles/security/
 **Audience:** security & compliance reviewers, platform / runner authors
 
 > This profile is the normative home of [§11.2 of the specification](/spec/). It
-> defines how a conformant **platform** turns the `org.agentrc.*` request labels
+> defines how a conformant **platform** turns the `ai.agentrc.*` request labels
 > emitted from an Agentfile into a [Cedar](https://www.cedarpolicy.com/)
 > `PolicySet`, and the enforcement properties that decision MUST preserve. The
 > keywords **MUST**, **MUST NOT**, **SHOULD**, and **MAY** follow
@@ -44,7 +44,7 @@ them. There is no second, author-facing policy language.
 
 ## 2. The compilation
 
-The platform reads `org.agentrc.*` labels from the OCI image config — it does
+The platform reads `ai.agentrc.*` labels from the OCI image config — it does
 **not** parse the Agentfile — and compiles them into Cedar entities and
 policies:
 
@@ -52,7 +52,7 @@ policies:
 author writes          platform compiles to         platform enforces
 ─────────────          ────────────────────         ─────────────────
 POLICY request   ──►   Cedar entities + policies     deny-by-default,
-(org.agentrc.*)        (granted request + org rules)  forbid > permit,
+(ai.agentrc.*)        (granted request + org rules)  forbid > permit,
                                                        order-independent,
                                                        monotonic across FROM
 ```
@@ -64,16 +64,16 @@ together with the organization's own Cedar policies.
 ## 3. Request → Cedar mapping (normative)
 
 The **principal** is the agent identity, taken from
-`org.agentrc.identity.name`. The **action** and **resource** are derived from
+`ai.agentrc.identity.name`. The **action** and **resource** are derived from
 the request label's namespace:
 
 | Request label | Cedar action | Cedar resource |
 |---|---|---|
-| `org.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
-| `org.agentrc.tool.<name>` (a projected tool) | `Action::"tool.invoke"` | `Tool::"<name>"` |
-| `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
-| `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
-| `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
+| `ai.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
+| `ai.agentrc.tool.<name>` (a projected tool) | `Action::"tool.invoke"` | `Tool::"<name>"` |
+| `ai.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
+| `ai.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
+| `ai.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
 
 These five rows are the normative mapping a conformant platform MUST implement.
 Auto-derived egress (a `network.dns.*` label derived from an `agent.hooks.*` or
@@ -83,7 +83,7 @@ is an ergonomic convenience, **not** an implicit grant. The platform MUST still
 grant it; an un-granted auto-derived egress is denied.
 
 > Secrets are **deferred** in this draft — there is no `SECRET`/`CRED` keyword
-> and no `org.agentrc.secret.*` schema; credential resolution is left entirely to
+> and no `ai.agentrc.secret.*` schema; credential resolution is left entirely to
 > the platform and is out of scope for now.
 
 ## 4. Enforcement properties a conformant platform MUST preserve
@@ -125,7 +125,7 @@ own Cedar policies are the **ceiling of authority**. The platform compiles both
 into a single Cedar `PolicySet` and evaluates the grant:
 
 - **Floor (agent, in the artifact).** What the agent *asks* to do, as typed
-  `POLICY` requests compiled to `org.agentrc.*` labels. The author owns this and
+  `POLICY` requests compiled to `ai.agentrc.*` labels. The author owns this and
   never writes Cedar.
 - **Ceiling (organization, out-of-band).** What the org *permits or forbids*,
   authored as Cedar policies by the security team, separate from any Agentfile.
@@ -159,9 +159,9 @@ ungoverned execution.
 To claim conformance to this profile (`agentrc/enforcement-cedar/v0.1`), a
 platform MUST:
 
-1. Read authorization from `org.agentrc.*` labels only; it MUST NOT require or
+1. Read authorization from `ai.agentrc.*` labels only; it MUST NOT require or
    parse the Agentfile source.
-2. Take the principal from `org.agentrc.identity.name` and derive actions /
+2. Take the principal from `ai.agentrc.identity.name` and derive actions /
    resources per the mapping in §3 for every request it grants, including
    auto-derived egress.
 3. Compile granted requests together with the organization's Cedar policies into

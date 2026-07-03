@@ -14,7 +14,7 @@ because `cli.md` still lists `run` as `planned` and carries `--substrate`.
       "implemented" with the "reference translators" qualifier. RED now: FAILS — `cli.md:103`
       says `planned`.
 - [ ] `scripts/verify-sprint2.sh::t25_positioning_line_verbatim` — assert the §0.8 line
-      "Reference translators — a proof of concept until platforms read `org.agentrc.*` labels
+      "Reference translators — a proof of concept until platforms read `ai.agentrc.*` labels
       natively. Not production runners." appears verbatim above the table. RED now: FAILS — absent.
 - [ ] `scripts/verify-sprint2.sh::t25_sign_verify_stay_planned` — assert `sign` and `verify`
       rows still read `planned`. RED now: green today; regression guard against flipping them.

@@ -6,7 +6,7 @@ permalink: /cli/
 ---
 # agentrc CLI
 
-An Agentfile compiles to a standard OCI artifact carrying `org.agentrc.*`
+An Agentfile compiles to a standard OCI artifact carrying `ai.agentrc.*`
 labels. There are **two front doors** to that compiler, and they produce
 **identical artifacts**: the BuildKit frontend (which needs no new tool) and the
 native `agentrc` CLI (alias `arc`). This page is the practical companion to
@@ -95,7 +95,7 @@ docker build -f Agentfile --build-arg BUILDKIT_SYNTAX=ghcr.io/adeelahmad/agentrc
 The `# syntax=` line routes the Agentfile through the agentrc frontend image,
 which parses the four agentrc keywords (`IDENTITY`, `CAPABILITY`, `SOP`,
 `POLICY`) and the `ADD --remote` extension, compiles them to LLB, embeds
-`--cached` resources as layers, and writes the `org.agentrc.*` labels into the
+`--cached` resources as layers, and writes the `ai.agentrc.*` labels into the
 image config. A stock `docker build` *without* the `# syntax=` directive
 understands only the standard Dockerfile keywords, so the agentrc keywords would
 be unrecognized — the directive is what enables them.
@@ -115,15 +115,15 @@ agentrc run    <ref> --backend local|bedrock|kubernetes [per-backend flags]
 The four **core** commands are `build`, `push`, `pull`, and `run` (spec §10);
 the rest are tooling around them.
 
-Reference translators — a proof of concept until platforms read `org.agentrc.*` labels natively. Not production runners.
+Reference translators — a proof of concept until platforms read `ai.agentrc.*` labels natively. Not production runners.
 
 | Command | Purpose | Status |
 |---|---|---|
 | `agentrc init` (`arc init`) | Scaffold a starter Agentfile. | `implemented` |
 | `agentrc lint` (`arc lint`) | Check an Agentfile for keyword and request errors before building. | `implemented` |
 | `agentrc lock` (`arc lock`) | Pin `ADD --remote` resources to digests for reproducible builds. | `implemented` |
-| `agentrc build` (`arc build`) | **Core (§10).** Compile an Agentfile to an OCI artifact, emitting `org.agentrc.*` labels and embedding `--cached` resources as layers. `--policy-mode inline\|digest` selects how the request set is encoded (see below). | `implemented` |
-| `agentrc inspect` (`arc inspect`) | Read an artifact's `org.agentrc.*` labels to review what an agent requests before it runs. | `implemented` |
+| `agentrc build` (`arc build`) | **Core (§10).** Compile an Agentfile to an OCI artifact, emitting `ai.agentrc.*` labels and embedding `--cached` resources as layers. `--policy-mode inline\|digest` selects how the request set is encoded (see below). | `implemented` |
+| `agentrc inspect` (`arc inspect`) | Read an artifact's `ai.agentrc.*` labels to review what an agent requests before it runs. | `implemented` |
 | `agentrc sign` (`arc sign`) | Sign an artifact (Sigstore). | `planned` |
 | `agentrc verify` (`arc verify`) | Verify an artifact's signature and provenance. | `planned` |
 | `agentrc push` (`arc push`) | **Core (§10).** Push the artifact to any OCI registry. | `implemented` |
@@ -135,7 +135,7 @@ Reference translators — a proof of concept until platforms read `org.agentrc.*
 The compiled request set MUST be retrievable by the platform in either form, and
 `build` exposes the choice:
 
-- `inline` — the `POLICY`-derived values live directly in the `org.agentrc.*`
+- `inline` — the `POLICY`-derived values live directly in the `ai.agentrc.*`
   labels. Best for small request sets.
 - `digest` — the labels carry a digest of a structured manifest embedded as a
   layer; the full request set is fetched from there. Best for large request sets.
@@ -165,18 +165,18 @@ without a bespoke sidecar, so it cannot honor the granted request set.
 
 ## Reading the labels
 
-The platform reads the artifact's `org.agentrc.*` labels — not the Agentfile.
+The platform reads the artifact's `ai.agentrc.*` labels — not the Agentfile.
 The Agentfile above emits labels such as:
 
 ```text
-org.agentrc.identity.name=hello
-org.agentrc.identity.version=1.0
-org.agentrc.capability.text=true
-org.agentrc.sop=/mnt/SOP
-org.agentrc.sop.sha256=<digest>
-org.agentrc.tool.file_read=local
-org.agentrc.model.name=claude-opus-4
-org.agentrc.network.dns.api.github.com=443
+ai.agentrc.identity.name=hello
+ai.agentrc.identity.version=1.0
+ai.agentrc.capability.text=true
+ai.agentrc.sop=/mnt/SOP
+ai.agentrc.sop.sha256=<digest>
+ai.agentrc.tool.file_read=local
+ai.agentrc.model.name=claude-opus-4
+ai.agentrc.network.dns.api.github.com=443
 ```
 
 Inspect them with standard OCI tooling — `docker inspect`, `arc inspect`, or
@@ -187,7 +187,7 @@ with digests, sub-agent limits) **before** it runs.
 ## Identical artifacts, two paths
 
 The output of `docker build` through the frontend and the output of `arc build`
-MUST be **identical** OCI artifacts: same layers, same `org.agentrc.*` labels,
+MUST be **identical** OCI artifacts: same layers, same `ai.agentrc.*` labels,
 same digest given the same inputs. The frontend and the CLI are two front doors
 to one compiler. At run time, the platform reads those labels, grants / narrows /
 rejects each request, and enforces the grant with [Cedar, platform-side](/profiles/security/)

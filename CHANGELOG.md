@@ -43,7 +43,7 @@ is not renamed.
 ## 0.1.0-draft.5 — 2026-06-30
 
 The Dockerfile-shaped redesign. The Agentfile is now **Dockerfile-shaped**, the build emits
-`org.agentrc.*` OCI labels, and the platform reads those labels — never the
+`ai.agentrc.*` OCI labels, and the platform reads those labels — never the
 Agentfile — to grant, narrow, or reject each request and enforce it with Cedar.
 
 ### Changed (breaking)
@@ -64,14 +64,14 @@ Agentfile — to grant, narrow, or reject each request and enforce it with Cedar
   `--cached`/`--runtime` and `--fail-if-unavailable`/`--warn-if-unavailable`).
   The destination path under `/mnt` (`tools/`, `skills/`, `mcp/`, `SOP`)
   determines the resource type.
-- **Secrets are deferred** — removed the `org.agentrc.secret.*` / `LABEL`-secret
+- **Secrets are deferred** — removed the `ai.agentrc.secret.*` / `LABEL`-secret
   model; no `SECRET`/`CRED` keyword and no secret schema in this draft.
   Credential resolution is platform-defined and out of scope (future design).
 - **Removed `AUDIT`** — audit rides on `POLICY agent.hooks.on_tool_call`.
 - **Resource, model, network, and lifecycle requests are typed `POLICY` lines.**
   Each `POLICY <namespaced.key> <value>` is a single request in the `agent.*`,
   `substrate.*`, `model.*`, or `network` namespace.
-- **`POLICY` is a request, not enforcement.** The build emits `org.agentrc.*`
+- **`POLICY` is a request, not enforcement.** The build emits `ai.agentrc.*`
   OCI labels; the platform reads the labels and **grants, narrows, or rejects**
   each request, with deny-by-default applied to its grant decision.
 - **Cedar moved to a platform-side enforcement engine and compilation target.**

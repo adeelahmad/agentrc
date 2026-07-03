@@ -26,9 +26,9 @@ name.
 
 | Profile | Covers | Profile page |
 |---|---|---|
-| `agentrc/agentfile/v0.1` | **Build conformance** — the compiler / frontend: parse the Dockerfile-shaped Agentfile (four agentrc keywords + standard Dockerfile keywords) and compile Agentfile → `org.agentrc.*` labels + layers. | [Core](/profiles/core/) |
+| `agentrc/agentfile/v0.1` | **Build conformance** — the compiler / frontend: parse the Dockerfile-shaped Agentfile (four agentrc keywords + standard Dockerfile keywords) and compile Agentfile → `ai.agentrc.*` labels + layers. | [Core](/profiles/core/) |
 | `agentrc/enforcement-cedar/v0.1` | Platform-side Cedar enforcement of granted requests (deny-by-default, `forbid` > `permit`, monotonic `FROM`). | [Enforcement (Cedar)](/profiles/security/) |
-| `agentrc/oci-labels/v0.1` | The `org.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
+| `agentrc/oci-labels/v0.1` | The `ai.agentrc.*` label namespace, layers, media types, and package shape. | [OCI Labels &amp; Package](/profiles/oci-package/) |
 | `agentrc/projection/v0.1` | The `/mnt` projection (`tools/`, `skills/`, `mcp/`, `proc/`, `SOP`) and the tool invocation contract. | [`/mnt` Projection](/profiles/tool-projection/) |
 | `agentrc/platform/v0.1` | **Platform conformance** — runtime behaviour: read labels, grant / narrow / reject, project requests, fetch `--runtime` resources, substitute via `.origin`, enforce, boot `CMD`. | [Platform Conformance](/profiles/runner-conformance/) |
 | `agentrc/workflow/v0.1` | The **deferred**, non-normative multi-agent workflow companion (out of scope for 0.1.0-draft.6). | Workflow orchestration is parked for a future draft. |
@@ -41,7 +41,7 @@ engine. Splitting conformance into profiles keeps each surface implementable and
 lets an implementation advertise precisely what it does.
 
 The boundary that matters most: **build conformance** (`agentrc/agentfile/v0.1`)
-is the compiler — it reads the Agentfile and emits `org.agentrc.*` labels —
+is the compiler — it reads the Agentfile and emits `ai.agentrc.*` labels —
 while **platform conformance** (`agentrc/platform/v0.1`) reads those labels and
 grants / projects / enforces them. Every profile other than build conformance
 consumes **labels**, never the Agentfile source. The suite enforces that
@@ -58,11 +58,11 @@ many positive cases it passes.
 
 | ID | Profile | Given | Expect |
 |---|---|---|---|
-| `agentfile-parse-minimal` | agentfile | The minimal valid Agentfile (`# syntax=agentrc.agentfile/v0.1`, `FROM`, `IDENTITY`, `SOP`, `CMD`) | Parses; instruction order preserved; `org.agentrc.identity.*` and `org.agentrc.sop` labels emitted |
-| `policy-to-label` | agentfile | `POLICY model.name claude-opus-4` | Emits `org.agentrc.model.name=claude-opus-4` (short form prefixed with `org.agentrc.`) |
-| `add-remote-runtime-recorded` | agentfile | `ADD --remote --runtime <url> /mnt/mcp/github` | No embedded layer; emits `org.agentrc.mcp.github=runtime:<url>` |
-| `oci-roundtrip` | oci-labels | A built artifact | Push, pull by digest, and inspect reproduce identical layers, config, and `org.agentrc.*` labels |
-| `egress-granted-allowed` | enforcement | A granted `org.agentrc.network.dns.api.github.com=443` request | `Action::"NetworkEgress"` to `Host::"api.github.com:443"` is allowed |
+| `agentfile-parse-minimal` | agentfile | The minimal valid Agentfile (`# syntax=agentrc.agentfile/v0.1`, `FROM`, `IDENTITY`, `SOP`, `CMD`) | Parses; instruction order preserved; `ai.agentrc.identity.*` and `ai.agentrc.sop` labels emitted |
+| `policy-to-label` | agentfile | `POLICY model.name claude-opus-4` | Emits `ai.agentrc.model.name=claude-opus-4` (short form prefixed with `ai.agentrc.`) |
+| `add-remote-runtime-recorded` | agentfile | `ADD --remote --runtime <url> /mnt/mcp/github` | No embedded layer; emits `ai.agentrc.mcp.github=runtime:<url>` |
+| `oci-roundtrip` | oci-labels | A built artifact | Push, pull by digest, and inspect reproduce identical layers, config, and `ai.agentrc.*` labels |
+| `egress-granted-allowed` | enforcement | A granted `ai.agentrc.network.dns.api.github.com=443` request | `Action::"NetworkEgress"` to `Host::"api.github.com:443"` is allowed |
 | `mnt-projection-readable` | projection | A built artifact with tools and an SOP | `/mnt/tools/*` are executable; `/mnt/SOP` is a readable file; `/mnt/proc` is populated at boot |
 
 ### Adversarial / fail-closed cases
@@ -72,14 +72,14 @@ correct outcome.
 
 | ID | Profile | Given | MUST |
 |---|---|---|---|
-| `build-labels-identical` | agentfile | The **same** Agentfile built via the BuildKit frontend and via `arc build` | Produce an **identical** OCI artifact and identical `org.agentrc.*` labels — two front doors, one compiler |
-| `sop-pointer-not-inlined` | agentfile | A large `SOP` (heredoc or file-backed) | Embed it at `/mnt/SOP` and emit only `org.agentrc.sop=/mnt/SOP` + `org.agentrc.sop.sha256=<digest>` — **never** the full text in a label |
+| `build-labels-identical` | agentfile | The **same** Agentfile built via the BuildKit frontend and via `arc build` | Produce an **identical** OCI artifact and identical `ai.agentrc.*` labels — two front doors, one compiler |
+| `sop-pointer-not-inlined` | agentfile | A large `SOP` (heredoc or file-backed) | Embed it at `/mnt/SOP` and emit only `ai.agentrc.sop=/mnt/SOP` + `ai.agentrc.sop.sha256=<digest>` — **never** the full text in a label |
 | `unknown-request-denied` | enforcement | A request with no matching grant in the compiled `PolicySet` | **Deny** (deny-by-default); an unrecognised or un-granted request is never silently honoured |
 | `forbid-overrides-permit` | enforcement | An org `forbid` against an agent request that a `permit` would otherwise allow | **Deny**, **order-independently** — `forbid` always wins |
 | `child-widens-parent-fails` | enforcement | A child agent (`FROM another-agent`) whose requests exceed the parent's ceiling | Effective authorization is the **intersection** of ceilings; the widening request is rejected (a parent `forbid` is un-loosenable) |
-| `auto-egress-not-implicit` | enforcement | A `POLICY agent.hooks.pre <url>` that auto-derives `org.agentrc.network.dns.<host>` with `…source=auto:agent.hooks.pre` | The platform MUST still **grant** the derived egress; if ungranted → **deny**. Auto-derivation is convenience, never an implicit grant |
+| `auto-egress-not-implicit` | enforcement | A `POLICY agent.hooks.pre <url>` that auto-derives `ai.agentrc.network.dns.<host>` with `…source=auto:agent.hooks.pre` | The platform MUST still **grant** the derived egress; if ungranted → **deny**. Auto-derivation is convenience, never an implicit grant |
 | `runtime-fetch-failclosed` | platform | An `ADD --remote --runtime --fail-if-unavailable` resource that is unreachable at boot | **Refuse to boot** (fail closed); never start the agent with the required resource missing |
-| `embedded-override-origin` | platform | An embedded MCP/skill whose `org.agentrc.<kind>.<name>.origin` is rewritten to an internal mirror at deploy time | Fetch from the **mirror** and run, **without rebuilding** the artifact |
+| `embedded-override-origin` | platform | An embedded MCP/skill whose `ai.agentrc.<kind>.<name>.origin` is rewritten to an internal mirror at deploy time | Fetch from the **mirror** and run, **without rebuilding** the artifact |
 
 A platform or compiler that claims a profile but fails any of that profile's
 adversarial cases is **not conformant** to that profile, regardless of how many
@@ -104,7 +104,7 @@ is labeled honestly rather than implied away.
 As of this Working Draft, a reference implementation of both build paths (the
 BuildKit frontend and the native `agentrc` / `arc` CLI — see
 [`tooling/`](https://github.com/adeelahmad/agentrc/tree/master/tooling))
-covers Agentfile parsing and `org.agentrc.*` label emission
+covers Agentfile parsing and `ai.agentrc.*` label emission
 (`agentrc/agentfile/v0.1`) and produces a standard OCI artifact
 (`agentrc/oci-labels/v0.1`). A complete Cedar evaluator and the full adversarial
 fail-closed suite for `agentrc/enforcement-cedar/v0.1` and `agentrc/platform/v0.1`

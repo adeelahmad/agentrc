@@ -114,7 +114,7 @@ without adding a keyword, renaming the `substrate.*` POLICY namespace or the
   suggested. Existing §8.5/§8.6 are left untouched. T17: tokens
   `aws|gcp|azure|kubernetes|local`; unknown tokens MUST parse, foreign-platform keys
   ignored (never error; linter MAY warn); labels
-  `org.agentrc.substrate.<platform>.<key>=<value>`; platform-scoped beats generic on
+  `ai.agentrc.substrate.<platform>.<key>=<value>`; platform-scoped beats generic on
   that platform only; tightening-only across `FROM` per namespace; AWS registry
   `roleArn`/`networkMode`/`securityGroup`(rep.)/`subnet`(rep.)/`protocol`/`maxLifetime`/`deployment.mode`
   (`container` default|`code`)/`code.s3.uri`. T18: `agent.auth.mode` (`platform`
@@ -187,7 +187,7 @@ without adding a keyword, renaming the `substrate.*` POLICY namespace or the
 
 ### S2-04 — Backend translators (T22, T23, T24)
 
-- **What's wanted:** Three fail-closed reference translators mapping `org.agentrc.*`
+- **What's wanted:** Three fail-closed reference translators mapping `ai.agentrc.*`
   labels + image config → each platform's native config, each asserted through
   `--dry-run` output. T22 `local`: wire the existing microsandbox VMM MVP under
   `--backend local` (default); plumbing only + §0.8 positioning line. T23 `bedrock`:

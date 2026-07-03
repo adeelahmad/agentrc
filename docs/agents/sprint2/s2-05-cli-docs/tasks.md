@@ -16,7 +16,7 @@ In `cli.md`:
 - `sign` (`cli.md:99`) and `verify` (`cli.md:100`) stay `planned` (they remain stubs — do
   NOT flip them; M-002).
 - Place the §0.8 positioning line VERBATIM ABOVE the table: "Reference translators — a proof
-  of concept until platforms read `org.agentrc.*` labels natively. Not production runners."
+  of concept until platforms read `ai.agentrc.*` labels natively. Not production runners."
 - Ensure no `--substrate` mention survives anywhere in `cli.md` (§V.8) and the "Agentfile
   never names a substrate" / `POLICY substrate.*` request wording stays intact (§0.2).
 

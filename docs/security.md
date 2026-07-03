@@ -8,7 +8,7 @@ permalink: /docs/security/
 
 agentrc separates **what an agent requests** from **what a platform enforces**.
 An author writes a Dockerfile-shaped [Agentfile](/docs/agentfile/); the build
-emits namespaced `org.agentrc.*` OCI labels; the platform reads **those labels**
+emits namespaced `ai.agentrc.*` OCI labels; the platform reads **those labels**
 — never the Agentfile source — and **grants, narrows, or rejects** each request,
 then enforces the result with [Cedar](https://www.cedarpolicy.com/),
 platform-side. The Agentfile expresses *intent*; the platform holds *authority*.
@@ -21,22 +21,22 @@ platform-side. The Agentfile expresses *intent*; the platform holds *authority*.
 
 Every security-relevant boundary is **declared** as a label the compiler emits
 from authored intent, and **enforced** by the platform's Cedar engine. Authors
-write the short forms; the compiler prepends `org.agentrc.`.
+write the short forms; the compiler prepends `ai.agentrc.`.
 
 | Boundary | Declared as (authored → label) | Enforced by |
 |---|---|---|
-| **Network egress** | `POLICY network dns:api.github.com:443` → `org.agentrc.network.dns.api.github.com=443` | Platform Cedar: `Action::"NetworkEgress"` on `Host::"<host>:<port>"` |
-| **Tools** | `COPY ./tools/x /mnt/tools/x` → `org.agentrc.tool.x=local` (presence label) | Platform Cedar: `Action::"tool.invoke"` on `Tool::"<name>"` |
-| **MCP servers** | `ADD --remote … /mnt/mcp/x` → `org.agentrc.mcp.x=<digest|runtime:url>` (+ `.origin`) | Platform Cedar: `Action::"mcp.request"` on `MCPServer::"<name>"` |
-| **Devices** | `POLICY substrate.device /dev/gpu` → `org.agentrc.substrate.device=/dev/gpu` | Platform Cedar: `Action::"device.access"` on `Device::"<dev>"` |
-| **Sub-agents** | `POLICY agent.sub_agents true` → `org.agentrc.agent.sub_agents=true` (capped by `sub_agents.max`) | Platform Cedar: `Action::"agent.delegate"` on `Agent::*` |
+| **Network egress** | `POLICY network dns:api.github.com:443` → `ai.agentrc.network.dns.api.github.com=443` | Platform Cedar: `Action::"NetworkEgress"` on `Host::"<host>:<port>"` |
+| **Tools** | `COPY ./tools/x /mnt/tools/x` → `ai.agentrc.tool.x=local` (presence label) | Platform Cedar: `Action::"tool.invoke"` on `Tool::"<name>"` |
+| **MCP servers** | `ADD --remote … /mnt/mcp/x` → `ai.agentrc.mcp.x=<digest|runtime:url>` (+ `.origin`) | Platform Cedar: `Action::"mcp.request"` on `MCPServer::"<name>"` |
+| **Devices** | `POLICY substrate.device /dev/gpu` → `ai.agentrc.substrate.device=/dev/gpu` | Platform Cedar: `Action::"device.access"` on `Device::"<dev>"` |
+| **Sub-agents** | `POLICY agent.sub_agents true` → `ai.agentrc.agent.sub_agents=true` (capped by `sub_agents.max`) | Platform Cedar: `Action::"agent.delegate"` on `Agent::*` |
 
 The platform sees a uniform, machine-readable manifest of *everything the agent
 asks for* — tools, network, devices, MCP servers, and sub-agents — and vets it
 before the agent runs.
 
 > Secrets are **deferred** in this draft — no `SECRET`/`CRED` keyword and no
-> `org.agentrc.secret.*` schema; credential resolution is platform-defined and
+> `ai.agentrc.secret.*` schema; credential resolution is platform-defined and
 > out of scope for now.
 
 ## Auto-derived egress is explicit, not implicit
@@ -47,8 +47,8 @@ When a `POLICY` value is a URL the agent will call out to — `agent.hooks.*` or
 silent network hole:
 
 ```text
-org.agentrc.network.dns.hooks.internal=443
-org.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
+ai.agentrc.network.dns.hooks.internal=443
+ai.agentrc.network.dns.hooks.internal.source=auto:agent.hooks.pre
 ```
 
 Auto-derivation is an ergonomic convenience, **not** an implicit grant. The
@@ -79,16 +79,16 @@ platform must still grant the derived egress; an un-granted one is denied.
 Cedar is the platform's **enforcement engine and compilation target**, not an
 author surface. For each granted request the platform derives Cedar entities and
 evaluates them. The principal is the agent identity
-(`org.agentrc.identity.name`); the action and resource come from the request
+(`ai.agentrc.identity.name`); the action and resource come from the request
 namespace:
 
 | Request label | Cedar action | Cedar resource |
 |---|---|---|
-| `org.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
-| `org.agentrc.tool.<name>` | `Action::"tool.invoke"` | `Tool::"<name>"` |
-| `org.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
-| `org.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
-| `org.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
+| `ai.agentrc.network.dns.<host>=<port>` | `Action::"NetworkEgress"` | `Host::"<host>:<port>"` |
+| `ai.agentrc.tool.<name>` | `Action::"tool.invoke"` | `Tool::"<name>"` |
+| `ai.agentrc.mcp.<name>` | `Action::"mcp.request"` | `MCPServer::"<name>"` |
+| `ai.agentrc.agent.sub_agents=true` | `Action::"agent.delegate"` | `Agent::*` (capped by `sub_agents.max`) |
+| `ai.agentrc.substrate.device=<dev>` | `Action::"device.access"` | `Device::"<dev>"` |
 
 The agent's `POLICY` requests are the **floor of intent**; the organization's own
 Cedar policies (authored out-of-band by the security team) are the **ceiling of

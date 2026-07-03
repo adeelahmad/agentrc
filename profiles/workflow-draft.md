@@ -30,7 +30,7 @@ Two related but distinct things are deferred to a later version:
    governance algebra across an agent-to-agent call). This is **out of scope for
    0.1.0-draft.6**. Note that capability *exposure* is already in scope: an agent advertises
    what it is and what it does through `IDENTITY`, `CAPABILITY`, and the resulting
-   `org.agentrc.*` labels. What is deferred is the *protocol* for one agent to
+   `ai.agentrc.*` labels. What is deferred is the *protocol* for one agent to
    find and invoke another.
 2. **This workflow companion** — an external orchestrator that runs several
    *packaged* agents in sequence or in parallel. It references each agent by its
@@ -53,7 +53,7 @@ sketches only the former.
    that invokes packaged agents; it is **not** part of the Agentfile core, and it
    does not change how an individual agent is built or governed.
 4. **Authority composes by tightening.** Each agent invoked in a workflow is
-   still subject to the platform reading its `org.agentrc.*` labels and
+   still subject to the platform reading its `ai.agentrc.*` labels and
    granting / narrowing / rejecting each request, enforced platform-side via
    Cedar (deny-by-default, `forbid` over `permit`, monotonic across `FROM`). A
    workflow-level ceiling, if present, can only **narrow** what each step's agent
@@ -115,7 +115,7 @@ spec:
 
 Each `agent:` value is a packaged OCI artifact pinned by digest. When the engine
 runs a step, the underlying platform pulls that artifact, reads its
-`org.agentrc.*` labels, and grants / narrows / rejects each request before
+`ai.agentrc.*` labels, and grants / narrows / rejects each request before
 booting `CMD` — exactly as it would for a standalone run. The workflow adds
 control flow around those agents; it does not bypass their governance.
 

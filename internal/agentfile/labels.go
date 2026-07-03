@@ -23,7 +23,7 @@ type LabelOptions struct {
 	Created   string // -> org.opencontainers.image.created (RFC 3339)
 }
 
-// BuildLabels translates f into the org.agentrc.* label set per
+// BuildLabels translates f into the ai.agentrc.* label set per
 // spec/index.md §9 and profiles/oci-package.md §3. Callers must populate
 // f.LocalResources (from the real Dockerfile COPY/ADD instructions —
 // internal/llb does this after parsing f.CleanedSource) and each RemoteAdd's
@@ -33,14 +33,14 @@ func BuildLabels(f *File, opts LabelOptions) (map[string]string, error) {
 	labels := map[string]string{}
 
 	for k, v := range f.Identity {
-		labels["org.agentrc.identity."+k] = v
+		labels["ai.agentrc.identity."+k] = v
 	}
 	for _, c := range f.Capabilities {
-		labels["org.agentrc.capability."+c] = "true"
+		labels["ai.agentrc.capability."+c] = "true"
 	}
 
 	if f.SOP != nil {
-		labels["org.agentrc.sop"] = "/mnt/SOP"
+		labels["ai.agentrc.sop"] = "/mnt/SOP"
 		digest := opts.SOPSHA256
 		if !f.SOP.FileBacked {
 			digest = hashString(f.SOP.Content)
@@ -48,14 +48,14 @@ func BuildLabels(f *File, opts LabelOptions) (map[string]string, error) {
 		if digest == "" {
 			return nil, fmt.Errorf("SOP is file-backed but no digest was resolved")
 		}
-		labels["org.agentrc.sop.sha256"] = digest
+		labels["ai.agentrc.sop.sha256"] = digest
 	}
 
 	for _, r := range f.LocalResources {
 		if r.Kind == KindSOP || r.Kind == KindOther || r.Name == "" {
 			continue
 		}
-		labels["org.agentrc."+string(r.Kind)+"."+r.Name] = "local"
+		labels["ai.agentrc."+string(r.Kind)+"."+r.Name] = "local"
 	}
 
 	for _, ra := range f.RemoteAdds {
@@ -64,7 +64,7 @@ func BuildLabels(f *File, opts LabelOptions) (map[string]string, error) {
 			continue // SOP file-backed digest is handled above; KindOther isn't a labeled resource
 		}
 		name := path.Base(ra.Dest)
-		prefix := "org.agentrc." + string(kind) + "." + name
+		prefix := "ai.agentrc." + string(kind) + "." + name
 
 		if ra.Runtime || ra.ResolvedDigest == "" {
 			// --runtime, or a --cached resource that couldn't be resolved
@@ -83,15 +83,15 @@ func BuildLabels(f *File, opts LabelOptions) (map[string]string, error) {
 			if err != nil {
 				return nil, fmt.Errorf("line %d: POLICY network: %w", p.Line, err)
 			}
-			labels["org.agentrc.network.dns."+host] = port
+			labels["ai.agentrc.network.dns."+host] = port
 			continue
 		}
 
-		labels["org.agentrc."+p.Key] = p.Value
+		labels["ai.agentrc."+p.Key] = p.Value
 
 		if isAutoEgressKey(p.Key) {
 			if host, port, ok := hostPortFromURL(p.Value); ok {
-				key := "org.agentrc.network.dns." + host
+				key := "ai.agentrc.network.dns." + host
 				if _, exists := labels[key]; !exists {
 					labels[key] = port
 					labels[key+".source"] = "auto:" + p.Key

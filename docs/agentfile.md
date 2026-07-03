@@ -39,7 +39,7 @@ documented extension.
 | `COPY` | Add **local** tools, skills, MCP bundles, or an SOP file into the `/mnt` tree. |
 | `ADD` | Add **remote** resources via `--remote` plus delivery flags (`--cached` / `--runtime`, `--fail-if-unavailable` / `--warn-if-unavailable`). |
 | `HEALTHCHECK` | Liveness probe; MAY invoke a projected tool. |
-| `LABEL` | Standard OCI metadata; available for hand-authored `org.agentrc.*` metadata. |
+| `LABEL` | Standard OCI metadata; available for hand-authored `ai.agentrc.*` metadata. |
 | `ENV` / `ARG` / `WORKDIR` / `USER` / `EXPOSE` / `RUN` | Standard Dockerfile semantics, unchanged. |
 
 ## The `/mnt` projection layout
@@ -87,9 +87,9 @@ HEALTHCHECK --interval=60s --timeout=15s CMD /mnt/tools/file_read --agentrc-sche
 ```
 
 At build time the compiler translates this into namespaced OCI labels under
-`org.agentrc.*` — for example `org.agentrc.identity.name=hello`,
-`org.agentrc.model.name=claude-sonnet-4`, and
-`org.agentrc.network.dns.api.example.com=443`. The platform reads **labels**, not
+`ai.agentrc.*` — for example `ai.agentrc.identity.name=hello`,
+`ai.agentrc.model.name=claude-sonnet-4`, and
+`ai.agentrc.network.dns.api.example.com=443`. The platform reads **labels**, not
 the Agentfile.
 
 ## Platform-scoped requests and invocation auth
@@ -140,4 +140,4 @@ Fail-closed: a platform that cannot enforce the requested `jwt` authorizer must
 - The [Specification](/spec/) is the single source of truth — full grammar, the
   `POLICY` namespaces, build-time label translation, and runtime behaviour.
 - The [Core profile](/profiles/core/) defines how a conformant compiler parses
-  the Agentfile and emits `org.agentrc.*` labels.
+  the Agentfile and emits `ai.agentrc.*` labels.

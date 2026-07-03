@@ -23,7 +23,7 @@ line between them:
 
 | Concern | Status in v0.1 |
 |---|---|
-| **Capability *exposure*** — declaring who the agent is and what modalities / patterns it supports, via `IDENTITY`, `CAPABILITY`, and the resulting `org.agentrc.*` labels. | **In scope.** Part of the [spec](/spec/). |
+| **Capability *exposure*** — declaring who the agent is and what modalities / patterns it supports, via `IDENTITY`, `CAPABILITY`, and the resulting `ai.agentrc.*` labels. | **In scope.** Part of the [spec](/spec/). |
 | **The A2A *protocol*** — Agent Cards, agent discovery, cross-agent delegation, and the governance algebra across an agent-to-agent call. | **Deferred.** Not in this version (see the spec's [deferred list](/spec/)). |
 | **External workflow orchestration** — a state machine that drives several packaged agents, referenced by digest, from outside any one Agentfile. | **Deferred, non-normative.** Sketched on this page; **not** part of the Agentfile core and **distinct** from the A2A protocol. |
 
@@ -38,7 +38,7 @@ The companion workflow profile would reference packaged agents by an **immutable
 registry reference or digest** — the same OCI artifacts produced by
 [`arc build`](/cli/) — and define state-machine orchestration *separately* from
 agent packaging. Each referenced agent is still an ordinary agentrc artifact: the
-platform reads its `org.agentrc.*` labels and grants, narrows, or rejects its
+platform reads its `ai.agentrc.*` labels and grants, narrows, or rejects its
 requests, enforcing them via Cedar (platform-side, [deny-by-default](/profiles/security/)),
 exactly as it would for a standalone agent. The workflow layer adds no new
 authority of its own; it only sequences agents the platform already governs.
@@ -81,7 +81,7 @@ different problem from packaging **one** agent into a reviewable, governed OCI
 artifact. Folding it into the Agentfile would blur the single-agent contract that
 makes an Agentfile easy to review and a platform easy to build.
 
-agentrc keeps those layers separate: the Agentfile and its `org.agentrc.*` labels
+agentrc keeps those layers separate: the Agentfile and its `ai.agentrc.*` labels
 describe and govern one agent; any cross-agent orchestration lives in a separate,
 later companion — and the agent-to-agent *protocol* itself remains deferred.
 
