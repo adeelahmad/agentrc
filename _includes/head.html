@@ -12,8 +12,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
   <meta name="description" content="{{ page.description | default: site.description }}">
-  <meta name="theme-color" content="#060912" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0A0E14" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F6F8FA" media="(prefers-color-scheme: light)">
+  <link rel="preload" href="{{ '/assets/fonts/jetbrains-mono-latin-wght-normal.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/satoshi-700.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
   <link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/brand/favicon-32.png' | relative_url }}">
   <link rel="icon" type="image/png" sizes="16x16" href="{{ '/assets/brand/favicon-16.png' | relative_url }}">
