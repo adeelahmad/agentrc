@@ -62,7 +62,7 @@ func TestBuildLabelsRemoteResources(t *testing.T) {
 	if labels["ai.agentrc.skill.code-review"] != "sha256:deadbeef" {
 		t.Errorf("skill label = %q", labels["ai.agentrc.skill.code-review"])
 	}
-	if labels["ai.agentrc.skill.code-review.origin"] != "https://registry.agentrc.io/skills/code-review:1.2.3" {
+	if labels["ai.agentrc.skill.code-review.origin"] != "https://registry.example.com/skills/code-review:1.2.3" {
 		t.Errorf("skill origin label = %q", labels["ai.agentrc.skill.code-review.origin"])
 	}
 	if labels["ai.agentrc.mcp.github"] != "runtime:mcp://registry.internal.acme/servers/github:latest" {

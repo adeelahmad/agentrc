@@ -122,7 +122,7 @@ func TestTranslateCodeReviewerRemoteResources(t *testing.T) {
 	if labels["ai.agentrc.skill.code-review"] == "" || labels["ai.agentrc.skill.code-review"] == "local" {
 		t.Errorf("skill label = %q, want a resolved digest", labels["ai.agentrc.skill.code-review"])
 	}
-	if labels["ai.agentrc.skill.code-review.origin"] != "https://registry.agentrc.io/skills/code-review:1.2.3" {
+	if labels["ai.agentrc.skill.code-review.origin"] != "https://registry.example.com/skills/code-review:1.2.3" {
 		t.Errorf("skill origin = %q", labels["ai.agentrc.skill.code-review.origin"])
 	}
 	// The --runtime mcp server must stay reference-only.
