@@ -78,26 +78,37 @@ func inspectRemoteArtifact(cmd *cobra.Command, ref string) error {
 	ctx, cancel := withRegistryTimeout(cmd)
 	defer cancel()
 
+	// Prefer a locally-built image (e.g. `arc build -t hello .` before pushing),
+	// read through the user's own docker (which knows the active context);
+	// fall back to the registry for a pushed reference.
+	if labels, _, ok := localImageConfig(ref); ok {
+		printAgentrcLabels(cmd, labels)
+		return nil
+	}
+
 	r, err := name.ParseReference(ref)
 	if err != nil {
 		return fmt.Errorf("parsing reference %q: %w", ref, err)
 	}
 	img, err := remote.Image(r, remote.WithContext(ctx), remote.WithAuthFromKeychain(authn.DefaultKeychain))
 	if err != nil {
-		return fmt.Errorf("fetching %s: %w", ref, err)
+		return fmt.Errorf("inspecting %s: not found as a local image and not pullable from a registry: %w", ref, err)
 	}
 	cfg, err := img.ConfigFile()
 	if err != nil {
 		return fmt.Errorf("reading config for %s: %w", ref, err)
 	}
+	printAgentrcLabels(cmd, cfg.Config.Labels)
+	return nil
+}
 
+func printAgentrcLabels(cmd *cobra.Command, labels map[string]string) {
 	w := cmd.OutOrStdout()
-	for _, k := range sortedKeys(cfg.Config.Labels) {
+	for _, k := range sortedKeys(labels) {
 		if strings.HasPrefix(k, "org.agentrc.") {
-			fmt.Fprintf(w, "%s=%s\n", k, cfg.Config.Labels[k])
+			fmt.Fprintf(w, "%s=%s\n", k, labels[k])
 		}
 	}
-	return nil
 }
 
 func sortedKeys(m map[string]string) []string {
