@@ -285,7 +285,7 @@ A package conforms to this profile (`agentrc/oci-labels/v0.1`) when:
 
 1. It is a valid OCI artifact whose embedded `/mnt` resources are carried as
    standard layers.
-2. Its image config carries the `ai.agentrc.*` labels per [§3](#3-the-orgagentrc-label-catalog),
+2. Its image config carries the `ai.agentrc.*` labels per [§3](#3-the-aiagentrc-label-catalog),
    matching the spec build tables ([spec §9](/spec/)).
 3. SOP appears only as a `/mnt/SOP` pointer + `sop.sha256` digest, never as inline
    label text.
