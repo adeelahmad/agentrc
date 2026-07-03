@@ -88,7 +88,13 @@ func newRunCmd() *cobra.Command {
 				return fmt.Errorf("--isolation is only valid for --backend local (got backend %q)", backend)
 			}
 			if dryRun {
-				out, err := translate(backend, representativeLabels(args[0]))
+				labels := representativeLabels(args[0])
+				if real, env, ok := localImageConfig(args[0]); ok {
+					labels = agentLabelSet(args[0], real, env)
+				} else {
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: %s is not a local image; showing a representative example. Build it (arc build -t %s .) or push it, then re-run.\n", args[0], args[0])
+				}
+				out, err := translate(backend, labels)
 				if err != nil {
 					return err
 				}
