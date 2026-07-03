@@ -56,6 +56,18 @@
       .catch(function () { window.open(url, '_blank', 'noopener'); });
   });
 
+  // Copy a literal string (e.g. the install one-liner) from [data-copy].
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-copy]') : null;
+    if (!btn) return;
+    var text = btn.getAttribute('data-copy');
+    if (!text || !navigator.clipboard || !navigator.clipboard.writeText) return;
+    navigator.clipboard.writeText(text).then(function () {
+      btn.classList.add('is-copied');
+      setTimeout(function () { btn.classList.remove('is-copied'); }, 1400);
+    }).catch(function () {});
+  });
+
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     var listener = function () {
