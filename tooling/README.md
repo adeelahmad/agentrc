@@ -71,16 +71,17 @@ custom registry client to maintain; the local Docker/OCI credential store
 
 ## Using the BuildKit frontend directly
 
-Build and load the frontend image locally first:
+`agentrc build` defaults `--frontend-image` to the **published** frontend
+(`ghcr.io/adeelahmad/agentrc-frontend`, pinned to the CLI's release version, or
+`:latest` for dev builds) and forces `DOCKER_BUILDKIT=1`, so a plain
+`arc build .` works out of the box against any BuildKit-enabled daemon.
+
+To hack on the frontend itself, build it locally and point `--frontend-image` at it:
 
 ```bash
 docker build -t local/agentrc-frontend:dev -f Dockerfile.frontend .
-```
-
-Then either let `agentrc build` invoke it (the default `--frontend-image`
-is `local/agentrc-frontend:dev`), or drive it directly:
-
-```bash
+arc build --frontend-image local/agentrc-frontend:dev -t hello:dev .
+# or drive docker directly:
 docker build -f examples/Agentfile.minimal \
   --build-arg BUILDKIT_SYNTAX=local/agentrc-frontend:dev \
   -t hello:dev examples
