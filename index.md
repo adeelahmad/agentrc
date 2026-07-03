@@ -38,9 +38,9 @@ deny-default
     <div class="term-window">
       <div class="term-bar">
         <span class="term-dots"><i></i><i></i><i></i></span>
-        <span class="term-title">agentrc:~$ <b>cat Agentfile</b></span>
+        <span class="term-title">agentrc:~$ <b id="tcmd">cat Agentfile</b></span>
       </div>
-      <div class="term-body"><pre><code><span class="c"># syntax=agentrc.agentfile/v0.1</span>
+      <div class="term-body" id="tbody"><pre><code><span class="c"># syntax=agentrc.agentfile/v0.1</span>
 <span class="k">FROM</span> python:3.11-slim
 <span class="k">IDENTITY</span> name=hello version=0.1 author=acme
 <span class="k">IDENTITY</span> description=<span class="s">"Minimal agentrc agent"</span>
@@ -58,7 +58,7 @@ deny-default
 <span class="k">POLICY</span> network dns:api.example.com:443
 
 <span class="k">HEALTHCHECK</span> --interval=60s CMD /mnt/tools/file_read --agentrc-schema</code></pre></div>
-      <div class="term-status"><span>arc lint: ok</span><span>compiles to OCI + <code>org.agentrc.*</code> labels</span><span>policy reviewable</span></div>
+      <div class="term-status" id="tstatus"><span>arc lint: ok</span><span>compiles to OCI + <code>org.agentrc.*</code> labels</span><span>policy reviewable</span></div>
     </div>
   </div>
 </section>
@@ -175,6 +175,7 @@ ghcr.io/you/hello:0.1</code></pre>
 <p class="muted" style="font-size:.84rem;margin-top:1.1rem">The project is published as a standards-style repository: specification first, reference tooling second.</p>
 
 <script>
+/* Hero headline typewriter — animates on load (runs even with reduced-motion, by request). */
 (function () {
   var el = document.getElementById('rotator');
   if (!el) return;
@@ -183,20 +184,71 @@ ghcr.io/you/hello:0.1</code></pre>
     'a federation of trust, developer to agent',
     'secure boundaries for agentic apps'
   ];
-  // Respect reduced-motion: leave the static first phrase in place.
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var pi = 0, ci = phrases[0].length, deleting = true;
+  var pi = 0, ci = 0, deleting = false;
+  el.textContent = '';
   function tick() {
     var p = phrases[pi];
     if (!deleting) {
       ci++; el.textContent = p.slice(0, ci);
       if (ci === p.length) { deleting = true; return setTimeout(tick, 1900); }
-      return setTimeout(tick, 45);
+      return setTimeout(tick, 55);
     }
     ci--; el.textContent = p.slice(0, ci);
     if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; return setTimeout(tick, 420); }
     return setTimeout(tick, 28);
   }
-  setTimeout(tick, 2000);
+  setTimeout(tick, 350);
+})();
+
+/* Hero terminal — cycles: cat Agentfile → compiled OCI labels → Bedrock deploy config. */
+(function () {
+  var cmd = document.getElementById('tcmd'),
+      body = document.getElementById('tbody'),
+      status = document.getElementById('tstatus');
+  if (!cmd || !body || !status) return;
+  var frames = [
+    {
+      cmd: 'cat Agentfile',
+      body: body.innerHTML, // the Agentfile as authored (frame 0, also the no-JS view)
+      status: '<span>arc lint: ok</span><span>Dockerfile-shaped</span><span>policy reviewable</span>'
+    },
+    {
+      cmd: 'arc build -t ghcr.io/you/hello:0.1 .',
+      body: '<pre><code><span class="c"># the build translates intent into OCI labels</span>\n' +
+            '<span class="k">org.agentrc.identity.name</span>=hello\n' +
+            '<span class="k">org.agentrc.capability</span>=text\n' +
+            '<span class="k">org.agentrc.model.name</span>=claude-sonnet-4\n' +
+            '<span class="k">org.agentrc.agent.tool_timeout</span>=30s\n' +
+            '<span class="k">org.agentrc.network.dns.api.example.com</span>=443\n' +
+            '<span class="k">org.agentrc.tool.file_read</span>=/mnt/tools/file_read\n' +
+            '<span class="k">org.agentrc.sop.sha256</span>=<span class="s">a1b2c3…</span></code></pre>',
+      status: '<span>compiled → OCI</span><span>7 <code>org.agentrc.*</code> labels</span><span>signed &amp; portable</span>'
+    },
+    {
+      cmd: 'arc run …hello:0.1 --backend bedrock --dry-run',
+      body: '<pre><code><span class="c"># same labels → a backend deploy config</span>\n' +
+            '<span class="p">{</span>\n' +
+            '  <span class="k">"agentRuntimeName"</span>: <span class="s">"hello"</span>,\n' +
+            '  <span class="k">"containerUri"</span>: <span class="s">"ghcr.io/you/hello:0.1"</span>,\n' +
+            '  <span class="k">"roleArn"</span>: <span class="s">"arn:aws:iam::…:role/agent"</span>,\n' +
+            '  <span class="k">"networkMode"</span>: <span class="s">"PUBLIC"</span>,\n' +
+            '  <span class="k">"serverProtocol"</span>: <span class="s">"HTTP"</span>,\n' +
+            '  <span class="k">"environmentVariables"</span>: <span class="p">{</span> <span class="k">"LOG_LEVEL"</span>: <span class="s">"info"</span> <span class="p">}</span>\n' +
+            '<span class="p">}</span></code></pre>',
+      status: '<span>translated → Bedrock</span><span>CreateAgentRuntime</span><span>same artifact, any substrate</span>'
+    }
+  ];
+  var i = 0;
+  body.style.transition = 'opacity .4s ease';
+  function show(next) {
+    body.style.opacity = '0';
+    setTimeout(function () {
+      cmd.textContent = frames[next].cmd;
+      body.innerHTML = frames[next].body;
+      status.innerHTML = frames[next].status;
+      body.style.opacity = '1';
+    }, 400);
+  }
+  setInterval(function () { i = (i + 1) % frames.length; show(i); }, 4200);
 })();
 </script>
