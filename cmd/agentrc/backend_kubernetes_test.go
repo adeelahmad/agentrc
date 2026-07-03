@@ -23,7 +23,7 @@ func fullK8sLabels() map[string]string {
 		"env.LOG_LEVEL":                                   "info",
 		"ai.agentrc.network.dns.api.github.com":          "443",
 		"ai.agentrc.substrate.kubernetes.serviceAccount": "agent-sa",
-		"ai.agentrc.mcp.github":                          "runtime:https://registry.agentrc.io/mcp/github:latest",
+		"ai.agentrc.mcp.github":                          "runtime:https://registry.example.com/mcp/github:latest",
 	}
 }
 
