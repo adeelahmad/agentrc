@@ -7,8 +7,9 @@ permalink: /
 <section class="hero">
   <div>
     <div class="eyebrow">Open specification</div>
-    <h1 style="margin:.3rem 0 .8rem;min-height:2.3em"><span id="rotator">portable, governed ai agents</span><span class="term-cursor" aria-hidden="true">_</span></h1>
-    <p class="lead"><strong style="color:var(--text-strong)">Like <code>bashrc</code> or <code>zshrc</code>, but for an agent.</strong> An Agentfile declares one AI agent's identity, capabilities, system prompt, and tools, plus its requests for models, resources, and network — as typed policy a security team can review. Package it as an OCI artifact; compatible runners execute and enforce it. Not a runtime, cloud, model provider, or agent framework.</p>
+    <h1 style="margin:.3rem 0 .5rem">portable, governed ai <span style="color:var(--accent)">agents<span class="term-cursor" aria-hidden="true">_</span></span></h1>
+    <div class="type-line"><span class="pr">agentrc:~$</span> <span id="rotator">like bashrc, but for an agent</span><span class="term-cursor" aria-hidden="true">_</span></div>
+    <p class="lead">An Agentfile declares one agent — identity, tools, typed policy. The build compiles it to an OCI artifact whose <strong style="color:var(--text-strong)">boundaries travel with it</strong>: lint them in CI and run it unchanged on local, Bedrock, or Kubernetes. Not a runtime, cloud, or framework.</p>
     <div class="cta-row">
       <a class="button primary" href="{{ '/spec/' | relative_url }}">Read the specification →</a>
       <a class="button" href="{{ '/docs/quickstart/' | relative_url }}">Start with an Agentfile</a>
@@ -19,21 +20,21 @@ permalink: /
     </div>
   </div>
   <div class="term-col">
-    <pre class="ascii-rain" aria-hidden="true">01 &gt; { } _ /mnt
+    <pre class="ascii-rain" aria-hidden="true">boundaries ==
+egress: denied
+.source=auto
 =&gt; POLICY 10
-arc build ..
-0x1f 4a2b &gt;_
+arc lint ✓
+envelope ==
+oci://ghcr..
 IDENTITY ::
+ci: red
 { agent } //
-CAPABILITY 1
-SOP -&gt; run
-label 0.1.0
-$ arc lint _
+arc test ✓
+deny-default
 network:443
 grant|narrow
-oci://ghcr..
-04a2 &gt; 1101
-deny-default
+label 0.1.6
 &gt;_ cedar ok</pre>
     <div class="term-window">
       <div class="term-bar">
@@ -180,9 +181,11 @@ ghcr.io/you/hello:0.1</code></pre>
   var el = document.getElementById('rotator');
   if (!el) return;
   var phrases = [
-    'portable, governed ai agents',
-    'a federation of trust, developer to agent',
-    'secure boundaries for agentic apps'
+    'like bashrc, but for an agent',
+    'policy, not hope. deny by default.',
+    'boundaries travel with the artifact',
+    'the security review is already in the labels',
+    'build once. run local, bedrock, kubernetes.'
   ];
   var pi = 0, ci = 0, deleting = false;
   el.textContent = '';
