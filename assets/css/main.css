@@ -178,7 +178,8 @@ blockquote { border-left: 3px solid var(--accent); margin:1.2rem 0; padding:.2re
 .install-oneliner { margin: 1.3rem 0 .4rem; }
 .install-oneliner .install-label { display: inline-block; font-family: var(--font-mono); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); margin-bottom: .45rem; }
 .install-oneliner pre { font-size: .95rem; padding: 1.05rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-color: var(--line-strong); box-shadow: var(--shadow-holo); }
-.get-started .grid .card pre { margin: .2rem 0 0; font-size: .82rem; background: transparent; border: none; padding: 0; }
+.get-started .grid .card pre { margin: .2rem 0 0; font-size: .82rem; background: transparent; border: none; padding: 0; color: var(--text-strong); }
+.get-started .grid .card pre code, .get-started .grid .card .cmd { color: var(--text-strong); }
 .get-started .grid .card p.muted { margin: .55rem 0 0; font-size: .8rem; }
 
 .cmd { font-family: var(--font-mono); font-size: .82rem; color: var(--code-text); }
@@ -189,7 +190,8 @@ blockquote { border-left: 3px solid var(--accent); margin:1.2rem 0; padding:.2re
 .steps li::before { content: counter(step); display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: transparent; border: 1px solid var(--accent); font-family: var(--font-mono); font-weight: 700; color: var(--accent); font-size: .85rem; }
 .steps li > div { min-width: 0; }
 .steps .step-k { display: block; font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .16em; font-weight: 600; color: var(--accent); margin-bottom: .3rem; }
-.steps li pre { margin: 0; font-size: .82rem; background: transparent; border: none; padding: 0; }
+.steps li pre { margin: 0; font-size: .82rem; background: transparent; border: none; padding: 0; color: var(--text-strong); }
+.steps li pre code { color: var(--text-strong); }
 
 /* ── Docs shell ────────────────────────────────────────────────────────── */
 .doc-shell { max-width: var(--max); margin: 0 auto; padding: 1rem var(--gutter) 4rem; display: grid; grid-template-columns: 245px minmax(0, 1fr); gap: 2rem; align-items: start; }
