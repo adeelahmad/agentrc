@@ -58,6 +58,58 @@ func Validate(f *File) []Issue {
 		issues = append(issues, validatePolicy(p)...)
 	}
 
+	issues = append(issues, validateInstructions(f.CleanedSource)...)
+
+	return issues
+}
+
+// retiredKeywords are directives from pre-draft.5 agentrc (and never-valid
+// keywords from other tools) that must not appear as leading tokens. SHELL is
+// intentionally excluded — it is a valid Dockerfile instruction.
+var retiredKeywords = map[string]bool{
+	"AGENT": true, "TOOL": true, "TOOLSET": true, "FUNCTION": true, "SKILL": true,
+	"SERVER": true, "MCP": true, "URL": true, "CRED": true, "BIND": true,
+	"MOUNT": true, "PLUGIN": true, "ALLOW": true, "DENY": true, "RATELIMIT": true,
+	"TIMEOUT": true, "LIMIT": true, "SLICE": true, "IMAGE": true, "ISOLATION": true,
+	"BROKER": true, "BACKEND": true, "TRACE": true, "MEMORY": true, "OPTIMIZER": true,
+	"AUDIT": true, "SECRET": true,
+	// Never-were agentrc keywords that show up in YAML-era / hand-written mistakes.
+	"SYSTEM": true, "RUNTIME": true, "MODEL": true, "NETWORK": true,
+	"CAPABILITIES": true, "PROMPT": true, "PACKAGING": true,
+}
+
+// validateInstructions scans the cleaned Dockerfile source (agent keywords
+// already blanked, line numbers preserved) for a required FROM and for retired
+// or never-valid leading directives that would otherwise fail silently at lint
+// and only blow up at build time.
+func validateInstructions(cleaned []byte) []Issue {
+	var issues []Issue
+	hasFROM := false
+	cont := false
+	for i, raw := range strings.Split(string(cleaned), "\n") {
+		endsBackslash := strings.HasSuffix(strings.TrimRight(raw, " \t"), "\\")
+		if cont { // continuation of a previous instruction (e.g. a multi-line RUN)
+			cont = endsBackslash
+			continue
+		}
+		cont = endsBackslash
+		line := strings.TrimSpace(raw)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		tok := strings.ToUpper(strings.Fields(line)[0])
+		if tok == "FROM" {
+			hasFROM = true
+			continue
+		}
+		if retiredKeywords[tok] {
+			issues = append(issues, errIssue(i+1,
+				"%q is a retired/legacy directive, not a valid instruction — the four agentrc keywords are IDENTITY, CAPABILITY, SOP, POLICY; tools, skills, and MCP servers are COPY/ADD --remote into /mnt", tok))
+		}
+	}
+	if !hasFROM {
+		issues = append(issues, errIssue(0, "Agentfile must declare a FROM base image (spec §2)"))
+	}
 	return issues
 }
 
