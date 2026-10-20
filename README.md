@@ -86,3 +86,5 @@ agentrc builds on [Agent SOP](https://github.com/strands-agents/agent-sop) (an i
 ## License
 
 [Apache License 2.0](LICENSE). Maintained by [Adeel Ahmad](https://www.linkedin.com/in/adeelahmadch).
+
+<img src="https://www.google-analytics.com/g/collect?v=2&amp;tid=G-RKFB16BPXJ&amp;cid=555.agentrc&amp;en=page_view&amp;dl=https%3A%2F%2Fgithub.com%2Fadeelahmad%2Fagentrc&amp;dt=agentrc&amp;ep.repo=agentrc" width="1" height="1" alt="">
